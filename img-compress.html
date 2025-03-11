@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Compress JPG, PNG, GIF images instantly. Boost SEO and website speed with Singh Digital Hub's free compression tool.">
+    <title>Image Compression Tool - Singh Digital Hub</title>
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            text-align: center;
+            background: #f5f6fa;
+        }
+        .upload-box {
+            border: 2px dashed #007bff;
+            padding: 30px;
+            margin: 20px 0;
+            cursor: pointer;
+            background: #fff;
+            transition: 0.3s;
+        }
+        .upload-box:hover {
+            background: #e3f2fd;
+        }
+        #preview {
+            max-width: 100%;
+            margin: 20px 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .stats {
+            margin: 15px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <h1>Image Compressor</h1>
+    <p>Optimize images for faster websites and better SEO</p>
+
+    <!-- Upload Area -->
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        🖼️ Drag and drop or click to upload image
+    </div>
+    <input type="file" id="fileInput" accept="image/*" hidden>
+
+    <!-- Preview & Controls -->
+    <img id="preview">
+    <div class="stats" id="stats"></div>
+    <button onclick="compressImage()" id="compressBtn" disabled>Compress & Download</button>
+
+    <!-- AdSense Integration -->
+    <div style="margin: 30px auto;">
+        <!-- Replace with your AdSense code -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-pub-9239182778221521"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"></ins>
+    </div>
+
+    <script>
+        // JavaScript Logic
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const compressBtn = document.getElementById('compressBtn');
+        const statsDiv = document.getElementById('stats');
+
+        // Handle File Selection
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    compressBtn.disabled = false;
+                    statsDiv.innerHTML = `
+                        Original Size: ${(file.size/1024).toFixed(2)} KB<br>
+                        Format: ${file.type.split('/')[1].toUpperCase()}
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Compression Logic
+        function compressImage(quality = 0.7) {
+            const img = new Image();
+            img.src = preview.src;
+
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Set canvas dimensions (max 800px width)
+                const scale = Math.min(1, 800 / img.width);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Convert to JPEG
+                canvas.toBlob((blob) => {
+                    const link = document.createElement('a');
+                    link.download = `compressed-${Date.now()}.jpg`;
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                    
+                    // Update stats
+                    statsDiv.innerHTML += `<br>Compressed Size: ${(blob.size/1024).toFixed(2)} KB`;
+                    URL.revokeObjectURL(link.href);
+                }, 'image/jpeg', quality);
+            };
+        }
+
+        // Initialize AdSense
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
+</html>
