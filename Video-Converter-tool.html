@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Converter Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input, select, button {
+            margin: 10px;
+            padding: 10px;
+            width: 80%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #28a745;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        #output {
+            margin-top: 20px;
+        }
+
+        #downloadLink {
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        #downloadLink:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Video Converter Tool</h1>
+        <input type="file" id="videoInput" accept="video/*">
+        
+        <label for="format">Select Output Format:</label>
+        <select id="format">
+            <option value="mp4">MP4</option>
+            <option value="avi">AVI</option>
+            <option value="webm">WebM</option>
+            <option value="mkv">MKV</option>
+        </select>
+
+        <button id="convertBtn">Convert Video</button>
+
+        <div id="output">
+            <p id="status"></p>
+            <a id="downloadLink" style="display: none;" download="converted-video.mp4">Download Converted Video</a>
+        </div>
+    </div>
+
+    <script>
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        const ffmpeg = createFFmpeg({ log: true });
+
+        document.getElementById("convertBtn").addEventListener("click", async () => {
+            const inputFile = document.getElementById("videoInput").files[0];
+            const outputFormat = document.getElementById("format").value;
+
+            if (!inputFile) {
+                alert("Please select a video file.");
+                return;
+            }
+
+            if (!ffmpeg.isLoaded()) {
+                document.getElementById("status").innerText = "Loading FFmpeg...";
+                await ffmpeg.load();
+            }
+
+            const inputFileName = "input." + inputFile.name.split(".").pop();
+            const outputFileName = "output." + outputFormat;
+
+            ffmpeg.FS("writeFile", inputFileName, await fetchFile(inputFile));
+
+            document.getElementById("status").innerText = "Converting...";
+            await ffmpeg.run("-i", inputFileName, outputFileName);
+
+            const data = ffmpeg.FS("readFile", outputFileName);
+            const blob = new Blob([data.buffer], { type: `video/${outputFormat}` });
+
+            const url = URL.createObjectURL(blob);
+            const downloadLink = document.getElementById("downloadLink");
+            downloadLink.href = url;
+            downloadLink.download = "converted-video." + outputFormat;
+            downloadLink.style.display = "block";
+
+            document.getElementById("status").innerText = "Conversion Completed!";
+        });
+    </script>
+</body>
+</html>
