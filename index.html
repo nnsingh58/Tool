@@ -3,275 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Tools Website</title>
+    <meta name="description" content="All-in-One Digital Toolkit - Image, PDF, Document Conversion and More">
+    <title>Digital Tools Hub - Your Ultimate Online Toolkit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
         }
 
         body {
-            background: #f0f2f5;
-            text-align: center;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: #f8f9fa;
         }
 
-        /* Header and Navigation */
-        header {
-            background: #1a73e8;
-            padding: 15px;
-        }
-
-        .menu {
-            list-style: none;
-            padding: 0;
-            text-align: center;
-        }
-
-        .menu li {
-            display: inline;
-            margin: 0 15px;
-        }
-
-        .menu li a {
+        .header {
+            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
             color: white;
-            text-decoration: none;
-            font-size: 18px;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Tool Buttons */
-        .tool-buttons {
-            margin: 20px auto;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 10px;
-            text-decoration: none;
-            background: #28a745;
-            color: white;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .btn:hover {
-            background: #218838;
-        }
-
-        /* Upload Section */
-        .upload-section {
-            border: 2px dashed #1a73e8;
-            padding: 30px;
-            text-align: center;
-            margin: 20px auto;
-            border-radius: 5px;
-            background: white;
-        }
-
-        #fileInput, #pdfFile {
-            display: none;
-        }
-
-        .custom-file-upload {
-            background: #1a73e8;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            display: inline-block;
-            margin: 10px;
-        }
-
-        .format-select {
-            margin: 20px 0;
-        }
-
-        select {
-            padding: 8px 15px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        #convertBtn {
-            background: #1a73e8;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            display: block;
+        .nav {
+            max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        #convertBtn:hover {
-            background: #1557b0;
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
         }
 
-        #status {
-            margin-top: 20px;
-            color: #666;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #eee;
-            border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
-            display: none;
-        }
-
-        .progress {
-            width: 0%;
-            height: 100%;
-            background: #1a73e8;
-            transition: width 0.3s ease;
-        }
-
-        #downloadLink {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-            color: #1a73e8;
-            text-decoration: none;
-        }
-
-        /* Footer */
-        footer {
-            margin-top: 20px;
-            background: #1a73e8;
+        .nav-links a {
             color: white;
-            padding: 10px;
+            text-decoration: none;
+            margin-left: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #00c851;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+
+        .tools-grid {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 1.5rem;
+            height: 100%;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tool-icon {
+            font-size: 2.5rem;
+            color: #4e4376;
+            margin-bottom: 1rem;
+        }
+
+        .features {
+            background: white;
+            padding: 4rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .footer {
+            background: #2b5876;
+            color: white;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <ul class="menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="#tools">Tools</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">ToolHub</div>
+            <div class="nav-links">
+                <a href="#tools">Tools</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+                <a href="#contact">Contact</a>
+            </div>
         </nav>
     </header>
 
-    <h1>Welcome to My Tools Website</h1>
+    <section class="hero">
+        <h1>Your All-in-One Digital Toolkit</h1>
+        <p>Convert, compress, and transform files with ease</p>
+        <a href="#tools" class="cta-button">Explore Tools</a>
+    </section>
 
-    <!-- Tool Buttons -->
-    <div class="tool-buttons">
-        <a href="#pdfToWord" class="btn">PDF to Word</a>
-        <a href="#videoConverter" class="btn">Video Converter</a>
-    </div>
+    <main>
+        <section id="tools" class="tools-grid">
+            <!-- Image Compression Card with Link -->
+            <div class="tool-card">
+                <a href="img-compress.html" class="tool-link">
+                    <i class="fas fa-file-image tool-icon"></i>
+                    <h3>Image Compression</h3>
+                    <p>Optimize images for web with lossless compression</p>
+                </a>
+            </div>
 
-    <!-- PDF to Word Tool -->
-    <div class="upload-section" id="pdfToWord">
-        <h2>PDF to Word Converter</h2>
-        <input type="file" id="pdfFile" accept=".pdf">
-        <label for="pdfFile" class="custom-file-upload">Choose PDF File</label>
-        <p id="pdfFileName">No file selected</p>
-        <button id="convertPdfBtn">Convert to Word</button>
-    </div>
+            <!-- PDF to Word Card -->
+            <div class="tool-card">
+                <a href="pdf-to-word.html" class="tool-link">
+                    <i class="fas fa-file-pdf tool-icon"></i>
+                    <h3>PDF to Word</h3>
+                    <p>Convert PDF documents to editable Word files</p>
+                </a>
+            </div>
 
-    <!-- Video Converter Tool -->
-    <div class="upload-section" id="videoConverter">
-        <h2>Video Converter</h2>
-        <input type="file" id="fileInput" accept="video/*">
-        <label for="fileInput" class="custom-file-upload">Choose Video File</label>
-        <p id="fileName">No file selected</p>
+            <!-- Other Tools -->
+            <div class="tool-card">
+                <a href="video-converter.html" class="tool-link">
+                    <i class="fas fa-file-video tool-icon"></i>
+                    <h3>Video Converter</h3>
+                    <p>Convert video files between formats</p>
+                </a>
+            </div>
 
-        <div class="format-select">
-            <select id="formatSelect">
-                <option value="mp4">MP4</option>
-                <option value="webm">WEBM</option>
-                <option value="mov">MOV</option>
-                <option value="avi">AVI</option>
-                <option value="mkv">MKV</option>
-            </select>
+            <div class="tool-card">
+                <a href="document-converter.html" class="tool-link">
+                    <i class="fas fa-file-alt tool-icon"></i>
+                    <h3>Document Converter</h3>
+                    <p>Convert between DOC, PDF, TXT and more</p>
+                </a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Fast Processing</h3>
+                    <p>Quick conversions without quality loss</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Secure & Private</h3>
+                    <p>Files deleted automatically after processing</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Free to Use</h3>
+                    <p>No registration required</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <h4>ToolHub</h4>
+                <p>Your ultimate digital toolkit</p>
+            </div>
+            <div>
+                <h4>Tools</h4>
+                <p>Image Tools</p>
+                <p>PDF Tools</p>
+                <p>Video Tools</p>
+            </div>
+            <div>
+                <h4>Support</h4>
+                <p>Contact Us</p>
+                <p>FAQ</p>
+                <p>Documentation</p>
+            </div>
         </div>
-
-        <button id="convertBtn">Convert Now</button>
-
-        <div class="progress-bar">
-            <div class="progress"></div>
-        </div>
-
-        <div id="status"></div>
-        <a id="downloadLink" download>Download Converted File</a>
-    </div>
-
-    <footer>
-        <p>© 2025 My Tools Website | <a href="#contact">Contact Us</a></p>
     </footer>
-
-    <script>
-        // PDF to Word Converter Script
-        document.getElementById("pdfFile").addEventListener("change", function() {
-            document.getElementById("pdfFileName").textContent = this.files[0].name;
-        });
-
-        document.getElementById("convertPdfBtn").addEventListener("click", function() {
-            alert("PDF to Word conversion feature coming soon!");
-        });
-
-        // Video Converter Script
-        const fileInput = document.getElementById('fileInput');
-        const formatSelect = document.getElementById('formatSelect');
-        const convertBtn = document.getElementById('convertBtn');
-        const status = document.getElementById('status');
-        const progressBar = document.querySelector('.progress-bar');
-        const progress = document.querySelector('.progress');
-        const downloadLink = document.getElementById('downloadLink');
-        const fileName = document.getElementById('fileName');
-
-        let selectedFile = null;
-
-        fileInput.addEventListener('change', function(e) {
-            selectedFile = e.target.files[0];
-            fileName.textContent = selectedFile ? selectedFile.name : 'No file selected';
-        });
-
-        convertBtn.addEventListener('click', async () => {
-            if (!selectedFile) {
-                alert('Please select a file first!');
-                return;
-            }
-
-            convertBtn.disabled = true;
-            status.textContent = 'Processing...';
-            progressBar.style.display = 'block';
-
-            const convertedFile = await convertVideo(selectedFile, formatSelect.value);
-
-            downloadLink.href = URL.createObjectURL(convertedFile);
-            downloadLink.download = `converted.${formatSelect.value}`;
-            downloadLink.style.display = 'block';
-            status.textContent = 'Conversion complete!';
-            convertBtn.disabled = false;
-            progressBar.style.display = 'none';
-        });
-
-        async function convertVideo(file, format) {
-            return new Promise((resolve) => {
-                let progressValue = 0;
-                const interval = setInterval(() => {
-                    progressValue += 10;
-                    progress.style.width = `${progressValue}%`;
-                    if (progressValue >= 100) {
-                        clearInterval(interval);
-                        resolve(new File([file], `converted.${format}`, { type: `video/${format}` }));
-                    }
-                }, 300);
-            });
-        }
-    </script>
 </body>
-</html>
+</html>       implement new code in old code
