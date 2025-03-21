@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        input[type="file"], select, button {
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+            padding: 10px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Document Converter</h2>
+        <input type="file" id="docFile" accept=".pdf,.doc,.docx,.txt">
+        <select id="format">
+            <option value="pdf">Convert to PDF</option>
+            <option value="docx">Convert to DOCX</option>
+            <option value="txt">Convert to TXT</option>
+        </select>
+        <button onclick="convertDocument()">Convert</button>
+    </div>
+    <script>
+        async function convertDocument() {
+            const fileInput = document.getElementById("docFile");
+            const format = document.getElementById("format").value;
+            if (fileInput.files.length === 0) {
+                alert("Please select a file.");
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = async function () {
+                const textDecoder = new TextDecoder();
+                const content = textDecoder.decode(new Uint8Array(reader.result));
+                let convertedBlob;
+                if (format === "txt") {
+                    convertedBlob = new Blob([content], { type: "text/plain" });
+                } else if (format === "docx") {
+                    convertedBlob = new Blob([content], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+                } else if (format === "pdf") {
+                    const { jsPDF } = await import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+                    const doc = new jsPDF();
+                    doc.text(content, 10, 10);
+                    convertedBlob = doc.output("blob");
+                }
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(convertedBlob);
+                link.download = file.name.split(".")[0] + "." + format;
+                link.click();
+            };
+        }
+    </script>
+</body>
+</html>
