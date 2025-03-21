@@ -3,255 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="All-in-One Digital Toolkit - Image, PDF, Document Conversion and More">
-    <title>Digital Tools Hub - Your Ultimate Online Toolkit</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Digital Tools Hub</title>
     <style>
+        /* Global Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background: #f8f9fa;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
-            color: white;
-            padding: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .nav {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            margin-left: 2rem;
-        }
-
-        .hero {
+            background: #f0f2f5;
             text-align: center;
-            padding: 4rem 1rem;
-            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
-            color: white;
+            padding: 20px;
         }
 
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        /* Header and Navigation */
+        header {
+            background: #1a73e8;
+            padding: 15px;
         }
 
-        .cta-button {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: #00c851;
+        .menu {
+            list-style: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        .menu li {
+            display: inline;
+            margin: 0 15px;
+        }
+
+        .menu li a {
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            margin-top: 1.5rem;
-            transition: transform 0.3s ease;
+            font-size: 18px;
         }
 
-        .cta-button:hover {
-            transform: translateY(-2px);
-        }
-
-        .tools-grid {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .tool-card {
+        /* About Section */
+        .about-section {
             background: white;
+            padding: 40px;
+            margin: 20px auto;
             border-radius: 10px;
-            text-align: center;
-            transition: transform 0.3s ease;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            position: relative;
-            overflow: hidden;
+            max-width: 800px;
         }
 
-        .tool-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            padding: 1.5rem;
-            height: 100%;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .tool-icon {
-            font-size: 2.5rem;
-            color: #4e4376;
-            margin-bottom: 1rem;
-        }
-
-        .features {
+        /* Contact Section */
+        .contact-section {
             background: white;
-            padding: 4rem 1rem;
-            margin-top: 3rem;
+            padding: 40px;
+            margin: 20px auto;
+            border-radius: 10px;
+            max-width: 600px;
         }
 
-        .features-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+        .contact-section input, .contact-section textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
-        .feature-card {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .footer {
-            background: #2b5876;
+        .contact-section button {
+            background: #1a73e8;
             color: white;
-            padding: 2rem 1rem;
-            margin-top: 3rem;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .tools-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Footer */
+        footer {
+            margin-top: 20px;
+            background: #1a73e8;
+            color: white;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">ToolHub</div>
-            <div class="nav-links">
-                <a href="#tools">Tools</a>
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-            </div>
+    <header>
+        <nav>
+            <ul class="menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#tools">Tools</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
         </nav>
     </header>
 
-    <section class="hero">
-        <h1>Your All-in-One Digital Toolkit</h1>
-        <p>Convert, compress, and transform files with ease</p>
-        <a href="#tools" class="cta-button">Explore Tools</a>
+    <h1>Welcome to My Tools Website</h1>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <h2>About Us</h2>
+        <p>Digital Tools Hub provides the best online tools for file conversion, compression, and more. We aim to make digital tasks easier and faster for everyone.</p>
     </section>
 
-    <main>
-        <section id="tools" class="tools-grid">
-            <!-- Image Compression Card with Link -->
-            <div class="tool-card">
-                <a href="img-compress.html" class="tool-link">
-                    <i class="fas fa-file-image tool-icon"></i>
-                    <h3>Image Compression</h3>
-                    <p>Optimize images for web with lossless compression</p>
-                </a>
-            </div>
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2>Contact Us</h2>
+        <form>
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Your Email" required>
+            <textarea placeholder="Your Message" rows="5" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+    </section>
 
-            <!-- PDF to Word Card -->
-            <div class="tool-card">
-                <a href="pdf-to-word.html" class="tool-link">
-                    <i class="fas fa-file-pdf tool-icon"></i>
-                    <h3>PDF to Word</h3>
-                    <p>Convert PDF documents to editable Word files</p>
-                </a>
-            </div>
-
-            <!-- Other Tools -->
-            <div class="tool-card">
-                <a href="video-converter.html" class="tool-link">
-                    <i class="fas fa-file-video tool-icon"></i>
-                    <h3>Video Converter</h3>
-                    <p>Convert video files between formats</p>
-                </a>
-            </div>
-
-            <div class="tool-card">
-                <a href="document-converter.html" class="tool-link">
-                    <i class="fas fa-file-alt tool-icon"></i>
-                    <h3>Document Converter</h3>
-                    <p>Convert between DOC, PDF, TXT and more</p>
-                </a>
-            </div>
-        </section>
-
-        <section class="features">
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Fast Processing</h3>
-                    <p>Quick conversions without quality loss</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Secure & Private</h3>
-                    <p>Files deleted automatically after processing</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Free to Use</h3>
-                    <p>No registration required</p>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div>
-                <h4>ToolHub</h4>
-                <p>Your ultimate digital toolkit</p>
-            </div>
-            <div>
-                <h4>Tools</h4>
-                <p>Image Tools</p>
-                <p>PDF Tools</p>
-                <p>Video Tools</p>
-            </div>
-            <div>
-                <h4>Support</h4>
-                <p>Contact Us</p>
-                <p>FAQ</p>
-                <p>Documentation</p>
-            </div>
-        </div>
+    <footer>
+        <p>© 2025 My Tools Website | <a href="#contact">Contact Us</a></p>
     </footer>
 </body>
 </html>
