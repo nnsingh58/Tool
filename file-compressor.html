@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Compressor - ToolHub</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            padding: 2rem;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 1.5rem;
+        }
+        input, button {
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+        button {
+            background: #00d4ff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #00b7d9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File Compressor</h1>
+        <input type="file" id="fileInput">
+        <button onclick="compressFile()">Compress File</button>
+        <p id="fileResult"></p>
+    </div>
+
+    <script>
+        function compressFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                document.getElementById('fileResult').textContent = `Compressing ${file.name}... (Placeholder)`;
+                // Add compression logic (e.g., JSZip)
+            } else {
+                document.getElementById('fileResult').textContent = 'Please select a file.';
+            }
+        }
+    </script>
+</body>
+</html>
