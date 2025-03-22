@@ -4,34 +4,67 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
-
+<!-- Created with Free Online Sitemap Generator www.xml-sitemaps.com and updated by Grok -->
 
 <url>
   <loc>https://nnsingh58.github.io/Tool/</loc>
-  <lastmod>2025-03-21T08:59:28+00:00</lastmod>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
   <priority>1.00</priority>
 </url>
 <url>
   <loc>https://nnsingh58.github.io/Tool/img-compress.html</loc>
-  <lastmod>2025-03-21T08:59:28+00:00</lastmod>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://nnsingh58.github.io/Tool/pdf-to-word.html</loc>
-  <lastmod>2025-03-21T08:59:28+00:00</lastmod>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
   <loc>https://nnsingh58.github.io/Tool/video-converter.html</loc>
-  <lastmod>2025-03-21T08:59:28+00:00</lastmod>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
 <url>
-  <loc>https://nnsingh58.github.io/Tool/document-converter.html</loc>
-  <lastmod>2025-03-21T08:59:28+00:00</lastmod>
+  <loc>https://nnsingh58.github.io/Tool/audio-converter.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
   <priority>0.80</priority>
 </url>
-
+<url>
+  <loc>https://nnsingh58.github.io/Tool/file-compressor.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://nnsingh58.github.io/Tool/qr-generator.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://nnsingh58.github.io/Tool/img-to-pdf.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://nnsingh58.github.io/Tool/text-to-speech.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://nnsingh58.github.io/Tool/voice-translator.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://nnsingh58.github.io/Tool/img-format-converter.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://nnsingh58.github.io/Tool/doc-format-converter.html</loc>
+  <lastmod>2025-03-22T00:00:00+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
 
 </urlset>
