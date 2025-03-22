@@ -47,12 +47,74 @@
     <div class="container">
         <h1>Voice Translator</h1>
         <select id="sourceLang">
-            <option value="en">English</option>
+            <!-- English Variants (UK, US) -->
+            <option value="en-GB">English (UK)</option>
+            <option value="en-US">English (US)</option>
+            <!-- European Languages -->
             <option value="es">Spanish</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <!-- Asian Languages -->
+            <option value="zh-CN">Chinese (Simplified)</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="th">Thai</option>
+            <option value="vi">Vietnamese</option>
+            <option value="id">Indonesian</option>
+            <!-- Indian Languages -->
+            <option value="hi">Hindi</option>
+            <option value="bn">Bengali</option>
+            <option value="te">Telugu</option>
+            <option value="ta">Tamil</option>
+            <option value="mr">Marathi</option>
+            <option value="gu">Gujarati</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="pa">Punjabi</option>
+            <option value="or">Odia</option>
+            <option value="as">Assamese</option>
+            <option value="mai">Maithili</option>
+            <option value="bo">Bodo</option>
+            <option value="ks">Kashmiri</option>
+            <option value="ne">Nepali</option>
+            <option value="si">Sinhala</option>
+            <option value="ur">Urdu</option>
         </select>
         <select id="targetLang">
+            <!-- English Variants (UK, US) -->
+            <option value="en-GB">English (UK)</option>
+            <option value="en-US">English (US)</option>
+            <!-- European Languages -->
             <option value="es">Spanish</option>
-            <option value="en">English</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+            <option value="it">Italian</option>
+            <!-- Asian Languages -->
+            <option value="zh-CN">Chinese (Simplified)</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="th">Thai</option>
+            <option value="vi">Vietnamese</option>
+            <option value="id">Indonesian</option>
+            <!-- Indian Languages -->
+            <option value="hi">Hindi</option>
+            <option value="bn">Bengali</option>
+            <option value="te">Telugu</option>
+            <option value="ta">Tamil</option>
+            <option value="mr">Marathi</option>
+            <option value="gu">Gujarati</option>
+            <option value="kn">Kannada</option>
+            <option value="ml">Malayalam</option>
+            <option value="pa">Punjabi</option>
+            <option value="or">Odia</option>
+            <option value="as">Assamese</option>
+            <option value="mai">Maithili</option>
+            <option value="bo">Bodo</option>
+            <option value="ks">Kashmiri</option>
+            <option value="ne">Nepali</option>
+            <option value="si">Sinhala</option>
+            <option value="ur">Urdu</option>
         </select>
         <button onclick="startVoiceTranslation()">Start Recording</button>
         <p id="voiceResult"></p>
@@ -63,7 +125,7 @@
             const sourceLang = document.getElementById('sourceLang').value;
             const targetLang = document.getElementById('targetLang').value;
             document.getElementById('voiceResult').textContent = `Recording from ${sourceLang} to ${targetLang}... (Placeholder)`;
-            // Add Web Speech API or external API logic here
+            // Add Web Speech API or external API logic here for actual translation
         }
     </script>
 </body>
