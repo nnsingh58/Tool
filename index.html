@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="All-in-One Digital Toolkit - Image, PDF, Document Conversion and More">
+    <meta name="description" content="All-in-One Digital Toolkit - Essential Tools for Modern Needs">
     <title>Digital Tools Hub - Your Ultimate Online Toolkit</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -14,20 +14,24 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             line-height: 1.6;
-            background: #f8f9fa;
+            background: #f0f2f5;
+            color: #333;
         }
 
         .header {
-            background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
-            color: white;
-            padding: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
+            padding: 1.5rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         .nav {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -35,112 +39,174 @@
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
         }
 
         .nav-links a {
-            color: white;
+            color: #fff;
             text-decoration: none;
-            margin-left: 2rem;
+            margin-left: 2.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00d4ff;
         }
 
         .hero {
             text-align: center;
-            padding: 4rem 1rem;
-            background: linear-gradient(135deg, #4e4376 0%, #2b5876 100%);
+            padding: 8rem 2rem 5rem;
+            background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
             color: white;
+            margin-top: 80px;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
         }
 
         .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 2rem;
         }
 
         .cta-button {
             display: inline-block;
-            padding: 1rem 2rem;
-            background: #00c851;
+            padding: 1.2rem 3rem;
+            background: #00d4ff;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            margin-top: 1.5rem;
-            transition: transform 0.3s ease;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,212,255,0.4);
         }
 
         .cta-button:hover {
-            transform: translateY(-2px);
+            transform: translateY(-5px);
+            background: #00b7d9;
+            box-shadow: 0 6px 20px rgba(0,212,255,0.6);
         }
 
         .tools-grid {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 1300px;
+            margin: 4rem auto;
+            padding: 0 2rem;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
         }
 
         .tool-card {
             background: white;
-            border-radius: 10px;
+            border-radius: 15px;
             text-align: center;
-            transition: transform 0.3s ease;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
             overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .tool-link {
             text-decoration: none;
             color: inherit;
             display: block;
-            padding: 1.5rem;
+            padding: 2rem;
             height: 100%;
         }
 
         .tool-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
         }
 
         .tool-icon {
-            font-size: 2.5rem;
-            color: #4e4376;
+            font-size: 3rem;
+            color: #2a5298;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover .tool-icon {
+            transform: scale(1.1);
+        }
+
+        .tool-card h3 {
+            font-size: 1.5rem;
             margin-bottom: 1rem;
+            color: #1e3c72;
         }
 
         .features {
-            background: white;
-            padding: 4rem 1rem;
-            margin-top: 3rem;
+            background: #fff;
+            padding: 5rem 2rem;
+            margin-top: 4rem;
         }
 
         .features-grid {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
         }
 
         .feature-card {
             text-align: center;
-            padding: 2rem;
+            padding: 2.5rem;
+            background: #f8f9fa;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
 
         .footer {
-            background: #2b5876;
+            background: linear-gradient(120deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 2rem 1rem;
-            margin-top: 3rem;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+            clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
         }
 
         .footer-content {
-            max-width: 1200px;
+            max-width: 1300px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .footer h4 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .footer p {
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer p:hover {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @media (max-width: 768px) {
@@ -148,12 +214,17 @@
                 display: none;
             }
 
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+
             .hero h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
 
             .tools-grid {
                 grid-template-columns: 1fr;
+                padding: 0 1rem;
             }
         }
     </style>
@@ -173,44 +244,81 @@
 
     <section class="hero">
         <h1>Your All-in-One Digital Toolkit</h1>
-        <p>Convert, compress, and transform files with ease</p>
+        <p>Essential tools for modern needs - fast, secure, and free</p>
         <a href="#tools" class="cta-button">Explore Tools</a>
     </section>
 
     <main>
         <section id="tools" class="tools-grid">
-            <!-- Image Compression Card with Link -->
             <div class="tool-card">
                 <a href="img-compress.html" class="tool-link">
                     <i class="fas fa-file-image tool-icon"></i>
                     <h3>Image Compression</h3>
-                    <p>Optimize images for web with lossless compression</p>
+                    <p>Reduce image size without losing quality</p>
                 </a>
             </div>
 
-            <!-- PDF to Word Card -->
             <div class="tool-card">
                 <a href="pdf-to-word.html" class="tool-link">
                     <i class="fas fa-file-pdf tool-icon"></i>
                     <h3>PDF to Word</h3>
-                    <p>Convert PDF documents to editable Word files</p>
+                    <p>Convert PDFs to editable Word documents</p>
                 </a>
             </div>
 
-            <!-- Other Tools -->
             <div class="tool-card">
                 <a href="video-converter.html" class="tool-link">
                     <i class="fas fa-file-video tool-icon"></i>
                     <h3>Video Converter</h3>
-                    <p>Convert video files between formats</p>
+                    <p>Change video formats easily</p>
                 </a>
             </div>
 
             <div class="tool-card">
-                <a href="document-converter.html" class="tool-link">
-                    <i class="fas fa-file-alt tool-icon"></i>
-                    <h3>Document Converter</h3>
-                    <p>Convert between DOC, PDF, TXT and more</p>
+                <a href="audio-converter.html" class="tool-link">
+                    <i class="fas fa-file-audio tool-icon"></i>
+                    <h3>Audio Converter</h3>
+                    <p>Convert audio files between formats</p>
+                </a>
+            </div>
+
+            <div class="tool-card">
+                <a href="file-compressor.html" class="tool-link">
+                    <i class="fas fa-compress tool-icon"></i>
+                    <h3>File Compressor</h3>
+                    <p>Compress any file type to save space</p>
+                </a>
+            </div>
+
+            <div class="tool-card">
+                <a href="qr-generator.html" class="tool-link">
+                    <i class="fas fa-qrcode tool-icon"></i>
+                    <h3>QR Code Generator</h3>
+                    <p>Create QR codes instantly</p>
+                </a>
+            </div>
+
+            <div class="tool-card">
+                <a href="img-to-pdf.html" class="tool-link">
+                    <i class="fas fa-images tool-icon"></i>
+                    <h3>Image to PDF</h3>
+                    <p>Convert images to PDF documents</p>
+                </a>
+            </div>
+
+            <div class="tool-card">
+                <a href="text-to-speech.html" class="tool-link">
+                    <i class="fas fa-volume-up tool-icon"></i>
+                    <h3>Text to Speech</h3>
+                    <p>Convert text to natural-sounding audio</p>
+                </a>
+            </div>
+
+            <div class="tool-card">
+                <a href="voice-translator.html" class="tool-link">
+                    <i class="fas fa-microphone tool-icon"></i>
+                    <h3>Voice Translator</h3>
+                    <p>Real-time voice-to-voice translation</p>
                 </a>
             </div>
         </section>
@@ -219,15 +327,15 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <h3>Fast Processing</h3>
-                    <p>Quick conversions without quality loss</p>
+                    <p>Lightning-fast conversions</p>
                 </div>
                 <div class="feature-card">
                     <h3>Secure & Private</h3>
-                    <p>Files deleted automatically after processing</p>
+                    <p>End-to-end encryption</p>
                 </div>
                 <div class="feature-card">
-                    <h3>Free to Use</h3>
-                    <p>No registration required</p>
+                    <h3>Free Forever</h3>
+                    <p>No hidden costs</p>
                 </div>
             </div>
         </section>
@@ -241,17 +349,18 @@
             </div>
             <div>
                 <h4>Tools</h4>
-                <p>Image Tools</p>
-                <p>PDF Tools</p>
-                <p>Video Tools</p>
+                <p><a href="img-compress.html" style="color: white; text-decoration: none;">Image Tools</a></p>
+                <p><a href="pdf-to-word.html" style="color: white; text-decoration: none;">PDF Tools</a></p>
+                <p><a href="video-converter.html" style="color: white; text-decoration: none;">Video Tools</a></p>
+                <p><a href="voice-translator.html" style="color: white; text-decoration: none;">Voice Tools</a></p>
             </div>
             <div>
                 <h4>Support</h4>
-                <p>Contact Us</p>
-                <p>FAQ</p>
-                <p>Documentation</p>
+                <p><a href="#contact" style="color: white; text-decoration: none;">Contact Us</a></p>
+                <p><a href="#faq" style="color: white; text-decoration: none;">FAQ</a></p>
+                <p><a href="#docs" style="color: white; text-decoration: none;">Documentation</a></p>
             </div>
         </div>
     </footer>
 </body>
-</html>       implement new code in old code
+</html>
