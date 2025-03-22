@@ -41,6 +41,10 @@
         button:hover {
             background: #00b7d9;
         }
+        #voiceResult {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
@@ -121,11 +125,76 @@
     </div>
 
     <script>
+        // Your Google Cloud Translate API key
+        const API_KEY = 'AIzaSyCebJYGjWRbcxdIsM3PcfH9IjN09UhgiTI';
+
         function startVoiceTranslation() {
             const sourceLang = document.getElementById('sourceLang').value;
             const targetLang = document.getElementById('targetLang').value;
-            document.getElementById('voiceResult').textContent = `Recording from ${sourceLang} to ${targetLang}... (Placeholder)`;
-            // Add Web Speech API or external API logic here for actual translation
+            const resultElement = document.getElementById('voiceResult');
+
+            // Check if SpeechRecognition is supported
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                resultElement.textContent = "Sorry, your browser doesn't support Speech Recognition.";
+                return;
+            }
+
+            // Initialize Speech Recognition
+            const recognition = new SpeechRecognition();
+            recognition.lang = sourceLang; // Set the source language for recognition
+            recognition.interimResults = false; // Only final results
+            recognition.maxAlternatives = 1;
+
+            resultElement.textContent = "Listening... Please speak.";
+
+            recognition.onresult = (event) => {
+                const spokenText = event.results[0][0].transcript;
+                resultElement.textContent = `You said: "${spokenText}" - Translating...`;
+
+                // Call Google Translate API
+                fetch(`https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        q: spokenText,
+                        source: sourceLang.split('-')[0], // e.g., "en" from "en-GB"
+                        target: targetLang.split('-')[0], // e.g., "hi" from "hi"
+                        format: 'text'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data && data.data.translations) {
+                        const translatedText = data.data.translations[0].translatedText;
+                        resultElement.textContent = `Translated: "${translatedText}"`;
+
+                        // Speak the translated text
+                        const utterance = new SpeechSynthesisUtterance(translatedText);
+                        utterance.lang = targetLang; // Set the target language for speech
+                        window.speechSynthesis.speak(utterance);
+                    } else {
+                        resultElement.textContent = "Translation failed. Check API key or input.";
+                    }
+                })
+                .catch(error => {
+                    resultElement.textContent = `Error: ${error.message}`;
+                });
+            };
+
+            recognition.onerror = (event) => {
+                resultElement.textContent = `Error occurred: ${event.error}`;
+            };
+
+            recognition.onend = () => {
+                if (resultElement.textContent === "Listening... Please speak.") {
+                    resultElement.textContent = "No speech detected. Try again.";
+                }
+            };
+
+            recognition.start();
         }
     </script>
 </body>
