@@ -24,16 +24,16 @@
 <body>
     <div class="container">
         <h1>Image to PDF</h1>
-        <input type="file" id="imgFile" accept="image/*">
+        <input type="file" id="imgFile" accept="image/*" multiple>
         <button onclick="convertToPDF()">Convert to PDF</button>
         <div id="status"></div>
         <div id="result"></div>
         <div class="instructions">
             <p><strong>How to Use:</strong></p>
             <ul>
-                <li>Upload an image (max 5MB) using the "Choose File" button.</li>
-                <li>Click "Convert to PDF" to process the image.</li>
-                <li>Download the PDF file from the link.</li>
+                <li>Upload one or more images (max 50MB total) using the "Choose File" button.</li>
+                <li>Click "Convert to PDF" to process the images.</li>
+                <li>Download the PDF file (100-500 KB) from the link.</li>
             </ul>
         </div>
     </div>
@@ -46,35 +46,58 @@
 
         async function convertToPDF() {
             const fileInput = document.getElementById('imgFile');
+            const files = fileInput.files;
 
-            if (!fileInput.files[0]) {
-                statusDiv.innerHTML = "Please select an image.";
+            if (!files.length) {
+                statusDiv.innerHTML = "Please select at least one image.";
                 return;
             }
 
-            const file = fileInput.files[0];
-            if (file.size > 5 * 1024 * 1024) {
-                statusDiv.innerHTML = "File too large (max 5MB).";
+            let totalSize = 0;
+            for (let file of files) {
+                totalSize += file.size;
+            }
+            if (totalSize > 50 * 1024 * 1024) {
+                statusDiv.innerHTML = "Total file size exceeds 50MB.";
                 return;
             }
 
             statusDiv.innerHTML = "Processing...";
             try {
-                const img = new Image();
-                img.src = URL.createObjectURL(file);
-                await new Promise(resolve => img.onload = resolve);
+                const pdf = new jsPDF();
+                let firstImage = true;
 
-                const pdf = new jsPDF({
-                    orientation: img.width > img.height ? 'landscape' : 'portrait',
-                    unit: 'px',
-                    format: [img.width, img.height]
-                });
+                for (let file of files) {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(file);
+                    await new Promise(resolve => img.onload = resolve);
 
-                pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height);
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    // Compress image quality for smaller PDF size
+                    const imgData = canvas.toDataURL('image/jpeg', 0.3); // 0.3 = 30% quality
+
+                    if (!firstImage) pdf.addPage();
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
+                    const scaledWidth = imgWidth * ratio;
+                    const scaledHeight = imgHeight * ratio;
+
+                    pdf.addImage(imgData, 'JPEG', 0, 0, scaledWidth, scaledHeight);
+                    firstImage = false;
+                }
+
                 const pdfBlob = pdf.output('blob');
                 const url = URL.createObjectURL(pdfBlob);
 
-                resultDiv.innerHTML = `<a href="${url}" download="converted.pdf">Download PDF</a>`;
+                resultDiv.innerHTML = `<a href="${url}" download="converted.pdf">Download PDF (${(pdfBlob.size / 1024).toFixed(2)} KB)</a>`;
                 statusDiv.innerHTML = "Conversion complete!";
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
