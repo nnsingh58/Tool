@@ -5,62 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text to Speech - ToolHub</title>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            padding: 2rem;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-        }
-        textarea, button {
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
-        }
-        button {
-            background: #00d4ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #00b7d9;
+        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
+        .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1e3c72; font-size: clamp(20px, 5vw, 28px); }
+        textarea, select, input, button { padding: 8px; margin: 5px; font-size: clamp(12px, 3vw, 16px); width: 90%; max-width: 300px; border-radius: 5px; }
+        button { background: #00d4ff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #00b7d9; }
+        #status { margin-top: 10px; font-size: clamp(12px, 3vw, 16px); color: #2a5298; }
+        .instructions { font-size: clamp(12px, 3vw, 14px); color: #555; margin-top: 15px; text-align: left; padding: 0 10px; }
+        @media (min-width: 768px) { 
+            .container { padding: 20px; }
+            textarea, select, input, button { width: auto; display: inline-block; }
+            .instructions { padding: 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Text to Speech</h1>
-        <textarea id="ttsText" placeholder="Enter text to convert"></textarea>
-        <button onclick="convertTextToSpeech()">Convert to Speech</button>
-        <p id="ttsResult"></p>
+        <textarea id="textInput" rows="4" placeholder="Enter text here..."></textarea>
+        <select id="voiceSelect"></select>
+        <input type="range" id="pitch" min="0" max="2" step="0.1" value="1">
+        <label for="pitch">Pitch: <span id="pitchValue">1.0</span></label>
+        <button onclick="speakText()">Speak</button>
+        <div id="status"></div>
+        <div class="instructions">
+            <p><strong>How to Use:</strong></p>
+            <ul>
+                <li>Enter the text you want to convert to speech in the box above.</li>
+                <li>Choose a voice from the dropdown menu.</li>
+                <li>Adjust the pitch using the slider (0 = low, 2 = high).</li>
+                <li>Click "Speak" to hear the text.</li>
+            </ul>
+        </div>
     </div>
 
     <script>
-        function convertTextToSpeech() {
-            const text = document.getElementById('ttsText').value;
-            if (text) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                window.speechSynthesis.speak(utterance);
-                document.getElementById('ttsResult').textContent = 'Playing audio...';
-            } else {
-                document.getElementById('ttsResult').textContent = 'Please enter some text.';
+        const statusDiv = document.getElementById('status');
+        const textInput = document.getElementById('textInput');
+        const voiceSelect = document.getElementById('voiceSelect');
+        const pitchInput = document.getElementById('pitch');
+        const pitchValue = document.getElementById('pitchValue');
+        const synth = window.speechSynthesis;
+
+        let voices = [];
+        function populateVoices() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            voices.forEach((voice, i) => {
+                const option = document.createElement('option');
+                option.value = i;
+                option.text = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        synth.onvoiceschanged = populateVoices;
+        populateVoices();
+
+        pitchInput.oninput = () => {
+            pitchValue.textContent = pitchInput.value;
+        };
+
+        function speakText() {
+            if (!textInput.value) {
+                statusDiv.innerHTML = "Please enter some text.";
+                return;
             }
+
+            statusDiv.innerHTML = "Speaking...";
+            const utterance = new SpeechSynthesisUtterance(textInput.value);
+            utterance.voice = voices[voiceSelect.value];
+            utterance.pitch = parseFloat(pitchInput.value);
+            utterance.rate = 1;
+
+            utterance.onend = () => {
+                statusDiv.innerHTML = "Speech complete!";
+            };
+            utterance.onerror = (event) => {
+                statusDiv.innerHTML = "Error: " + event.error;
+            };
+
+            synth.speak(utterance);
         }
     </script>
 </body>
