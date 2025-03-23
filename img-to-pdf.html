@@ -5,60 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to PDF - ToolHub</title>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            padding: 2rem;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-        }
-        input, button {
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
-        }
-        button {
-            background: #00d4ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #00b7d9;
+        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
+        .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1e3c72; font-size: clamp(20px, 5vw, 28px); }
+        input, button { padding: 8px; margin: 5px; font-size: clamp(12px, 3vw, 16px); width: 90%; max-width: 300px; border-radius: 5px; }
+        button { background: #00d4ff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #00b7d9; }
+        #status, #result { margin-top: 10px; font-size: clamp(12px, 3vw, 16px); }
+        #status { color: #2a5298; }
+        .instructions { font-size: clamp(12px, 3vw, 14px); color: #555; margin-top: 15px; text-align: left; padding: 0 10px; }
+        @media (min-width: 768px) { 
+            .container { padding: 20px; }
+            input, button { width: auto; display: inline-block; }
+            .instructions { padding: 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Image to PDF</h1>
-        <input type="file" id="imgToPdfInput" accept="image/*" multiple>
-        <button onclick="convertImgToPdf()">Convert to PDF</button>
-        <p id="imgToPdfResult"></p>
+        <input type="file" id="imgFile" accept="image/*">
+        <button onclick="convertToPDF()">Convert to PDF</button>
+        <div id="status"></div>
+        <div id="result"></div>
+        <div class="instructions">
+            <p><strong>How to Use:</strong></p>
+            <ul>
+                <li>Upload an image (max 5MB) using the "Choose File" button.</li>
+                <li>Click "Convert to PDF" to process the image.</li>
+                <li>Download the PDF file from the link.</li>
+            </ul>
+        </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        function convertImgToPdf() {
-            const files = document.getElementById('imgToPdfInput').files;
-            if (files.length) {
-                document.getElementById('imgToPdfResult').textContent = `Converting ${files.length} image(s) to PDF... (Placeholder)`;
-                // Add PDF generation logic (e.g., jsPDF)
-            } else {
-                document.getElementById('imgToPdfResult').textContent = 'Please select at least one image.';
+        const { jsPDF } = window.jspdf;
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+
+        async function convertToPDF() {
+            const fileInput = document.getElementById('imgFile');
+
+            if (!fileInput.files[0]) {
+                statusDiv.innerHTML = "Please select an image.";
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (file.size > 5 * 1024 * 1024) {
+                statusDiv.innerHTML = "File too large (max 5MB).";
+                return;
+            }
+
+            statusDiv.innerHTML = "Processing...";
+            try {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                await new Promise(resolve => img.onload = resolve);
+
+                const pdf = new jsPDF({
+                    orientation: img.width > img.height ? 'landscape' : 'portrait',
+                    unit: 'px',
+                    format: [img.width, img.height]
+                });
+
+                pdf.addImage(img, 'JPEG', 0, 0, img.width, img.height);
+                const pdfBlob = pdf.output('blob');
+                const url = URL.createObjectURL(pdfBlob);
+
+                resultDiv.innerHTML = `<a href="${url}" download="converted.pdf">Download PDF</a>`;
+                statusDiv.innerHTML = "Conversion complete!";
+            } catch (error) {
+                statusDiv.innerHTML = "Error: " + error.message;
+                resultDiv.innerHTML = "";
             }
         }
     </script>
