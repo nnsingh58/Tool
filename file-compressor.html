@@ -5,60 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Compressor - ToolHub</title>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            padding: 2rem;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-        }
-        input, button {
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
-        }
-        button {
-            background: #00d4ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #00b7d9;
+        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
+        .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+        h1 { color: #1e3c72; font-size: clamp(20px, 5vw, 28px); }
+        input, select, button { padding: 8px; margin: 5px; font-size: clamp(12px, 3vw, 16px); width: 90%; max-width: 300px; border-radius: 5px; }
+        button { background: #00d4ff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #00b7d9; }
+        #status, #result { margin-top: 10px; font-size: clamp(12px, 3vw, 16px); }
+        #status { color: #2a5298; }
+        .instructions { font-size: clamp(12px, 3vw, 14px); color: #555; margin-top: 15px; text-align: left; padding: 0 10px; }
+        @media (min-width: 768px) { 
+            .container { padding: 20px; }
+            input, select, button { width: auto; display: inline-block; }
+            .instructions { padding: 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>File Compressor</h1>
-        <input type="file" id="fileInput">
-        <button onclick="compressFile()">Compress File</button>
-        <p id="fileResult"></p>
+        <select id="inputFormat">
+            <option value="*">All Files (*.*)</option>
+            <option value="image/*">Images (PNG, JPEG, etc.)</option>
+            <option value="audio/*">Audio (MP3, WAV, etc.)</option>
+            <option value="application/pdf">PDF Files</option>
+            <option value="text/*">Text Files (TXT, CSV, etc.)</option>
+        </select>
+        <input type="file" id="filesInput" multiple>
+        <select id="compressionLevel">
+            <option value="0">Low Compression (Fast)</option>
+            <option value="6" selected>Medium Compression</option>
+            <option value="9">High Compression (Slow)</option>
+        </select>
+        <select id="outputFormat">
+            <option value="zip">ZIP (Compressed)</option>
+            <option value="tar">TAR (Uncompressed)</option>
+        </select>
+        <button onclick="compressFiles()">Compress</button>
+        <div id="status"></div>
+        <div id="result"></div>
+        <div class="instructions">
+            <p><strong>How to Use:</strong></p>
+            <ul>
+                <li>Select the file type you want to upload from the first dropdown.</li>
+                <li>Upload one or more files (max 50MB total) using the "Choose File" button.</li>
+                <li>Choose compression level (Low, Medium, High).</li>
+                <li>Select output format (ZIP or TAR).</li>
+                <li>Click "Compress" to process the files.</li>
+                <li>Download the compressed file from the link.</li>
+            </ul>
+        </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
     <script>
-        function compressFile() {
-            const file = document.getElementById('fileInput').files[0];
-            if (file) {
-                document.getElementById('fileResult').textContent = `Compressing ${file.name}... (Placeholder)`;
-                // Add compression logic (e.g., JSZip)
-            } else {
-                document.getElementById('fileResult').textContent = 'Please select a file.';
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        const inputFormat = document.getElementById('inputFormat');
+        const filesInput = document.getElementById('filesInput');
+        const compressionLevel = document.getElementById('compressionLevel');
+        const outputFormat = document.getElementById('outputFormat');
+
+        inputFormat.onchange = () => {
+            filesInput.accept = inputFormat.value;
+        };
+
+        async function compressFiles() {
+            const files = filesInput.files;
+
+            if (!files.length) {
+                statusDiv.innerHTML = "Please select at least one file.";
+                return;
+            }
+
+            let totalSize = 0;
+            for (let file of files) {
+                totalSize += file.size;
+            }
+            if (totalSize > 50 * 1024 * 1024) {
+                statusDiv.innerHTML = "Total file size exceeds 50MB.";
+                return;
+            }
+
+            statusDiv.innerHTML = "Compressing...";
+            try {
+                const format = outputFormat.value;
+                let blob;
+
+                if (format === 'zip') {
+                    const zip = new JSZip();
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        statusDiv.innerHTML = `Compressing file ${i + 1} of ${files.length}...`;
+                        const fileData = await file.arrayBuffer();
+                        zip.file(file.name, fileData);
+                    }
+                    blob = await zip.generateAsync({
+                        type: 'blob',
+                        compression: 'DEFLATE',
+                        compressionOptions: { level: parseInt(compressionLevel.value) }
+                    });
+                } else if (format === 'tar') {
+                    const tar = new JSZip();
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        statusDiv.innerHTML = `Packing file ${i + 1} of ${files.length}...`;
+                        const fileData = await file.arrayBuffer();
+                        tar.file(file.name, fileData);
+                    }
+                    blob = await tar.generateAsync({ type: 'blob' }); // No compression for TAR
+                }
+
+                const url = URL.createObjectURL(blob);
+                const fileName = `compressed.${format}`;
+                resultDiv.innerHTML = `<a href="${url}" download="${fileName}">Download ${format.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</a>`;
+                statusDiv.innerHTML = "Compression complete!";
+            } catch (error) {
+                statusDiv.innerHTML = "Error: " + error.message;
+                resultDiv.innerHTML = "";
             }
         }
     </script>
