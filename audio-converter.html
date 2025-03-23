@@ -24,19 +24,15 @@
         <h1>Audio Converter</h1>
         <input type="file" id="audioFile" accept="audio/*">
         <select id="outputFormat">
-            <option value="mp3">MP3</option>
             <option value="wav">WAV</option>
-            <option value="aac">AAC</option>
+            <option value="mp3">MP3 (Original Only)</option>
         </select>
         <button onclick="convertAudio()">Convert</button>
         <div id="status"></div>
         <div id="result"></div>
     </div>
 
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.9.7/dist/ffmpeg.min.js"></script>
     <script>
-        const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: false, corePath: 'https://unpkg.com/@ffmpeg/core@0.8.5/dist/ffmpeg-core.js' });
         const statusDiv = document.getElementById('status');
         const resultDiv = document.getElementById('result');
 
@@ -55,26 +51,71 @@
                 return;
             }
 
-            statusDiv.innerHTML = "Loading FFmpeg...";
+            statusDiv.innerHTML = "Processing...";
             try {
-                if (!ffmpeg.isLoaded()) await ffmpeg.load();
-                statusDiv.innerHTML = "Converting...";
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-                const inputName = 'input.' + file.name.split('.').pop();
-                const outputName = `output.${format}`;
+                if (format === 'mp3') {
+                    // MP3 as-is (no conversion, just passthrough)
+                    const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
+                    const url = URL.createObjectURL(blob);
+                    resultDiv.innerHTML = `<a href="${url}" download="output.mp3">Download MP3</a>`;
+                    statusDiv.innerHTML = "Done! (Original MP3)";
+                } else if (format === 'wav') {
+                    // Convert to WAV
+                    const wavBlob = audioBufferToWav(audioBuffer);
+                    const url = URL.createObjectURL(wavBlob);
+                    resultDiv.innerHTML = `<a href="${url}" download="output.wav">Download WAV</a>`;
+                    statusDiv.innerHTML = "Conversion complete!";
+                }
 
-                ffmpeg.FS('writeFile', inputName, await fetchFile(file));
-                await ffmpeg.run('-i', inputName, outputName);
-
-                const data = ffmpeg.FS('readFile', outputName);
-                const blob = new Blob([data.buffer], { type: `audio/${format}` });
-                const url = URL.createObjectURL(blob);
-
-                resultDiv.innerHTML = `<a href="${url}" download="${outputName}">Download ${format.toUpperCase()}</a>`;
-                statusDiv.innerHTML = "Conversion complete!";
+                audioContext.close();
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
+            }
+        }
+
+        function audioBufferToWav(audioBuffer) {
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const length = audioBuffer.length * numChannels * 2 + 44;
+            const buffer = new ArrayBuffer(length);
+            const view = new DataView(buffer);
+
+            // WAV header
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + audioBuffer.length * numChannels * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM format
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * numChannels * 2, true);
+            view.setUint16(32, numChannels * 2, true);
+            view.setUint16(34, 16, true); // 16-bit
+            writeString(view, 36, 'data');
+            view.setUint32(40, audioBuffer.length * numChannels * 2, true);
+
+            // Write PCM data
+            let offset = 44;
+            for (let i = 0; i < audioBuffer.length; i++) {
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const sample = Math.max(-1, Math.min(1, audioBuffer.getChannelData(channel)[i]));
+                    view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
             }
         }
     </script>
