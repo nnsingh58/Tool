@@ -67,6 +67,19 @@
         }
         #result { margin-top: 1rem; }
         .btn-group { display: flex; gap: 1rem; justify-content: center; }
+        .instructions {
+            margin-top: 2rem;
+            text-align: left;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .instructions h3 {
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
+        }
+        .instructions ul {
+            padding-left: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -84,6 +97,18 @@
         <button class="cancel" id="cancelBtn" onclick="cancelConversion()" style="display: none;">Cancel</button>
         <div id="progress"></div>
         <div id="result" class="btn-group"></div>
+        <div class="instructions">
+            <h3>How to Use This Tool</h3>
+            <ul>
+                <li>Upload an image (max 50MB) by clicking "Choose File".</li>
+                <li>Select the output format (PNG, JPEG, WebP) from the dropdown.</li>
+                <li>Adjust the quality slider (10% = smallest size, 100% = best quality).</li>
+                <li>Click "Convert Image" to start the conversion process.</li>
+                <li>Watch the progress percentage as the image is processed.</li>
+                <li>Click "Cancel" if you want to stop the conversion.</li>
+                <li>Once complete, click "Download" to save the converted image or "Try Again" to start over.</li>
+            </ul>
+        </div>
     </div>
 
     <script>
@@ -127,7 +152,7 @@
                     img.onerror = () => reject(new Error('Image load failed'));
                 });
 
-                // Simulate progress (since it's a single image, we'll fake it)
+                // Simulate progress
                 const totalSteps = 100;
                 for (let i = 0; i <= totalSteps; i += 10) {
                     if (isCancelled) {
