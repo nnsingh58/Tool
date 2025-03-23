@@ -7,22 +7,32 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
+            background: linear-gradient(135deg, #f0f2f5, #e0e7ff);
             color: #333;
             padding: 2rem;
             text-align: center;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         .container {
             max-width: 600px;
-            margin: 0 auto;
             background: white;
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         h1 {
             color: #1e3c72;
             margin-bottom: 1.5rem;
+            font-size: 1.8rem;
         }
         input, select, button {
             padding: 0.8rem;
@@ -30,17 +40,33 @@
             border-radius: 5px;
             border: 1px solid #ddd;
             width: 100%;
+            font-size: 1rem;
+            box-sizing: border-box;
         }
         button {
             background: #00d4ff;
             color: white;
             border: none;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
         button:hover {
             background: #00b7d9;
+            transform: scale(1.05);
         }
+        button.cancel {
+            background: #ff4d4d;
+        }
+        button.cancel:hover {
+            background: #e63939;
+        }
+        #progress {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: #2a5298;
+        }
+        #result { margin-top: 1rem; }
+        .btn-group { display: flex; gap: 1rem; justify-content: center; }
     </style>
 </head>
 <body>
@@ -48,25 +74,106 @@
         <h1>Image Format Converter</h1>
         <input type="file" id="imgInput" accept="image/*">
         <select id="outputFormat">
-            <option value="png">PNG</option>
-            <option value="jpeg">JPEG</option>
-            <option value="svg">SVG</option>
-            <option value="webp">WebP</option>
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
         </select>
-        <button onclick="convertImageFormat()">Convert Image</button>
-        <p id="imgResult"></p>
+        <input type="range" id="quality" min="10" max="100" value="80">
+        <label for="quality">Quality: <span id="qualityValue">80%</span></label>
+        <button onclick="startConversion()">Convert Image</button>
+        <button class="cancel" id="cancelBtn" onclick="cancelConversion()" style="display: none;">Cancel</button>
+        <div id="progress"></div>
+        <div id="result" class="btn-group"></div>
     </div>
 
     <script>
-        function convertImageFormat() {
+        let isCancelled = false;
+
+        const progressDiv = document.getElementById('progress');
+        const resultDiv = document.getElementById('result');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const qualityInput = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
+
+        qualityInput.oninput = () => {
+            qualityValue.textContent = `${qualityInput.value}%`;
+        };
+
+        async function startConversion() {
             const file = document.getElementById('imgInput').files[0];
             const format = document.getElementById('outputFormat').value;
-            if (file) {
-                document.getElementById('imgResult').textContent = `Converting ${file.name} to ${format.toUpperCase()}... (Placeholder)`;
-                // Add actual conversion logic here (e.g., using Canvas or a library like ImageMagick on the backend)
-            } else {
-                document.getElementById('imgResult').textContent = 'Please select an image.';
+            const quality = qualityInput.value / 100;
+
+            if (!file) {
+                progressDiv.textContent = 'Please select an image.';
+                return;
             }
+
+            if (file.size > 50 * 1024 * 1024) {
+                progressDiv.textContent = 'File too large (max 50MB).';
+                return;
+            }
+
+            isCancelled = false;
+            cancelBtn.style.display = 'inline-block';
+            resultDiv.innerHTML = '';
+            progressDiv.textContent = 'Processing (0%)...';
+
+            try {
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = () => reject(new Error('Image load failed'));
+                });
+
+                // Simulate progress (since it's a single image, we'll fake it)
+                const totalSteps = 100;
+                for (let i = 0; i <= totalSteps; i += 10) {
+                    if (isCancelled) {
+                        progressDiv.textContent = 'Conversion cancelled.';
+                        cancelBtn.style.display = 'none';
+                        return;
+                    }
+                    progressDiv.textContent = `Processing (${i}%)...`;
+                    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate delay
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                const dataUrl = canvas.toDataURL(format, quality);
+                const blob = await (await fetch(dataUrl)).blob();
+                const url = URL.createObjectURL(blob);
+                const ext = format.split('/')[1];
+
+                progressDiv.textContent = 'Conversion complete (100%)!';
+                resultDiv.innerHTML = `
+                    <button onclick="window.location.href='${url}'" download="converted.${ext}">Download ${ext.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</button>
+                    <button onclick="resetForm()">Try Again</button>
+                `;
+                cancelBtn.style.display = 'none';
+            } catch (error) {
+                if (!isCancelled) {
+                    progressDiv.textContent = 'Error: ' + error.message;
+                    cancelBtn.style.display = 'none';
+                }
+            }
+        }
+
+        function cancelConversion() {
+            isCancelled = true;
+        }
+
+        function resetForm() {
+            document.getElementById('imgInput').value = '';
+            progressDiv.textContent = '';
+            resultDiv.innerHTML = '';
+            qualityInput.value = 80;
+            qualityValue.textContent = '80%';
         }
     </script>
 </body>
