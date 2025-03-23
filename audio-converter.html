@@ -33,10 +33,10 @@
         <div id="result"></div>
     </div>
 
-    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.9.7/dist/ffmpeg.min.js"></script>
     <script>
         const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: false });
+        const ffmpeg = createFFmpeg({ log: false, corePath: 'https://unpkg.com/@ffmpeg/core@0.8.5/dist/ffmpeg-core.js' });
         const statusDiv = document.getElementById('status');
         const resultDiv = document.getElementById('result');
 
@@ -50,7 +50,7 @@
             }
 
             const file = fileInput.files[0];
-            if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            if (file.size > 10 * 1024 * 1024) {
                 statusDiv.innerHTML = "File too large (max 10MB).";
                 return;
             }
