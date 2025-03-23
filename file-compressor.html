@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Compressor - ToolHub</title>
+    <title>Image Format Converter - ToolHub</title>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
         .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -23,104 +23,87 @@
 </head>
 <body>
     <div class="container">
-        <h1>File Compressor</h1>
+        <h1>Image Format Converter</h1>
         <select id="inputFormat">
-            <option value="*">All Files (*.*)</option>
-            <option value="image/*">Images (PNG, JPEG, etc.)</option>
-            <option value="audio/*">Audio (MP3, WAV, etc.)</option>
-            <option value="application/pdf">PDF Files</option>
-            <option value="text/*">Text Files (TXT, CSV, etc.)</option>
+            <option value="image/*">All Images</option>
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
         </select>
-        <input type="file" id="filesInput" multiple>
-        <select id="compressionLevel">
-            <option value="0">Low Compression (Fast)</option>
-            <option value="6" selected>Medium Compression</option>
-            <option value="9">High Compression (Slow)</option>
-        </select>
+        <input type="file" id="imgFile" accept="image/*">
         <select id="outputFormat">
-            <option value="zip">ZIP (Compressed)</option>
-            <option value="tar">TAR (Uncompressed)</option>
+            <option value="image/png">PNG</option>
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
         </select>
-        <button onclick="compressFiles()">Compress</button>
+        <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.8">
+        <label for="quality">Quality: <span id="qualityValue">0.8</span></label>
+        <button onclick="convertImage()">Convert</button>
         <div id="status"></div>
         <div id="result"></div>
         <div class="instructions">
             <p><strong>How to Use:</strong></p>
             <ul>
-                <li>Select the file type you want to upload from the first dropdown.</li>
-                <li>Upload one or more files (max 50MB total) using the "Choose File" button.</li>
-                <li>Choose compression level (Low, Medium, High).</li>
-                <li>Select output format (ZIP or TAR).</li>
-                <li>Click "Compress" to process the files.</li>
-                <li>Download the compressed file from the link.</li>
+                <li>Select the input image type from the first dropdown.</li>
+                <li>Upload an image (max 50MB) using the "Choose File" button.</li>
+                <li>Choose the output format (PNG, JPEG, WebP) from the second dropdown.</li>
+                <li>Adjust the quality slider (0.1 = low size, 1.0 = high quality).</li>
+                <li>Click "Convert" to process the image.</li>
+                <li>Download the converted image from the link.</li>
             </ul>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.1.0/jszip-utils.min.js"></script>
     <script>
         const statusDiv = document.getElementById('status');
         const resultDiv = document.getElementById('result');
         const inputFormat = document.getElementById('inputFormat');
-        const filesInput = document.getElementById('filesInput');
-        const compressionLevel = document.getElementById('compressionLevel');
-        const outputFormat = document.getElementById('outputFormat');
+        const imgFile = document.getElementById('imgFile');
+        const qualityInput = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
 
         inputFormat.onchange = () => {
-            filesInput.accept = inputFormat.value;
+            imgFile.accept = inputFormat.value;
         };
 
-        async function compressFiles() {
-            const files = filesInput.files;
+        qualityInput.oninput = () => {
+            qualityValue.textContent = qualityInput.value;
+        };
 
-            if (!files.length) {
-                statusDiv.innerHTML = "Please select at least one file.";
+        async function convertImage() {
+            const file = imgFile.files[0];
+            const format = document.getElementById('outputFormat').value;
+            const quality = parseFloat(qualityInput.value);
+
+            if (!file) {
+                statusDiv.innerHTML = "Please select an image.";
                 return;
             }
 
-            let totalSize = 0;
-            for (let file of files) {
-                totalSize += file.size;
-            }
-            if (totalSize > 50 * 1024 * 1024) {
-                statusDiv.innerHTML = "Total file size exceeds 50MB.";
+            if (file.size > 50 * 1024 * 1024) {
+                statusDiv.innerHTML = "File too large (max 50MB).";
                 return;
             }
 
-            statusDiv.innerHTML = "Compressing...";
+            statusDiv.innerHTML = "Processing...";
             try {
-                const format = outputFormat.value;
-                let blob;
+                const img = new Image();
+                img.src = URL.createObjectURL(file);
+                await new Promise(resolve => img.onload = resolve);
 
-                if (format === 'zip') {
-                    const zip = new JSZip();
-                    for (let i = 0; i < files.length; i++) {
-                        const file = files[i];
-                        statusDiv.innerHTML = `Compressing file ${i + 1} of ${files.length}...`;
-                        const fileData = await file.arrayBuffer();
-                        zip.file(file.name, fileData);
-                    }
-                    blob = await zip.generateAsync({
-                        type: 'blob',
-                        compression: 'DEFLATE',
-                        compressionOptions: { level: parseInt(compressionLevel.value) }
-                    });
-                } else if (format === 'tar') {
-                    const tar = new JSZip();
-                    for (let i = 0; i < files.length; i++) {
-                        const file = files[i];
-                        statusDiv.innerHTML = `Packing file ${i + 1} of ${files.length}...`;
-                        const fileData = await file.arrayBuffer();
-                        tar.file(file.name, fileData);
-                    }
-                    blob = await tar.generateAsync({ type: 'blob' }); // No compression for TAR
-                }
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
 
+                const dataUrl = canvas.toDataURL(format, quality);
+                const blob = await (await fetch(dataUrl)).blob();
                 const url = URL.createObjectURL(blob);
-                const fileName = `compressed.${format}`;
-                resultDiv.innerHTML = `<a href="${url}" download="${fileName}">Download ${format.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</a>`;
-                statusDiv.innerHTML = "Compression complete!";
+
+                const ext = format.split('/')[1];
+                resultDiv.innerHTML = `<a href="${url}" download="converted.${ext}">Download ${ext.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</a>`;
+                statusDiv.innerHTML = "Conversion complete!";
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
