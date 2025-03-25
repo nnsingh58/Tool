@@ -50,10 +50,17 @@
         button:hover {
             background-color: #45a049;
         }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h1>Multi-Image Group Photo Frame Tool</h1>
+    <h1><a href="https://nnsingh58.github.io/Tool" target="_blank">Multi-Image Group Photo Frame Tool</a></h1>
     <input type="file" id="image-input" multiple accept="image/*">
     <div id="image-preview"></div>
     <select id="frame-size">
@@ -64,7 +71,10 @@
     <button onclick="generateGroupPhoto()">Generate Group Photo</button>
     <div id="output-container">
         <h3>Output:</h3>
-        <img id="output-image" src="" alt="Generated Group Photo" style="display: none;">
+        <a id="output-link" href="#" target="_blank" style="display: none;">
+            <img id="output-image" src="" alt="Generated Group Photo" style="display: none;">
+        </a>
+        <p><a href="https://github.com/nnsingh58/Tool" target="_blank">View Source on GitHub</a></p>
     </div>
 
     <script>
@@ -72,6 +82,7 @@
         const imagePreview = document.getElementById('image-preview');
         const frameSize = document.getElementById('frame-size');
         const outputImage = document.getElementById('output-image');
+        const outputLink = document.getElementById('output-link');
 
         // Show preview of selected images
         imageInput.addEventListener('change', () => {
@@ -123,21 +134,21 @@
                         };
                         img.onerror = () => {
                             console.error(`Error loading image ${index + 1}`);
-                            resolve(); // Continue even if one image fails
+                            resolve();
                         };
                     });
                 }));
 
-                // Display the result
-                outputImage.src = canvas.toDataURL('image/png');
+                // Display the result with hyperlink
+                const dataUrl = canvas.toDataURL('image/png');
+                outputImage.src = dataUrl;
                 outputImage.style.display = 'block';
+                outputLink.href = dataUrl;
+                outputLink.style.display = 'block';
             } catch (error) {
                 alert('An error occurred while generating the group photo.');
                 console.error(error);
             }
-
-            // Note: For AI-based intelligent framing, integrate an API or model here.
-            // Example: Use TensorFlow.js for client-side processing or Cloudinary for server-side.
         }
     </script>
 </body>
