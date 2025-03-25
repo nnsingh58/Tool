@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Image Group Photo Frame Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        #image-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 1000px;
+        }
+        #image-preview img {
+            width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #output-container {
+            margin: 30px 0;
+        }
+        #output-image {
+            max-width: 100%;
+            border: 3px solid #333;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        select, button {
+            padding: 12px 20px;
+            margin: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-Image Group Photo Frame Tool</h1>
+    <input type="file" id="image-input" multiple accept="image/*">
+    <div id="image-preview"></div>
+    <select id="frame-size">
+        <option value="small">Small (300x200)</option>
+        <option value="medium" selected>Medium (600x400)</option>
+        <option value="large">Large (900x600)</option>
+    </select>
+    <button onclick="generateGroupPhoto()">Generate Group Photo</button>
+    <div id="output-container">
+        <h3>Output:</h3>
+        <img id="output-image" src="" alt="Generated Group Photo" style="display: none;">
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('image-input');
+        const imagePreview = document.getElementById('image-preview');
+        const frameSize = document.getElementById('frame-size');
+        const outputImage = document.getElementById('output-image');
+
+        // Show preview of selected images
+        imageInput.addEventListener('change', () => {
+            imagePreview.innerHTML = '';
+            const files = Array.from(imageInput.files);
+            if (files.length === 0) return;
+
+            files.forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.alt = 'Preview';
+                imagePreview.appendChild(img);
+            });
+        });
+
+        // Generate the group photo
+        async function generateGroupPhoto() {
+            const files = Array.from(imageInput.files);
+            if (!files.length) {
+                alert('Please select at least one image.');
+                return;
+            }
+
+            // Set canvas dimensions based on selected frame size
+            const selectedSize = frameSize.value;
+            const dimensions = {
+                small: { width: 300, height: 200 },
+                medium: { width: 600, height: 400 },
+                large: { width: 900, height: 600 }
+            };
+            const { width, height } = dimensions[selectedSize];
+
+            // Initialize canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            try {
+                // Basic arrangement logic (side-by-side)
+                const imgWidth = width / files.length;
+                await Promise.all(files.map((file, index) => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.src = URL.createObjectURL(file);
+                        img.onload = () => {
+                            ctx.drawImage(img, imgWidth * index, 0, imgWidth, height);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            console.error(`Error loading image ${index + 1}`);
+                            resolve(); // Continue even if one image fails
+                        };
+                    });
+                }));
+
+                // Display the result
+                outputImage.src = canvas.toDataURL('image/png');
+                outputImage.style.display = 'block';
+            } catch (error) {
+                alert('An error occurred while generating the group photo.');
+                console.error(error);
+            }
+
+            // Note: For AI-based intelligent framing, integrate an API or model here.
+            // Example: Use TensorFlow.js for client-side processing or Cloudinary for server-side.
+        }
+    </script>
+</body>
+</html>
