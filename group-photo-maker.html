@@ -68,7 +68,7 @@
             <input type="number" id="gap" placeholder="Gap (px)" min="0" value="10">
         </div>
         <div class="options">
-            <label><input type="checkbox" id="addCenterImage"> Add Center Scenic Image</label>
+            <label><input type="checkbox" id="addCenterImage"> Add Center Scenic Image (Uncheck for blank center)</label>
         </div>
         <button onclick="createGroupPhoto()">Create Group Photo</button>
         <canvas id="canvas"></canvas>
@@ -91,26 +91,35 @@
             }
 
             // Calculate grid layout
-            const cols = Math.ceil(Math.sqrt(files.length + (addCenterImage ? 1 : 0)));
-            const rows = Math.ceil((files.length + (addCenterImage ? 1 : 0)) / cols);
+            const totalSlots = Math.max(files.length + 1, 9); // Minimum 3x3 grid for center focus
+            const cols = Math.ceil(Math.sqrt(totalSlots));
+            const rows = Math.ceil(totalSlots / cols);
             canvas.width = cols * (frameWidth + gap) - gap;
             canvas.height = rows * (frameHeight + gap) - gap;
 
-            // Clear canvas
+            // Clear canvas with white background
             ctx.fillStyle = '#fff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Load and draw images
-            let x = 0, y = 0, imgIndex = 0;
-            const centerIndex = Math.floor((rows * cols) / 2);
+            // Calculate center position
+            const centerRow = Math.floor(rows / 2);
+            const centerCol = Math.floor(cols / 2);
+            const centerIndex = centerRow * cols + centerCol;
 
+            // Load and draw images
+            let imgIndex = 0;
             for (let i = 0; i < rows * cols; i++) {
-                if (addCenterImage && i === centerIndex) {
-                    // Add center scenic image (e.g., mountain)
-                    const centerImg = new Image();
-                    centerImg.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80';
-                    await new Promise(resolve => centerImg.onload = resolve);
-                    ctx.drawImage(centerImg, x, y, frameWidth, frameHeight);
+                const x = (i % cols) * (frameWidth + gap);
+                const y = Math.floor(i / cols) * (frameHeight + gap);
+
+                if (i === centerIndex) {
+                    if (addCenterImage) {
+                        // Add scenic image in center
+                        const centerImg = new Image();
+                        centerImg.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80'; // Mountain
+                        await new Promise(resolve => centerImg.onload = resolve);
+                        ctx.drawImage(centerImg, x, y, frameWidth, frameHeight);
+                    } // Else leave blank (white)
                 } else if (imgIndex < files.length) {
                     const img = new Image();
                     img.src = URL.createObjectURL(files[imgIndex]);
@@ -118,16 +127,10 @@
                     ctx.drawImage(img, x, y, frameWidth, frameHeight);
                     imgIndex++;
                 }
-
-                x += frameWidth + gap;
-                if (x >= canvas.width) {
-                    x = 0;
-                    y += frameHeight + gap;
-                }
             }
 
             // High-quality output
-            const dataUrl = canvas.toDataURL('image/png', 1.0); // Quality set to max
+            const dataUrl = canvas.toDataURL('image/png', 1.0);
             const blob = await (await fetch(dataUrl)).blob();
             const url = URL.createObjectURL(blob);
             document.getElementById('result').innerHTML = `
