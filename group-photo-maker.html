@@ -3,152 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Image Group Photo Frame Tool</title>
+    <title>Group Photo Maker - ToolHub</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f2f5, #e0e7ff);
+            color: #333;
+            padding: 2rem;
             text-align: center;
-            margin: 20px;
-            background-color: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #image-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px auto;
-            max-width: 1000px;
+        .container {
+            max-width: 900px;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
         }
-        #image-preview img {
+        h1 {
+            color: #1e3c72;
+            margin-bottom: 1.5rem;
+        }
+        input, select, button {
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
             width: 100%;
-            height: auto;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        #output-container {
-            margin: 30px 0;
-        }
-        #output-image {
-            max-width: 100%;
-            border: 3px solid #333;
-            border-radius: 5px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        select, button {
-            padding: 12px 20px;
-            margin: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
         }
         button {
-            background-color: #4CAF50;
+            background: #00d4ff;
             color: white;
             border: none;
-            transition: background-color 0.3s;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
         button:hover {
-            background-color: #45a049;
+            background: #00b7d9;
         }
-        a {
-            color: #007BFF;
-            text-decoration: none;
+        #canvas {
+            margin-top: 1rem;
+            border: 1px solid #ddd;
         }
-        a:hover {
-            text-decoration: underline;
+        .frame-size {
+            display: flex;
+            gap: 1rem;
+            margin: 0.5rem 0;
+        }
+        .options {
+            margin: 0.5rem 0;
         }
     </style>
 </head>
 <body>
-    <h1><a href="https://nnsingh58.github.io/Tool" target="_blank">Multi-Image Group Photo Frame Tool</a></h1>
-    <input type="file" id="image-input" multiple accept="image/*">
-    <div id="image-preview"></div>
-    <select id="frame-size">
-        <option value="small">Small (300x200)</option>
-        <option value="medium" selected>Medium (600x400)</option>
-        <option value="large">Large (900x600)</option>
-    </select>
-    <button onclick="generateGroupPhoto()">Generate Group Photo</button>
-    <div id="output-container">
-        <h3>Output:</h3>
-        <a id="output-link" href="#" target="_blank" style="display: none;">
-            <img id="output-image" src="" alt="Generated Group Photo" style="display: none;">
-        </a>
-        <p><a href="https://github.com/nnsingh58/Tool" target="_blank">View Source on GitHub</a></p>
+    <div class="container">
+        <h1>Group Photo Maker</h1>
+        <input type="file" id="imageInput" accept="image/*" multiple>
+        <div class="frame-size">
+            <input type="number" id="frameWidth" placeholder="Frame Width (px)" min="50" value="200">
+            <input type="number" id="frameHeight" placeholder="Frame Height (px)" min="50" value="200">
+            <input type="number" id="gap" placeholder="Gap (px)" min="0" value="10">
+        </div>
+        <div class="options">
+            <label><input type="checkbox" id="addCenterImage"> Add Center Scenic Image</label>
+        </div>
+        <button onclick="createGroupPhoto()">Create Group Photo</button>
+        <canvas id="canvas"></canvas>
+        <div id="result"></div>
     </div>
 
     <script>
-        const imageInput = document.getElementById('image-input');
-        const imagePreview = document.getElementById('image-preview');
-        const frameSize = document.getElementById('frame-size');
-        const outputImage = document.getElementById('output-image');
-        const outputLink = document.getElementById('output-link');
+        async function createGroupPhoto() {
+            const files = document.getElementById('imageInput').files;
+            const frameWidth = parseInt(document.getElementById('frameWidth').value);
+            const frameHeight = parseInt(document.getElementById('frameHeight').value);
+            const gap = parseInt(document.getElementById('gap').value);
+            const addCenterImage = document.getElementById('addCenterImage').checked;
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
 
-        // Show preview of selected images
-        imageInput.addEventListener('change', () => {
-            imagePreview.innerHTML = '';
-            const files = Array.from(imageInput.files);
-            if (files.length === 0) return;
-
-            files.forEach(file => {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.alt = 'Preview';
-                imagePreview.appendChild(img);
-            });
-        });
-
-        // Generate the group photo
-        async function generateGroupPhoto() {
-            const files = Array.from(imageInput.files);
-            if (!files.length) {
-                alert('Please select at least one image.');
+            if (files.length === 0) {
+                alert('Please upload at least one image.');
                 return;
             }
 
-            // Set canvas dimensions based on selected frame size
-            const selectedSize = frameSize.value;
-            const dimensions = {
-                small: { width: 300, height: 200 },
-                medium: { width: 600, height: 400 },
-                large: { width: 900, height: 600 }
-            };
-            const { width, height } = dimensions[selectedSize];
+            // Calculate grid layout
+            const cols = Math.ceil(Math.sqrt(files.length + (addCenterImage ? 1 : 0)));
+            const rows = Math.ceil((files.length + (addCenterImage ? 1 : 0)) / cols);
+            canvas.width = cols * (frameWidth + gap) - gap;
+            canvas.height = rows * (frameHeight + gap) - gap;
 
-            // Initialize canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
+            // Clear canvas
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            try {
-                // Basic arrangement logic (side-by-side)
-                const imgWidth = width / files.length;
-                await Promise.all(files.map((file, index) => {
-                    return new Promise((resolve) => {
-                        const img = new Image();
-                        img.src = URL.createObjectURL(file);
-                        img.onload = () => {
-                            ctx.drawImage(img, imgWidth * index, 0, imgWidth, height);
-                            resolve();
-                        };
-                        img.onerror = () => {
-                            console.error(`Error loading image ${index + 1}`);
-                            resolve();
-                        };
-                    });
-                }));
+            // Load and draw images
+            let x = 0, y = 0, imgIndex = 0;
+            const centerIndex = Math.floor((rows * cols) / 2);
 
-                // Display the result with hyperlink
-                const dataUrl = canvas.toDataURL('image/png');
-                outputImage.src = dataUrl;
-                outputImage.style.display = 'block';
-                outputLink.href = dataUrl;
-                outputLink.style.display = 'block';
-            } catch (error) {
-                alert('An error occurred while generating the group photo.');
-                console.error(error);
+            for (let i = 0; i < rows * cols; i++) {
+                if (addCenterImage && i === centerIndex) {
+                    // Add center scenic image (e.g., mountain)
+                    const centerImg = new Image();
+                    centerImg.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80';
+                    await new Promise(resolve => centerImg.onload = resolve);
+                    ctx.drawImage(centerImg, x, y, frameWidth, frameHeight);
+                } else if (imgIndex < files.length) {
+                    const img = new Image();
+                    img.src = URL.createObjectURL(files[imgIndex]);
+                    await new Promise(resolve => img.onload = resolve);
+                    ctx.drawImage(img, x, y, frameWidth, frameHeight);
+                    imgIndex++;
+                }
+
+                x += frameWidth + gap;
+                if (x >= canvas.width) {
+                    x = 0;
+                    y += frameHeight + gap;
+                }
             }
+
+            // High-quality output
+            const dataUrl = canvas.toDataURL('image/png', 1.0); // Quality set to max
+            const blob = await (await fetch(dataUrl)).blob();
+            const url = URL.createObjectURL(blob);
+            document.getElementById('result').innerHTML = `
+                <button onclick="downloadFile('${url}', 'group-photo.png')">Download Group Photo (${(blob.size / 1024).toFixed(2)} KB)</button>
+            `;
+        }
+
+        function downloadFile(url, filename) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
     </script>
 </body>
