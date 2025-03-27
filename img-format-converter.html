@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Format Converter - ToolHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -60,11 +61,8 @@
         button.cancel:hover {
             background: #e63939;
         }
-        #progress {
-            margin-top: 1rem;
-            font-size: 1rem;
-            color: #2a5298;
-        }
+        #progress { margin-top: 1rem; font-size: 1rem; color: #2a5298; }
+        #progress.error { color: #ff4d4d; }
         #result { margin-top: 1rem; }
         .btn-group { display: flex; gap: 1rem; justify-content: center; }
         .instructions {
@@ -73,26 +71,23 @@
             font-size: 0.9rem;
             color: #555;
         }
-        .instructions h3 {
-            color: #1e3c72;
-            margin-bottom: 0.5rem;
-        }
-        .instructions ul {
-            padding-left: 1.5rem;
-        }
+        .instructions h3 { color: #1e3c72; margin-bottom: 0.5rem; }
+        .instructions ul { padding-left: 1.5rem; }
+        .checkbox-label { font-size: 0.9rem; margin: 0.5rem 0; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Image Format Converter</h1>
-        <input type="file" id="imgInput" accept="image/*">
-        <select id="outputFormat">
+        <h1><i class="fas fa-image"></i> Image Format Converter</h1>
+        <input type="file" id="imgInput" accept="image/*" aria-label="Upload Image">
+        <select id="outputFormat" aria-label="Select Output Format">
             <option value="image/png">PNG</option>
             <option value="image/jpeg">JPEG</option>
             <option value="image/webp">WebP</option>
         </select>
-        <input type="range" id="quality" min="10" max="100" value="80">
+        <input type="range" id="quality" min="10" max="100" value="80" aria-label="Quality Slider">
         <label for="quality">Quality: <span id="qualityValue">80%</span></label>
+        <label class="checkbox-label"><input type="checkbox" id="compressCheckbox"> Compress Image</label>
         <button onclick="startConversion()">Convert Image</button>
         <button class="cancel" id="cancelBtn" onclick="cancelConversion()" style="display: none;">Cancel</button>
         <div id="progress"></div>
@@ -100,68 +95,77 @@
         <div class="instructions">
             <h3>How to Use This Tool</h3>
             <ul>
-                <li>Upload an image (max 50MB) by clicking "Choose File".</li>
-                <li>Select the output format (PNG, JPEG, WebP) from the dropdown.</li>
-                <li>Adjust the quality slider (10% = smallest size, 100% = best quality).</li>
-                <li>Click "Convert Image" to start the conversion process.</li>
-                <li>Watch the progress percentage as the image is processed.</li>
-                <li>Click "Cancel" if you want to stop the conversion.</li>
-                <li>Once complete, click "Download" to save the converted image or "Try Again" to start over.</li>
+                <li>Upload an image (max 50MB).</li>
+                <li>Choose output format (PNG, JPEG, WebP).</li>
+                <li>Adjust quality (10% = smallest, 100% = best).</li>
+                <li>Check "Compress Image" for smaller size.</li>
+                <li>Click "Convert Image" and download the result.</li>
             </ul>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.1.1/compressor.min.js"></script>
     <script>
         let isCancelled = false;
-
         const progressDiv = document.getElementById('progress');
         const resultDiv = document.getElementById('result');
         const cancelBtn = document.getElementById('cancelBtn');
         const qualityInput = document.getElementById('quality');
         const qualityValue = document.getElementById('qualityValue');
 
-        qualityInput.oninput = () => {
-            qualityValue.textContent = `${qualityInput.value}%`;
-        };
+        qualityInput.oninput = () => qualityValue.textContent = `${qualityInput.value}%`;
 
         async function startConversion() {
             const file = document.getElementById('imgInput').files[0];
             const format = document.getElementById('outputFormat').value;
             const quality = qualityInput.value / 100;
+            const shouldCompress = document.getElementById('compressCheckbox').checked;
 
             if (!file) {
                 progressDiv.textContent = 'Please select an image.';
+                progressDiv.classList.add('error');
                 return;
             }
-
             if (file.size > 50 * 1024 * 1024) {
                 progressDiv.textContent = 'File too large (max 50MB).';
+                progressDiv.classList.add('error');
                 return;
             }
 
             isCancelled = false;
             cancelBtn.style.display = 'inline-block';
             resultDiv.innerHTML = '';
+            progressDiv.classList.remove('error');
             progressDiv.textContent = 'Processing (0%)...';
 
             try {
+                let processedFile = file;
+                if (shouldCompress) {
+                    processedFile = await new Promise((resolve, reject) => {
+                        new Compressor(file, {
+                            quality: quality,
+                            success: resolve,
+                            error: reject
+                        });
+                    });
+                }
+
                 const img = new Image();
-                img.src = URL.createObjectURL(file);
+                img.src = URL.createObjectURL(processedFile);
                 await new Promise((resolve, reject) => {
                     img.onload = resolve;
                     img.onerror = () => reject(new Error('Image load failed'));
                 });
 
                 // Simulate progress
-                const totalSteps = 100;
-                for (let i = 0; i <= totalSteps; i += 10) {
+                for (let i = 0; i <= 100; i += 10) {
                     if (isCancelled) {
                         progressDiv.textContent = 'Conversion cancelled.';
                         cancelBtn.style.display = 'none';
                         return;
                     }
                     progressDiv.textContent = `Processing (${i}%)...`;
-                    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate delay
+                    await new Promise(resolve => setTimeout(resolve, 50));
                 }
 
                 const canvas = document.createElement('canvas');
@@ -175,7 +179,7 @@
                 const url = URL.createObjectURL(blob);
                 const ext = format.split('/')[1];
 
-                progressDiv.textContent = 'Conversion complete (100%)!';
+                progressDiv.textContent = `Conversion complete! Before: ${(file.size / 1024).toFixed(2)} KB`;
                 resultDiv.innerHTML = `
                     <button onclick="window.location.href='${url}'" download="converted.${ext}">Download ${ext.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</button>
                     <button onclick="resetForm()">Try Again</button>
@@ -184,17 +188,17 @@
             } catch (error) {
                 if (!isCancelled) {
                     progressDiv.textContent = 'Error: ' + error.message;
+                    progressDiv.classList.add('error');
                     cancelBtn.style.display = 'none';
                 }
             }
         }
 
-        function cancelConversion() {
-            isCancelled = true;
-        }
+        function cancelConversion() { isCancelled = true; }
 
         function resetForm() {
             document.getElementById('imgInput').value = '';
+            document.getElementById('compressCheckbox').checked = false;
             progressDiv.textContent = '';
             resultDiv.innerHTML = '';
             qualityInput.value = 80;
