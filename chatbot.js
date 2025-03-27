@@ -5,7 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <div id="chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background: #fff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: none; flex-direction: column;">
             <div style="background: #ff6b6b; color: white; padding: 10px; border-radius: 10px 10px 0 0; font-weight: bold;">HARSHU - Your Assistant</div>
             <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto;"></div>
-            <input id="chat-input" type="text" placeholder="Ask me anything..." style="width: 100%; padding: 10px; border: none; border-top: 1px solid #ddd; border-radius: 0 0 10px 10px;" />
+            <div style="display: flex; padding: 10px; border-top: 1px solid #ddd; background: #fff; border-radius: 0 0 10px 10px;">
+                <input id="chat-input" type="text" placeholder="Ask me anything..." style="flex: 1; padding: 5px; border: none; outline: none;" />
+                <button id="chat-send" style="background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 5px;">Send</button>
+            </div>
         </div>
         <button id="chat-toggle" style="position: fixed; bottom: 20px; right: 20px; background: #ff6b6b; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer;">💬</button>
     `;
@@ -16,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatToggle = document.getElementById('chat-toggle');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
 
     // Toggle Chatbot Visibility
     let isFirstOpen = true;
@@ -37,9 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         "default": "Sorry, I can’t answer that right now. I’ve notified the team, and we’ll get back to you within 24-48 hours!"
     };
 
-    // Handle User Input
-    chatInput.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter' && chatInput.value.trim()) {
+    // Function to Handle Sending Message
+    function sendMessage() {
+        if (chatInput.value.trim()) {
             const userMessage = chatInput.value.trim().toLowerCase();
             addMessage('You', userMessage);
 
@@ -54,12 +58,22 @@ document.addEventListener('DOMContentLoaded', () => {
             addMessage('Harshu', botResponse);
 
             if (botResponse === responses["default"]) {
-                await sendToTeam(userMessage);
+                sendToTeam(userMessage);
             }
 
             chatInput.value = '';
         }
+    }
+
+    // Handle Enter Key
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
     });
+
+    // Handle Send Button Click
+    chatSend.addEventListener('click', sendMessage);
 
     // Add Message to Chat
     function addMessage(sender, message) {
