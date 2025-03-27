@@ -24,7 +24,7 @@
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
         }
         h1 { color: #1e3c72; font-size: 1.8rem; text-align: center; }
-        .tab-buttons { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; }
+        .tab-buttons { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
         .tab-btn {
             padding: 0.8rem 1.5rem;
             border: none;
@@ -84,14 +84,24 @@
         <div id="area" class="tab-content">
             <input type="number" id="areaValue" placeholder="Value">
             <select id="areaFrom">
-                <option value="sqm">Square Meter</option>
-                <option value="sqft">Square Feet</option>
+                <option value="sqm">Square Meter (m²)</option>
+                <option value="sqft">Square Feet (ft²)</option>
                 <option value="acre">Acre</option>
+                <option value="hectare">Hectare</option>
+                <option value="sqkm">Square Kilometer (km²)</option>
+                <option value="sqmi">Square Mile (mi²)</option>
+                <option value="sqyd">Square Yard (yd²)</option>
+                <option value="sqin">Square Inch (in²)</option>
             </select>
             <select id="areaTo">
-                <option value="sqm">Square Meter</option>
-                <option value="sqft">Square Feet</option>
+                <option value="sqm">Square Meter (m²)</option>
+                <option value="sqft">Square Feet (ft²)</option>
                 <option value="acre">Acre</option>
+                <option value="hectare">Hectare</option>
+                <option value="sqkm">Square Kilometer (km²)</option>
+                <option value="sqmi">Square Mile (mi²)</option>
+                <option value="sqyd">Square Yard (yd²)</option>
+                <option value="sqin">Square Inch (in²)</option>
             </select>
             <button onclick="convertArea()">Convert</button>
         </div>
@@ -99,14 +109,24 @@
         <div id="weight" class="tab-content">
             <input type="number" id="weightValue" placeholder="Value">
             <select id="weightFrom">
-                <option value="kg">Kilogram</option>
-                <option value="lb">Pound</option>
-                <option value="g">Gram</option>
+                <option value="kg">Kilogram (kg)</option>
+                <option value="lb">Pound (lb)</option>
+                <option value="g">Gram (g)</option>
+                <option value="oz">Ounce (oz)</option>
+                <option value="ton">Ton (t)</option>
+                <option value="mg">Milligram (mg)</option>
+                <option value="stone">Stone (st)</option>
+                <option value="mt">Metric Ton (mt)</option>
             </select>
             <select id="weightTo">
-                <option value="kg">Kilogram</option>
-                <option value="lb">Pound</option>
-                <option value="g">Gram</option>
+                <option value="kg">Kilogram (kg)</option>
+                <option value="lb">Pound (lb)</option>
+                <option value="g">Gram (g)</option>
+                <option value="oz">Ounce (oz)</option>
+                <option value="ton">Ton (t)</option>
+                <option value="mg">Milligram (mg)</option>
+                <option value="stone">Stone (st)</option>
+                <option value="mt">Metric Ton (mt)</option>
             </select>
             <button onclick="convertWeight()">Convert</button>
         </div>
@@ -114,14 +134,26 @@
         <div id="distance" class="tab-content">
             <input type="number" id="distanceValue" placeholder="Value">
             <select id="distanceFrom">
-                <option value="km">Kilometer</option>
-                <option value="mi">Mile</option>
-                <option value="m">Meter</option>
+                <option value="km">Kilometer (km)</option>
+                <option value="mi">Mile (mi)</option>
+                <option value="m">Meter (m)</option>
+                <option value="cm">Centimeter (cm)</option>
+                <option value="mm">Millimeter (mm)</option>
+                <option value="yd">Yard (yd)</option>
+                <option value="ft">Foot (ft)</option>
+                <option value="in">Inch (in)</option>
+                <option value="nm">Nautical Mile (nm)</option>
             </select>
             <select id="distanceTo">
-                <option value="km">Kilometer</option>
-                <option value="mi">Mile</option>
-                <option value="m">Meter</option>
+                <option value="km">Kilometer (km)</option>
+                <option value="mi">Mile (mi)</option>
+                <option value="m">Meter (m)</option>
+                <option value="cm">Centimeter (cm)</option>
+                <option value="mm">Millimeter (mm)</option>
+                <option value="yd">Yard (yd)</option>
+                <option value="ft">Foot (ft)</option>
+                <option value="in">Inch (in)</option>
+                <option value="nm">Nautical Mile (nm)</option>
             </select>
             <button onclick="convertDistance()">Convert</button>
         </div>
@@ -166,7 +198,7 @@
             const from = document.getElementById('currencyFrom').value;
             const to = document.getElementById('currencyTo').value;
             if (isNaN(amount)) return resultDiv.textContent = 'Enter a valid amount';
-            const rates = { USD: 1, INR: 83, EUR: 0.92 }; // Static rates (update with API later)
+            const rates = { USD: 1, INR: 83, EUR: 0.92 };
             const result = (amount / rates[from]) * rates[to];
             resultDiv.textContent = `${amount} ${from} = ${result.toFixed(2)} ${to}`;
         }
@@ -176,7 +208,16 @@
             const from = document.getElementById('areaFrom').value;
             const to = document.getElementById('areaTo').value;
             if (isNaN(value)) return resultDiv.textContent = 'Enter a valid value';
-            const rates = { sqm: 1, sqft: 10.764, acre: 4046.86 };
+            const rates = {
+                sqm: 1,          // Base unit: Square Meter
+                sqft: 10.7639,   // Square Feet
+                acre: 4046.86,   // Acre
+                hectare: 10000,  // Hectare
+                sqkm: 1000000,   // Square Kilometer
+                sqmi: 2589988.11,// Square Mile
+                sqyd: 0.836127,  // Square Yard
+                sqin: 0.00064516 // Square Inch
+            };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
         }
@@ -186,7 +227,16 @@
             const from = document.getElementById('weightFrom').value;
             const to = document.getElementById('weightTo').value;
             if (isNaN(value)) return resultDiv.textContent = 'Enter a valid value';
-            const rates = { kg: 1, lb: 2.20462, g: 1000 };
+            const rates = {
+                kg: 1,        // Base unit: Kilogram
+                lb: 0.453592, // Pound
+                g: 1000,      // Gram
+                oz: 0.0283495,// Ounce
+                ton: 0.001,   // Ton
+                mg: 1000000,  // Milligram
+                stone: 0.157473,// Stone
+                mt: 0.001     // Metric Ton
+            };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
         }
@@ -196,7 +246,17 @@
             const from = document.getElementById('distanceFrom').value;
             const to = document.getElementById('distanceTo').value;
             if (isNaN(value)) return resultDiv.textContent = 'Enter a valid value';
-            const rates = { km: 1, mi: 0.621371, m: 1000 };
+            const rates = {
+                km: 1,         // Base unit: Kilometer
+                mi: 0.621371,  // Mile
+                m: 1000,       // Meter
+                cm: 100000,    // Centimeter
+                mm: 1000000,   // Millimeter
+                yd: 1093.61,   // Yard
+                ft: 3280.84,   // Foot
+                in: 39370.1,   // Inch
+                nm: 0.539957   // Nautical Mile
+            };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
         }
