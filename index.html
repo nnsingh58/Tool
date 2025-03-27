@@ -94,10 +94,12 @@
             background: #ffd700;
             box-shadow: 0 6px 20px rgba(255,230,109,0.6);
         }
-        .tools-grid {
+        .tools-grid, .about-section, .contact-section, .features {
             max-width: 1300px;
             margin: 4rem auto;
             padding: 0 2rem;
+        }
+        .tools-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2.5rem;
@@ -131,10 +133,29 @@
         }
         .tool-card:hover .tool-icon { transform: scale(1.2); color: #fff; }
         .tool-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
-        .features { background: #fff; padding: 5rem 2rem; margin-top: 4rem; }
+        .about-section { background: #fff; padding: 3rem; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        .about-section h2 { color: #1e3c72; font-size: 2rem; margin-bottom: 1.5rem; }
+        .contact-section { background: #f8f9fa; padding: 3rem; border-radius: 15px; }
+        .contact-section h2 { color: #1e3c72; font-size: 2rem; margin-bottom: 1.5rem; }
+        .contact-form input, .contact-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .contact-form button {
+            padding: 1rem 2rem;
+            background: #00d4ff;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .contact-form button:hover { background: #00b7d9; }
+        .features { background: #fff; padding: 5rem 2rem; }
         .features-grid {
-            max-width: 1300px;
-            margin: 0 auto;
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 3rem;
@@ -290,21 +311,39 @@
             </div>
         </section>
 
-        <section class="features">
+        <section id="features" class="features">
+            <h2>Why Choose ToolHub?</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <h3>Fast Processing</h3>
-                    <p>Lightning-fast conversions</p>
+                    <p>Experience lightning-fast conversions with our optimized tools, designed to save you time.</p>
                 </div>
                 <div class="feature-card">
                     <h3>Secure & Private</h3>
-                    <p>End-to-end encryption</p>
+                    <p>Your data stays safe with end-to-end encryption and no storage on our servers.</p>
                 </div>
                 <div class="feature-card">
                     <h3>Free Forever</h3>
-                    <p>No hidden costs</p>
+                    <p>Enjoy all our tools at no cost—no subscriptions, no hidden fees, just pure utility!</p>
                 </div>
             </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <h2>About ToolHub</h2>
+            <p>Welcome to ToolHub—your one-stop destination for free, reliable, and user-friendly online tools! At ToolHub, we believe in simplifying your digital life with a collection of innovative utilities designed to meet everyday needs. Whether you're compressing images, converting documents, generating QR codes, or calculating travel distances, our platform offers fast, secure, and accessible solutions—all at zero cost. Created with passion and a commitment to quality, ToolHub is here to empower individuals, students, and professionals alike with tools that make work easier and more efficient. Join our growing community and explore the possibilities!</p>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <h2>Contact Us</h2>
+            <form class="contact-form" onsubmit="submitForm(event)">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="email" name="email" placeholder="Your Email" required>
+                <input type="tel" name="phone" placeholder="Contact Number" required>
+                <input type="text" name="address" placeholder="Your Address" required>
+                <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
+            </form>
         </section>
     </main>
 
@@ -321,7 +360,7 @@
                 <p><a href="video-converter.html" style="color: white; text-decoration: none;">Video Tools</a></p>
                 <p><a href="voice-translator.html" style="color: white; text-decoration: none;">Voice Tools</a></p>
                 <p><a href="doc-format-converter.html" style="color: white; text-decoration: none;">Document Tools</a></p>
-                <p><a href="multifunction-calculator.html" style="color la: white; text-decoration: none;">Calculator Tools</a></p>
+                <p><a href="multifunction-calculator.html" style="color: white; text-decoration: none;">Calculator Tools</a></p>
             </div>
             <div>
                 <h4>Support</h4>
@@ -331,5 +370,14 @@
             </div>
         </div>
     </footer>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            alert('Thank you for your message! We will get back to you soon.');
+            document.querySelector('.contact-form').reset();
+            // Backend integration ke liye yahan code add karo (e.g., fetch API).
+        }
+    </script>
 </body>
 </html>
