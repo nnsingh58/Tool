@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function sendToTeam(query) {
         const formData = new FormData();
         formData.append('message', `Out-of-scope query from Harshu: ${query}`);
-        formData.append('email', 'your-email@example.com'); // Apna email yahan daal do
+        formData.append('email', 'nnsingh58@gmail.com'); // Apna email yahan daal do
 
         try {
             const response = await fetch('https://formspree.io/f/xpwpjwrz', {
