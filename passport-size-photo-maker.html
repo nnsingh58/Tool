@@ -65,7 +65,6 @@
             margin-bottom: 1rem;
             cursor: pointer;
             transition: background 0.3s;
-            position: relative;
         }
         .drop-zone.dragover {
             background: #ffe6e6;
@@ -115,7 +114,6 @@
             justify-content: center;
         }
         #preview img, #uploadPreview img {
-            border: 5px solid black;
             border-radius: 5px;
             object-fit: cover;
             max-width: 150px;
@@ -188,7 +186,7 @@
             </div>
             <button id="generateBtn">Generate</button>
             <button id="downloadBtn" style="display: none;">Download</button>
-            <p id="loading" class="loading">Processing...</p>
+            <p id="loading" class="loading">Processing: 0%</p>
             <div id="preview"></div>
         </div>
     </div>
@@ -223,12 +221,12 @@
             e.preventDefault();
             dropZone.classList.remove('dragover');
             imageInput.files = e.dataTransfer.files;
-            fileNameDisplay.textContent = e.dataTransfer.files[0].name; // Show file name
+            fileNameDisplay.textContent = e.dataTransfer.files[0].name;
             loadImage(e.dataTransfer.files[0]);
         });
         imageInput.addEventListener('change', (e) => {
             if (e.target.files[0]) {
-                fileNameDisplay.textContent = e.target.files[0].name; // Show file name
+                fileNameDisplay.textContent = e.target.files[0].name;
                 loadImage(e.target.files[0]);
             }
         });
@@ -238,7 +236,17 @@
                 console.log('No file selected');
                 return;
             }
-            loading.style.display = 'block'; // Show uploading indicator
+            loading.style.display = 'block';
+            loading.textContent = 'Processing: 0%';
+
+            // Simulate upload progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                loading.textContent = `Processing: ${progress}%`;
+                if (progress >= 100) clearInterval(progressInterval);
+            }, 200);
+
             const reader = new FileReader();
             reader.onload = async function(e) {
                 uploadedImage = new Image();
@@ -267,7 +275,7 @@
                         imgPreview.src = uploadedImage.src;
                         uploadPreview.appendChild(imgPreview);
                     }
-                    loading.style.display = 'none'; // Hide uploading indicator
+                    loading.style.display = 'none';
                 };
             };
             reader.readAsDataURL(file);
@@ -302,12 +310,22 @@
                 return;
             }
 
-            loading.style.display = 'block'; // Show processing indicator
-            preview.innerHTML = ''; // Clear previous preview
+            loading.style.display = 'block';
+            loading.textContent = 'Processing: 0%';
+            preview.innerHTML = '';
+
+            // Simulate generate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                loading.textContent = `Processing: ${progress}%`;
+                if (progress >= 100) clearInterval(progressInterval);
+            }, 200);
+
             await new Promise(resolve => setTimeout(resolve, 100)); // Ensure UI updates
 
             const bgColor = document.getElementById('backgroundColor').value;
-            console.log('Selected background color:', bgColor); // Debug
+            console.log('Selected background color:', bgColor);
             const photoSet = parseInt(document.getElementById('photoSet').value);
             const photoSize = document.getElementById('photoSize').value;
             let width, height;
@@ -335,11 +353,7 @@
             // Apply background color first
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
-
-            // Draw image with transparent background support
-            ctx.globalCompositeOperation = 'destination-over'; // Ensure background stays
-            ctx.drawImage(uploadedImage, 0, 0, width, height);
-            ctx.globalCompositeOperation = 'source-over'; // Reset to default
+            ctx.drawImage(uploadedImage, 0, 0, width, height); // Draw image over background
 
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
@@ -347,13 +361,16 @@
             outputCanvas.width = width * cols + (cols - 1) * 10;
             outputCanvas.height = height * rows + (rows - 1) * 10;
             const outputCtx = outputCanvas.getContext('2d');
-            outputCtx.fillStyle = '#ffffff'; // White background for output sheet
+            outputCtx.fillStyle = '#ffffff';
             outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
 
+            // Draw each photo with individual border
             for (let i = 0; i < photoSet; i++) {
                 const x = (i % cols) * (width + 10);
                 const y = Math.floor(i / cols) * (height + 10);
-                outputCtx.drawImage(canvas, x, y, width, height);
+                outputCtx.fillStyle = '#000000'; // Black border
+                outputCtx.fillRect(x - 5, y - 5, width + 10, height + 10); // Border
+                outputCtx.drawImage(canvas, x, y, width, height); // Photo
             }
 
             const resultImg = document.createElement('img');
@@ -362,7 +379,7 @@
 
             canvasOutput = outputCanvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
-            loading.style.display = 'none'; // Hide processing indicator
+            loading.style.display = 'none';
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
