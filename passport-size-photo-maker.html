@@ -98,17 +98,27 @@
             background: #ffd700;
             transform: translateY(-5px);
         }
-        #preview {
+        #preview, #uploadPreview {
             margin-top: 2rem;
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
             justify-content: center;
         }
-        #preview img {
+        #preview img, #uploadPreview img {
             border: 5px solid black;
             border-radius: 5px;
             object-fit: cover;
+            max-width: 150px;
+        }
+        .loading {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            display: none;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
         }
         .footer {
             background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
@@ -139,6 +149,7 @@
                 <p>Drag & Drop your photo here or click to upload</p>
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
             </div>
+            <div id="uploadPreview"></div>
             <div class="options">
                 <select id="backgroundColor">
                     <option value="#ffffff">White</option>
@@ -171,6 +182,7 @@
             </div>
             <button id="generateBtn">Generate</button>
             <button id="downloadBtn" style="display: none;">Download</button>
+            <p id="loading" class="loading">Processing...</p>
             <div id="preview"></div>
         </div>
     </div>
@@ -189,6 +201,10 @@
         // Drag and Drop functionality
         const dropZone = document.getElementById('dropZone');
         const imageInput = document.getElementById('imageInput');
+        const uploadPreview = document.getElementById('uploadPreview');
+        const preview = document.getElementById('preview');
+        const loading = document.getElementById('loading');
+
         dropZone.addEventListener('click', () => imageInput.click());
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -220,14 +236,20 @@
                         if (!isFrontFacing) {
                             alert('Please upload a front-facing photo!');
                             uploadedImage = null;
-                            document.getElementById('preview').innerHTML = '';
+                            uploadPreview.innerHTML = '';
                         } else {
-                            document.getElementById('preview').innerHTML = '<p>Image loaded. Click "Generate" to proceed.</p>';
+                            uploadPreview.innerHTML = '<p class="success">Photo successfully uploaded!</p>';
+                            const imgPreview = document.createElement('img');
+                            imgPreview.src = uploadedImage.src;
+                            uploadPreview.appendChild(imgPreview);
                         }
                     } catch (error) {
                         console.error('Face detection error:', error);
                         alert('Error loading face detection: ' + error.message + '. Using image without validation.');
-                        document.getElementById('preview').innerHTML = '<p>Image loaded (no face detection). Click "Generate" to proceed.</p>';
+                        uploadPreview.innerHTML = '<p class="success">Photo uploaded (no face detection).</p>';
+                        const imgPreview = document.createElement('img');
+                        imgPreview.src = uploadedImage.src;
+                        uploadPreview.appendChild(imgPreview);
                     }
                 };
             };
@@ -235,7 +257,6 @@
         }
 
         async function detectFace(img) {
-            // Load the face landmarks detection model
             const model = await faceLandmarksDetection.load(
                 faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
             );
@@ -243,9 +264,9 @@
             if (predictions.length === 0) return false;
 
             const landmarks = predictions[0].scaledMesh;
-            const leftEye = landmarks[33]; // Left eye
-            const rightEye = landmarks[263]; // Right eye
-            const nose = landmarks[1]; // Nose tip
+            const leftEye = landmarks[33];
+            const rightEye = landmarks[263];
+            const nose = landmarks[1];
 
             const eyeDistance = Math.abs(leftEye[0] - rightEye[0]);
             const noseToLeftEye = Math.abs(nose[0] - leftEye[0]);
@@ -264,6 +285,7 @@
                 return;
             }
 
+            loading.style.display = 'block'; // Show loading spinner
             const bgColor = document.getElementById('backgroundColor').value;
             const dressOption = document.getElementById('dressOption').value;
             const photoSet = parseInt(document.getElementById('photoSet').value);
@@ -309,19 +331,18 @@
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
             const rows = Math.ceil(photoSet / cols);
-            outputCanvas.width = width * cols;
-            outputCanvas.height = height * rows;
+            outputCanvas.width = width * cols + (cols - 1) * 10; // Add spacing
+            outputCanvas.height = height * rows + (rows - 1) * 10; // Add spacing
             const outputCtx = outputCanvas.getContext('2d');
             outputCtx.fillStyle = '#ffffff';
             outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
 
             for (let i = 0; i < photoSet; i++) {
-                const x = (i % cols) * width;
-                const y = Math.floor(i / cols) * height;
+                const x = (i % cols) * (width + 10);
+                const y = Math.floor(i / cols) * (height + 10);
                 outputCtx.drawImage(canvas, x, y, width, height);
             }
 
-            const preview = document.getElementById('preview');
             preview.innerHTML = '';
             const resultImg = document.createElement('img');
             resultImg.src = outputCanvas.toDataURL('image/jpeg', 1.0);
@@ -329,6 +350,7 @@
 
             canvasOutput = outputCanvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
+            loading.style.display = 'none'; // Hide loading spinner
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
