@@ -242,16 +242,18 @@
             // Simulate upload progress
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += 10;
+                progress += 20;
+                if (progress > 100) progress = 100;
                 loading.textContent = `Processing: ${progress}%`;
-                if (progress >= 100) clearInterval(progressInterval);
-            }, 200);
+                if (progress === 100) clearInterval(progressInterval);
+            }, 300);
 
             const reader = new FileReader();
             reader.onload = async function(e) {
                 uploadedImage = new Image();
                 uploadedImage.src = e.target.result;
                 uploadedImage.onload = async () => {
+                    await new Promise(resolve => setTimeout(resolve, 1500)); // Ensure progress completes
                     try {
                         console.log('Loading face detection model...');
                         const isFrontFacing = await detectFace(uploadedImage);
@@ -317,12 +319,13 @@
             // Simulate generate progress
             let progress = 0;
             const progressInterval = setInterval(() => {
-                progress += 10;
+                progress += 20;
+                if (progress > 100) progress = 100;
                 loading.textContent = `Processing: ${progress}%`;
-                if (progress >= 100) clearInterval(progressInterval);
-            }, 200);
+                if (progress === 100) clearInterval(progressInterval);
+            }, 300);
 
-            await new Promise(resolve => setTimeout(resolve, 100)); // Ensure UI updates
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Ensure progress completes
 
             const bgColor = document.getElementById('backgroundColor').value;
             console.log('Selected background color:', bgColor);
@@ -350,10 +353,17 @@
             canvas.width = width;
             canvas.height = height;
 
-            // Apply background color first
+            // Apply background color
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
-            ctx.drawImage(uploadedImage, 0, 0, width, height); // Draw image over background
+
+            // Draw image over background
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            tempCtx.drawImage(uploadedImage, 0, 0, width, height);
+            ctx.drawImage(tempCanvas, 0, 0);
 
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
