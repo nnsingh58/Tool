@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const langSelect = document.getElementById('language-select');
 
     let currentLang = 'en';
-    const currentPage = window.location.pathname.split('/').pop().replace('.html', '').replace(/-/g, ' ') || 'index';
+    const currentPageRaw = window.location.pathname.split('/').pop().replace('.html', '');
+    const currentPage = currentPageRaw.replace(/-/g, ' ') || 'index'; // Normalize hyphens to spaces
 
     chatToggle.addEventListener('click', () => {
         chatbot.style.display = chatbot.style.display === 'none' ? 'flex' : 'none';
