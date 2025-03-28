@@ -179,9 +179,9 @@
         <p>© 2025 ToolHub. All rights reserved.</p>
     </footer>
 
-    <!-- Load face-api.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection@0.0.3/dist/face-landmarks-detection.js"></script>
+    <!-- Load Local face-api.js and TensorFlow.js -->
+    <script src="tf.min.js"></script> <!-- TensorFlow.js अगर आपके पास है, वरना डाउनलोड करें -->
+    <script src="face-api.min.js"></script> <!-- face-api.js लोकल फाइल -->
     <script>
         let uploadedImage = null;
         let canvasOutput = null;
@@ -230,7 +230,6 @@
             const predictions = await model.estimateFaces({ input: img });
             if (predictions.length === 0) return false;
 
-            // Check if face is front-facing (basic check using eye positions)
             const landmarks = predictions[0].scaledMesh;
             const leftEye = landmarks[33]; // Left eye
             const rightEye = landmarks[263]; // Right eye
@@ -240,7 +239,6 @@
             const noseToLeftEye = Math.abs(nose[0] - leftEye[0]);
             const noseToRightEye = Math.abs(nose[0] - rightEye[0]);
 
-            // If nose is roughly centered between eyes, assume front-facing
             return Math.abs(noseToLeftEye - noseToRightEye) < eyeDistance * 0.2;
         }
 
@@ -260,73 +258,83 @@
             const photoSize = document.getElementById('photoSize').value;
             let width, height;
 
-            // Convert mm/inch to pixels (300 DPI)
             const dpi = 300;
             if (photoSize === '35x45') {
-                width = Math.round(35 * dpi / 25.4); // 35mm
-                height = Math.round(45 * dpi / 25.4); // 45mm
+                width = Math.round(35 * dpi / 25.4);
+                height = Math.round(45 * dpi / 25.4);
             } else if (photoSize === '2x2') {
-                width = 2 * dpi; // 2in
-                height = 2 * dpi; // 2in
+                width = 2 * dpi;
+                height = 2 * dpi;
             } else if (photoSize === '50x50') {
-                width = Math.round(50 * dpi / 25.4); // 50mm
-                height = Math.round(50 * dpi / 25.4); // 50mm
+                width = Math.round(50 * dpi / 25.4);
+                height = Math.round(50 * dpi / 25.4);
             } else {
                 width = Math.round((parseInt(document.getElementById('width').value) || 35) * dpi / 25.4);
                 height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
             }
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = width;
-            canvas.height = height;
+            // Remove.bg Integration (using your API key)
+            const formData = new FormData();
+            formData.append('image_file', dataURLtoFile(uploadedImage.src, 'image.jpg'));
+            formData.append('size', 'auto');
 
-            // Background color
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, width, height);
+            const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                method: 'POST',
+                headers: {
+                    'X-Api-Key': '9fkwNPiNxsYj4WF89fMVEDKB' // Your provided key
+                },
+                body: formData
+            });
+            const blob = await response.blob();
+            const bgRemovedImg = new Image();
+            bgRemovedImg.src = URL.createObjectURL(blob);
 
-            // Draw uploaded image
-            ctx.drawImage(uploadedImage, 0, 0, width, height);
+            bgRemovedImg.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = width;
+                canvas.height = height;
 
-            // Dress customization (simplified overlay)
-            if (dressOption !== 'none') {
-                const suitColor = dressOption.split('_')[1];
-                ctx.fillStyle = suitColor;
-                ctx.fillRect(0, height * 0.5, width, height * 0.5); // Shirt
-                ctx.fillStyle = '#000000'; // Tie (black for simplicity)
-                ctx.beginPath();
-                ctx.moveTo(width * 0.45, height * 0.5);
-                ctx.lineTo(width * 0.55, height * 0.5);
-                ctx.lineTo(width * 0.5, height * 0.7);
-                ctx.fill();
-            }
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, width, height);
+                ctx.drawImage(bgRemovedImg, 0, 0, width, height);
 
-            // Generate photo set on a single canvas
-            const outputCanvas = document.createElement('canvas');
-            const cols = Math.ceil(Math.sqrt(photoSet));
-            const rows = Math.ceil(photoSet / cols);
-            outputCanvas.width = width * cols;
-            outputCanvas.height = height * rows;
-            const outputCtx = outputCanvas.getContext('2d');
-            outputCtx.fillStyle = '#ffffff';
-            outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+                if (dressOption !== 'none') {
+                    const suitColor = dressOption.split('_')[1];
+                    ctx.fillStyle = suitColor;
+                    ctx.fillRect(0, height * 0.5, width, height * 0.5);
+                    ctx.fillStyle = '#000000';
+                    ctx.beginPath();
+                    ctx.moveTo(width * 0.45, height * 0.5);
+                    ctx.lineTo(width * 0.55, height * 0.5);
+                    ctx.lineTo(width * 0.5, height * 0.7);
+                    ctx.fill();
+                }
 
-            for (let i = 0; i < photoSet; i++) {
-                const x = (i % cols) * width;
-                const y = Math.floor(i / cols) * height;
-                outputCtx.drawImage(canvas, x, y, width, height);
-            }
+                const outputCanvas = document.createElement('canvas');
+                const cols = Math.ceil(Math.sqrt(photoSet));
+                const rows = Math.ceil(photoSet / cols);
+                outputCanvas.width = width * cols;
+                outputCanvas.height = height * rows;
+                const outputCtx = outputCanvas.getContext('2d');
+                outputCtx.fillStyle = '#ffffff';
+                outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
 
-            // Display preview
-            const preview = document.getElementById('preview');
-            preview.innerHTML = '';
-            const resultImg = document.createElement('img');
-            resultImg.src = outputCanvas.toDataURL('image/jpeg', 1.0);
-            preview.appendChild(resultImg);
+                for (let i = 0; i < photoSet; i++) {
+                    const x = (i % cols) * width;
+                    const y = Math.floor(i / cols) * height;
+                    outputCtx.drawImage(canvas, x, y, width, height);
+                }
 
-            // Enable download
-            canvasOutput = outputCanvas;
-            document.getElementById('downloadBtn').style.display = 'inline-block';
+                const preview = document.getElementById('preview');
+                preview.innerHTML = '';
+                const resultImg = document.createElement('img');
+                resultImg.src = outputCanvas.toDataURL('image/jpeg', 1.0);
+                preview.appendChild(resultImg);
+
+                canvasOutput = outputCanvas;
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+            };
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
@@ -336,6 +344,16 @@
             link.href = canvasOutput.toDataURL('image/jpeg', 1.0);
             link.click();
         });
+
+        // Helper function to convert Data URL to File
+        function dataURLtoFile(dataurl, filename) {
+            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, {type:mime});
+        }
     </script>
 </body>
 </html>
