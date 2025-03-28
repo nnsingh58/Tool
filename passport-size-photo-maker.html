@@ -239,7 +239,6 @@
             loading.style.display = 'block';
             loading.textContent = 'Processing: 0%';
 
-            // Simulate upload progress
             let progress = 0;
             const progressInterval = setInterval(() => {
                 progress += 20;
@@ -253,7 +252,7 @@
                 uploadedImage = new Image();
                 uploadedImage.src = e.target.result;
                 uploadedImage.onload = async () => {
-                    await new Promise(resolve => setTimeout(resolve, 1500)); // Ensure progress completes
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     try {
                         console.log('Loading face detection model...');
                         const isFrontFacing = await detectFace(uploadedImage);
@@ -302,6 +301,40 @@
             return Math.abs(noseToLeftEye - noseToRightEye) < eyeDistance * 0.2;
         }
 
+        async function removeBackground(img, width, height) {
+            const model = await faceLandmarksDetection.load(
+                faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
+            );
+            const predictions = await model.estimateFaces({ input: img });
+            if (predictions.length === 0) return img;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw original image
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Get face landmarks
+            const landmarks = predictions[0].scaledMesh;
+
+            // Create a mask for the face
+            ctx.beginPath();
+            ctx.moveTo(landmarks[10][0] * width / img.width, landmarks[10][1] * height / img.height); // Forehead
+            for (let i = 0; i < landmarks.length; i++) {
+                ctx.lineTo(landmarks[i][0] * width / img.width, landmarks[i][1] * height / img.height);
+            }
+            ctx.closePath();
+            ctx.clip();
+
+            // Redraw image within the clipped area
+            ctx.clearRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+
+            return canvas;
+        }
+
         document.getElementById('photoSize').addEventListener('change', function() {
             document.getElementById('customSize').style.display = this.value === 'custom' ? 'block' : 'none';
         });
@@ -316,7 +349,6 @@
             loading.textContent = 'Processing: 0%';
             preview.innerHTML = '';
 
-            // Simulate generate progress
             let progress = 0;
             const progressInterval = setInterval(() => {
                 progress += 20;
@@ -325,7 +357,7 @@
                 if (progress === 100) clearInterval(progressInterval);
             }, 300);
 
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Ensure progress completes
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             const bgColor = document.getElementById('backgroundColor').value;
             console.log('Selected background color:', bgColor);
@@ -348,22 +380,20 @@
                 height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
             }
 
+            // Remove background and get processed image
+            const processedImage = await removeBackground(uploadedImage, width, height);
+
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = width;
             canvas.height = height;
 
-            // Apply background color
+            // Apply selected background color
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
 
-            // Draw image over background
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            tempCtx.drawImage(uploadedImage, 0, 0, width, height);
-            ctx.drawImage(tempCanvas, 0, 0);
+            // Draw processed image over background
+            ctx.drawImage(processedImage, 0, 0, width, height);
 
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
