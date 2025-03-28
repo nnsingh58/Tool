@@ -3,214 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passport Size Photo Maker</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-detection@1.0.1/dist/face-detection.min.js"></script>
+    <title>Passport Size Photo Maker - ToolHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        canvas { border: 1px solid #ddd; margin-top: 10px; }
-        .section { margin-bottom: 20px; }
-        button { padding: 10px 20px; background: #ff6b6b; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        select, input { padding: 5px; margin: 5px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
+            padding: 1.5rem 2rem;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .nav {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover { color: #ffe66d; }
+        .container {
+            max-width: 1300px;
+            margin: 100px auto 4rem;
+            padding: 0 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            margin-bottom: 2rem;
+        }
+        .tool-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+        .upload-box {
+            margin-bottom: 2rem;
+        }
+        input[type="file"] {
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+        button {
+            padding: 1rem 2rem;
+            background: #ffe66d;
+            color: #333;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #ffd700;
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(255,230,109,0.6);
+        }
+        #preview {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        #preview img {
+            width: 100px; /* Passport size: 3.5cm x 4.5cm approximated */
+            height: 130px;
+            object-fit: cover;
+            border: 2px solid #ff6b6b;
+            border-radius: 5px;
+        }
+        .footer {
+            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">ToolHub</div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#tools">Tools</a>
+                <a href="index.html#features">Features</a>
+                <a href="index.html#about">About</a>
+                <a href="index.html#contact">Contact</a>
+            </div>
+        </nav>
+    </header>
+
     <div class="container">
         <h1>Passport Size Photo Maker</h1>
-
-        <!-- Input Section -->
-        <div class="section">
-            <label>Upload Photo (Front Face Only):</label><br>
-            <input type="file" id="photoInput" accept="image/*">
-            <p id="faceStatus" style="color: red;"></p>
-        </div>
-
-        <!-- Background Selection -->
-        <div class="section">
-            <label>Background Color:</label><br>
-            <select id="bgColor">
-                <option value="white">White</option>
-                <option value="lightblue">Light Blue</option>
-                <option value="lightgray">Light Gray</option>
-            </select>
-        </div>
-
-        <!-- Dress Selection -->
-        <div class="section">
-            <label>Dress Color:</label><br>
-            <select id="dressColor">
-                <option value="blue">Blue Shirt + Tie</option>
-                <option value="black">Black Shirt + Tie</option>
-                <option value="white">White Shirt + Tie</option>
-            </select>
-        </div>
-
-        <!-- Photo Set -->
-        <div class="section">
-            <label>Number of Photos:</label><br>
-            <select id="photoCount">
-                <option value="1">1</option>
-                <option value="4">4</option>
-                <option value="6">6</option>
-                <option value="8">8</option>
-            </select>
-        </div>
-
-        <!-- Size Selection -->
-        <div class="section">
-            <label>Photo Size:</label><br>
-            <select id="sizeSelect">
-                <option value="35x45">35mm x 45mm (India)</option>
-                <option value="51x51">2in x 2in (US)</option>
-                <option value="custom">Custom</option>
-            </select>
-            <div id="customSize" style="display: none;">
-                <input type="number" id="customWidth" placeholder="Width (mm)" min="10">
-                <input type="number" id="customHeight" placeholder="Height (mm)" min="10">
+        <div class="tool-section">
+            <div class="upload-box">
+                <input type="file" id="imageInput" accept="image/*" onchange="loadImage()">
+                <p>Upload an image to create passport-sized photos</p>
             </div>
-        </div>
-
-        <!-- Preview and Download -->
-        <div class="section">
-            <canvas id="previewCanvas"></canvas><br>
-            <button id="generateBtn" disabled>Generate Passport Photos</button>
-            <a id="downloadLink" style="display: none;" download="passport_photos.png">Download</a>
+            <button onclick="generatePhotos()">Generate</button>
+            <div id="preview"></div>
         </div>
     </div>
 
+    <footer class="footer">
+        <p>© 2025 ToolHub. All rights reserved.</p>
+    </footer>
+
     <script>
-        const photoInput = document.getElementById('photoInput');
-        const faceStatus = document.getElementById('faceStatus');
-        const bgColor = document.getElementById('bgColor');
-        const dressColor = document.getElementById('dressColor');
-        const photoCount = document.getElementById('photoCount');
-        const sizeSelect = document.getElementById('sizeSelect');
-        const customSize = document.getElementById('customSize');
-        const customWidth = document.getElementById('customWidth');
-        const customHeight = document.getElementById('customHeight');
-        const previewCanvas = document.getElementById('previewCanvas');
-        const generateBtn = document.getElementById('generateBtn');
-        const downloadLink = document.getElementById('downloadLink');
-        const ctx = previewCanvas.getContext('2d');
-
         let uploadedImage = null;
-        let faceDetected = false;
 
-        // Load Face Detection Model
-        async function loadModel() {
-            const model = await faceDetection.SupportedModels.MediaPipeFaceDetector;
-            return await faceDetection.createDetector(model, { runtime: 'tfjs' });
+        function loadImage() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage = new Image();
+                    uploadedImage.src = e.target.result;
+                    uploadedImage.onload = function() {
+                        document.getElementById('preview').innerHTML = '<p>Image loaded. Click "Generate" to create passport photos.</p>';
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
         }
 
-        // Check if face is front-facing
-        async function checkFace(image) {
-            const detector = await loadModel();
-            const faces = await detector.estimateFaces(image);
-            if (faces.length === 0) {
-                faceStatus.textContent = "No face detected!";
-                return false;
+        function generatePhotos() {
+            if (!uploadedImage) {
+                alert('Please upload an image first!');
+                return;
             }
-            if (faces.length > 1) {
-                faceStatus.textContent = "Multiple faces detected! Upload single face photo.";
-                return false;
-            }
-            const face = faces[0];
-            const yaw = face.rotation?.yaw || 0; // Check face rotation
-            if (Math.abs(yaw) > 0.2) { // Threshold for front-facing
-                faceStatus.textContent = "Face is not front-facing!";
-                return false;
-            }
-            faceStatus.textContent = "Face detected successfully!";
-            faceStatus.style.color = "green";
-            return true;
-        }
 
-        // Handle Photo Upload
-        photoInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const preview = document.getElementById('preview');
+            preview.innerHTML = ''; // Clear previous previews
 
-            uploadedImage = new Image();
-            uploadedImage.src = URL.createObjectURL(file);
-            uploadedImage.onload = async () => {
-                faceDetected = await checkFace(uploadedImage);
-                generateBtn.disabled = !faceDetected;
+            // Passport size in pixels (approx 3.5cm x 4.5cm at 300 DPI)
+            const width = 100; // 3.5cm
+            const height = 130; // 4.5cm
+            canvas.width = width;
+            canvas.height = height;
+
+            // Generate 6 passport-sized photos (common requirement)
+            for (let i = 0; i < 6; i++) {
+                ctx.drawImage(uploadedImage, 0, 0, width, height);
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/jpeg');
+                preview.appendChild(img);
+            }
+
+            // Add download option
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download All';
+            downloadBtn.onclick = function() {
+                const link = document.createElement('a');
+                link.download = 'passport_photos.jpg';
+                link.href = canvas.toDataURL('image/jpeg');
+                link.click();
             };
-        });
-
-        // Show Custom Size Inputs
-        sizeSelect.addEventListener('change', () => {
-            customSize.style.display = sizeSelect.value === 'custom' ? 'block' : 'none';
-        });
-
-        // Generate Passport Photos
-        generateBtn.addEventListener('click', () => {
-            if (!uploadedImage || !faceDetected) return;
-
-            // Get Size in Pixels (assuming 300 DPI for high quality)
-            const dpi = 300;
-            let widthMm, heightMm;
-            if (sizeSelect.value === '35x45') {
-                widthMm = 35; heightMm = 45;
-            } else if (sizeSelect.value === '51x51') {
-                widthMm = 51; heightMm = 51;
-            } else {
-                widthMm = parseInt(customWidth.value) || 35;
-                heightMm = parseInt(customHeight.value) || 45;
-            }
-            const widthPx = Math.round((widthMm / 25.4) * dpi);
-            const heightPx = Math.round((heightMm / 25.4) * dpi);
-
-            // Calculate Canvas Size based on Photo Count
-            const count = parseInt(photoCount.value);
-            const cols = Math.ceil(Math.sqrt(count));
-            const rows = Math.ceil(count / cols);
-            previewCanvas.width = widthPx * cols;
-            previewCanvas.height = heightPx * rows;
-
-            // Draw Background
-            ctx.fillStyle = bgColor.value;
-            ctx.fillRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-            // Crop Face (Assuming face is centered)
-            const faceWidth = uploadedImage.width * 0.5;
-            const faceHeight = uploadedImage.height * 0.7;
-            const faceX = (uploadedImage.width - faceWidth) / 2;
-            const faceY = uploadedImage.height * 0.1;
-
-            // Draw Dress (Simple Rectangle for Shirt + Triangle for Tie)
-            for (let i = 0; i < count; i++) {
-                const x = (i % cols) * widthPx;
-                const y = Math.floor(i / cols) * heightPx;
-
-                // Draw Shirt
-                ctx.fillStyle = dressColor.value;
-                ctx.fillRect(x + widthPx * 0.2, y + heightPx * 0.6, widthPx * 0.6, heightPx * 0.4);
-
-                // Draw Tie
-                ctx.fillStyle = 'red'; // Tie color fixed for simplicity
-                ctx.beginPath();
-                ctx.moveTo(x + widthPx * 0.45, y + heightPx * 0.6);
-                ctx.lineTo(x + widthPx * 0.55, y + heightPx * 0.6);
-                ctx.lineTo(x + widthPx * 0.5, y + heightPx * 0.9);
-                ctx.closePath();
-                ctx.fill();
-
-                // Draw Face
-                ctx.drawImage(uploadedImage, faceX, faceY, faceWidth, faceHeight, x, y, widthPx, heightPx * 0.6);
-
-                // Draw Black Border
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 5;
-                ctx.strokeRect(x, y, widthPx, heightPx);
-            }
-
-            // Enable Download
-            downloadLink.href = previewCanvas.toDataURL('image/png');
-            downloadLink.style.display = 'inline';
-        });
+            preview.appendChild(downloadBtn);
+        }
     </script>
 </body>
 </html>
