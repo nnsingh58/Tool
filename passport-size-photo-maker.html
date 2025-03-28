@@ -214,7 +214,9 @@
                 uploadedImage.src = e.target.result;
                 uploadedImage.onload = async () => {
                     try {
+                        console.log('Loading face detection model...');
                         const isFrontFacing = await detectFace(uploadedImage);
+                        console.log('Face detection result:', isFrontFacing);
                         if (!isFrontFacing) {
                             alert('Please upload a front-facing photo!');
                             uploadedImage = null;
@@ -224,7 +226,7 @@
                         }
                     } catch (error) {
                         console.error('Face detection error:', error);
-                        alert('Error loading face detection. Using image without validation.');
+                        alert('Error loading face detection: ' + error.message + '. Using image without validation.');
                         document.getElementById('preview').innerHTML = '<p>Image loaded (no face detection). Click "Generate" to proceed.</p>';
                     }
                 };
@@ -282,7 +284,6 @@
                 height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
             }
 
-            // Basic processing without Remove.bg (optional integration below)
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = width;
@@ -327,60 +328,6 @@
 
             canvasOutput = outputCanvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
-
-            // Optional Remove.bg Integration (uncomment to use)
-            /*
-            const formData = new FormData();
-            formData.append('image_file', dataURLtoFile(uploadedImage.src, 'image.jpg'));
-            formData.append('size', 'auto');
-
-            try {
-                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
-                    method: 'POST',
-                    headers: {
-                        'X-Api-Key': '9fkwNPiNxsYj4WF89fMVEDKB'
-                    },
-                    body: formData
-                });
-                const blob = await response.blob();
-                const bgRemovedImg = new Image();
-                bgRemovedImg.src = URL.createObjectURL(blob);
-
-                bgRemovedImg.onload = () => {
-                    ctx.clearRect(0, 0, width, height);
-                    ctx.fillStyle = bgColor;
-                    ctx.fillRect(0, 0, width, height);
-                    ctx.drawImage(bgRemovedImg, 0, 0, width, height);
-
-                    if (dressOption !== 'none') {
-                        const suitColor = dressOption.split('_')[1];
-                        ctx.fillStyle = suitColor;
-                        ctx.fillRect(0, height * 0.5, width, height * 0.5);
-                        ctx.fillStyle = '#000000';
-                        ctx.beginPath();
-                        ctx.moveTo(width * 0.45, height * 0.5);
-                        ctx.lineTo(width * 0.55, height * 0.5);
-                        ctx.lineTo(width * 0.5, height * 0.7);
-                        ctx.fill();
-                    }
-
-                    for (let i = 0; i < photoSet; i++) {
-                        const x = (i % cols) * width;
-                        const y = Math.floor(i / cols) * height;
-                        outputCtx.drawImage(canvas, x, y, width, height);
-                    }
-
-                    resultImg.src = outputCanvas.toDataURL('image/jpeg', 1.0);
-                    preview.innerHTML = '';
-                    preview.appendChild(resultImg);
-                    canvasOutput = outputCanvas;
-                    document.getElementById('downloadBtn').style.display = 'inline-block';
-                };
-            } catch (error) {
-                console.error('Remove.bg error:', error);
-                alert('Background removal failed. Proceeding with basic processing.');
-            }
-            */
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
@@ -390,15 +337,6 @@
             link.href = canvasOutput.toDataURL('image/jpeg', 1.0);
             link.click();
         });
-
-        function dataURLtoFile(dataurl, filename) {
-            let arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
-                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-            while(n--) {
-                u8arr[n] = bstr.charCodeAt(n);
-            }
-            return new File([u8arr], filename, {type:mime});
-        }
     </script>
 </body>
 </html>
