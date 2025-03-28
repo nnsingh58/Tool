@@ -1,379 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Free online digital tools including voice translator, image compressor, PDF converter, group photo maker, and more - fast, secure, and easy to use.">
-    <meta name="keywords" content="free online voice translator, image compressor online, PDF to Word converter, QR code generator, text to speech tool, video converter free, audio converter online, file compressor, image to PDF converter, document format converter, group photo maker, multifunction calculator">
-    <meta name="author" content="ToolHub">
-    <meta name="robots" content="index, follow">
-    <meta name="google-adsense-account" content="ca-pub-9239182778221521">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
-    <link rel="canonical" href="https://nnsingh58.github.io/Tool/">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/711/711887.png" />
-    <title>ToolHub - Free Online Digital Tools for Everyone</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
-            background: #f0f2f5;
-            color: #333;
-        }
-        .header {
-            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
-            padding: 1.5rem 2rem;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        .nav {
-            max-width: 1300px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 2.5rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        .nav-links a:hover { color: #ffe66d; }
-        .hero {
-            text-align: center;
-            padding: 8rem 2rem 5rem;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
-            color: white;
-            margin-top: 80px;
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
-            animation: gradientShift 10s infinite alternate;
-        }
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            font-weight: 700;
-            animation: bounceIn 1s ease;
-        }
-        @keyframes bounceIn {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem; }
-        .cta-button {
-            display: inline-block;
-            padding: 1.2rem 3rem;
-            background: #ffe66d;
-            color: #333;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255,230,109,0.4);
-        }
-        .cta-button:hover {
-            transform: translateY(-5px);
-            background: #ffd700;
-            box-shadow: 0 6px 20px rgba(255,230,109,0.6);
-        }
-        .tools-grid, .about-section, .contact-section, .features {
-            max-width: 1300px;
-            margin: 4rem auto;
-            padding: 0 2rem;
-        }
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2.5rem;
-        }
-        .tool-card {
-            background: white;
-            border-radius: 15px;
-            text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .tool-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            padding: 2rem;
-            height: 100%;
-        }
-        .tool-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            background: linear-gradient(135deg, #ff9f1c, #ff6b6b);
-            color: white;
-        }
-        .tool-icon {
-            font-size: 3rem;
-            color: #ff6b6b;
-            margin-bottom: 1.5rem;
-            transition: transform 0.3s ease;
-        }
-        .tool-card:hover .tool-icon { transform: scale(1.2); color: #fff; }
-        .tool-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
-        .about-section { background: #fff; padding: 3rem; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
-        .about-section h2 { color: #1e3c72; font-size: 2rem; margin-bottom: 1.5rem; }
-        .contact-section { background: #f8f9fa; padding: 3rem; border-radius: 15px; }
-        .contact-section h2 { color: #1e3c72; font-size: 2rem; margin-bottom: 1.5rem; }
-        .contact-form input, .contact-form textarea {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .contact-form button {
-            padding: 1rem 2rem;
-            background: #00d4ff;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .contact-form button:hover { background: #00b7d9; }
-        .features { background: #fff; padding: 5rem 2rem; }
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 3rem;
-        }
-        .feature-card {
-            text-align: center;
-            padding: 2.5rem;
-            background: #f8f9fa;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-        .feature-card:hover {
-            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
-            color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .footer {
-            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
-            color: white;
-            padding: 3rem 2rem;
-            margin-top: 4rem;
-            clip-path: polygon(0 15%, 100% 0, 100% 100%, 0 100%);
-        }
-        .footer-content {
-            max-width: 1300px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 2.5rem;
-        }
-        .footer h4 { margin-bottom: 1.5rem; font-size: 1.3rem; }
-        .footer p { opacity: 0.9; transition: opacity 0.3s ease; }
-        .footer p:hover { opacity: 1; }
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .hero { padding: 6rem 1rem 3rem; }
-            .hero h1 { font-size: 2.5rem; }
-            .tools-grid { grid-template-columns: 1fr; padding: 0 1rem; }
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <nav class="nav">
-            <div class="logo">ToolHub</div>
-            <div class="nav-links">
-                <a href="#tools">Tools</a>
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>
-            </div>
-        </nav>
-    </header>
-
-    <section class="hero">
-        <h1>Free Online Digital Tools - ToolHub</h1>
-        <p>Explore our vibrant, fast, and secure tools for all your digital needs!</p>
-        <a href="#tools" class="cta-button">Explore Free Tools</a>
-    </section>
-
-    <main>
-        <section id="tools" class="tools-grid">
-            <div class="tool-card">
-                <a href="img-compress.html" class="tool-link">
-                    <i class="fas fa-file-image tool-icon" aria-label="Image Compression Tool"></i>
-                    <h3>Image Compression</h3>
-                    <p>Reduce image size without losing quality</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="pdf-to-word.html" class="tool-link">
-                    <i class="fas fa-file-pdf tool-icon" aria-label="PDF to Word Converter"></i>
-                    <h3>PDF to Word</h3>
-                    <p>Convert PDFs to editable Word documents</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="video-converter.html" class="tool-link">
-                    <i class="fas fa-file-video tool-icon" aria-label="Video Converter Tool"></i>
-                    <h3>Video Converter</h3>
-                    <p>Change video formats easily</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="audio-converter.html" class="tool-link">
-                    <i class="fas fa-file-audio tool-icon" aria-label="Audio Converter Tool"></i>
-                    <h3>Audio Converter</h3>
-                    <p>Convert audio files between formats</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="file-compressor.html" class="tool-link">
-                    <i class="fas fa-compress tool-icon" aria-label="File Compressor Tool"></i>
-                    <h3>File Compressor</h3>
-                    <p>Compress any file type to save space</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="qr-generator.html" class="tool-link">
-                    <i class="fas fa-qrcode tool-icon" aria-label="QR Code Generator"></i>
-                    <h3>QR Code Generator</h3>
-                    <p>Create QR codes instantly</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="img-to-pdf.html" class="tool-link">
-                    <i class="fas fa-images tool-icon" aria-label="Image to PDF Converter"></i>
-                    <h3>Image to PDF</h3>
-                    <p>Convert images to PDF documents</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="text-to-speech.html" class="tool-link">
-                    <i class="fas fa-volume-up tool-icon" aria-label="Text to Speech Tool"></i>
-                    <h3>Text to Speech</h3>
-                    <p>Convert text to natural audio</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="voice-translator.html" class="tool-link">
-                    <i class="fas fa-microphone tool-icon" aria-label="Voice Translator Tool"></i>
-                    <h3>Voice Translator</h3>
-                    <p>Real-time voice translation</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="img-format-converter.html" class="tool-link">
-                    <i class="fas fa-image tool-icon" aria-label="Image Format Converter"></i>
-                    <h3>Image Format Converter</h3>
-                    <p>Convert between PNG, JPEG, WebP</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="doc-format-converter.html" class="tool-link">
-                    <i class="fas fa-file-alt tool-icon" aria-label="Document Format Converter"></i>
-                    <h3>Document Format Converter</h3>
-                    <p>Convert between DOCX, PDF, TXT</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="group-photo-maker.html" class="tool-link">
-                    <i class="fas fa-users tool-icon" aria-label="Group Photo Maker"></i>
-                    <h3>Group Photo Maker</h3>
-                    <p>Create group photos from multiple images</p>
-                </a>
-            </div>
-            <div class="tool-card">
-                <a href="multifunction-calculator.html" class="tool-link">
-                    <i class="fas fa-calculator tool-icon" aria-label="Multifunction Calculator"></i>
-                    <h3>Multifunction Calculator</h3>
-                    <p>Currency, Area, Weight, Distance & More</p>
-                </a>
-            </div>
-        </section>
-
-        <section id="features" class="features">
-            <h2>Why Choose ToolHub?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Fast Processing</h3>
-                    <p>Experience lightning-fast conversions with our optimized tools, designed to save you time.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Secure & Private</h3>
-                    <p>Your data stays safe with end-to-end encryption and no storage on our servers.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>Free Forever</h3>
-                    <p>Enjoy all our tools at no cost—no subscriptions, no hidden fees, just pure utility!</p>
-                </div>
-            </div>
-        </section>
-
-        <section id="about" class="about-section">
-            <h2>About ToolHub</h2>
-            <p>Welcome to ToolHub—your one-stop destination for free, reliable, and user-friendly online tools! At ToolHub, we believe in simplifying your digital life with a collection of innovative utilities designed to meet everyday needs. Whether you're compressing images, converting documents, generating QR codes, or calculating travel distances, our platform offers fast, secure, and accessible solutions—all at zero cost. Created with passion and a commitment to quality, ToolHub is here to empower individuals, students, and professionals alike with tools that make work easier and more efficient. Join our growing community and explore the possibilities!</p>
-        </section>
-
-        <section id="contact" class="contact-section">
-            <h2>Contact Us</h2>
-            <form class="contact-form" action="https://formspree.io/f/xpwpjwrz" method="POST">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="email" name="email" placeholder="Your Email" required>
-                <input type="tel" name="phone" placeholder="Contact Number" required>
-                <input type="text" name="address" placeholder="Your Address" required>
-                <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
-        </section>
-    </main>
-
-    <footer class="footer">
-        <div class="footer-content">
-            <div>
-                <h4>ToolHub</h4>
-                <p>Your ultimate digital toolkit</p>
-            </div>
-            <div>
-                <h4>Tools</h4>
-                <p><a href="img-compress.html" style="color: white; text-decoration: none;">Image Tools</a></p>
-                <p><a href="pdf-to-word.html" style="color: white; text-decoration: none;">PDF Tools</a></p>
-                <p><a href="video-converter.html" style="color: white; text-decoration: none;">Video Tools</a></p>
-                <p><a href="voice-translator.html" style="color: white; text-decoration: none;">Voice Tools</a></p>
-                <p><a href="doc-format-converter.html" style="color: white; text-decoration: none;">Document Tools</a></p>
-                <p><a href="multifunction-calculator.html" style="color: white; text-decoration: none;">Calculator Tools</a></p>
-            </div>
-            <div>
-                <h4>Support</h4>
-                <p><a href="#contact" style="color: white; text-decoration: none;">Contact Us</a></p>
-                <p><a href="#faq" style="color: white; text-decoration: none;">FAQ</a></p>
-                <p><a href="#docs" style="color: white; text-decoration: none;">Documentation</a></p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // JS ab optional hai kyunki Formspree direct submission handle karega
-    </script>
-    <script src="chatbot.js"></script>
-</body>
-</html>
+<section id="tools" class="tools-grid">
+    <div class="tool-card">
+        <a href="img-compress.html" class="tool-link">
+            <i class="fas fa-file-image tool-icon" aria-label="Image Compression Tool"></i>
+            <h3>Image Compression</h3>
+            <p>Reduce image size without losing quality</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="pdf-to-word.html" class="tool-link">
+            <i class="fas fa-file-pdf tool-icon" aria-label="PDF to Word Converter"></i>
+            <h3>PDF to Word</h3>
+            <p>Convert PDFs to editable Word documents</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="video-converter.html" class="tool-link">
+            <i class="fas fa-file-video tool-icon" aria-label="Video Converter Tool"></i>
+            <h3>Video Converter</h3>
+            <p>Change video formats easily</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="audio-converter.html" class="tool-link">
+            <i class="fas fa-file-audio tool-icon" aria-label="Audio Converter Tool"></i>
+            <h3>Audio Converter</h3>
+            <p>Convert audio files between formats</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="file-compressor.html" class="tool-link">
+            <i class="fas fa-compress tool-icon" aria-label="File Compressor Tool"></i>
+            <h3>File Compressor</h3>
+            <p>Compress any file type to save space</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="qr-generator.html" class="tool-link">
+            <i class="fas fa-qrcode tool-icon" aria-label="QR Code Generator"></i>
+            <h3>QR Code Generator</h3>
+            <p>Create QR codes instantly</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="img-to-pdf.html" class="tool-link">
+            <i class="fas fa-images tool-icon" aria-label="Image to PDF Converter"></i>
+            <h3>Image to PDF</h3>
+            <p>Convert images to PDF documents</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="text-to-speech.html" class="tool-link">
+            <i class="fas fa-volume-up tool-icon" aria-label="Text to Speech Tool"></i>
+            <h3>Text to Speech</h3>
+            <p>Convert text to natural audio</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="voice-translator.html" class="tool-link">
+            <i class="fas fa-microphone tool-icon" aria-label="Voice Translator Tool"></i>
+            <h3>Voice Translator</h3>
+            <p>Real-time voice translation</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="img-format-converter.html" class="tool-link">
+            <i class="fas fa-image tool-icon" aria-label="Image Format Converter"></i>
+            <h3>Image Format Converter</h3>
+            <p>Convert between PNG, JPEG, WebP</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="doc-format-converter.html" class="tool-link">
+            <i class="fas fa-file-alt tool-icon" aria-label="Document Format Converter"></i>
+            <h3>Document Format Converter</h3>
+            <p>Convert between DOCX, PDF, TXT</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="group-photo-maker.html" class="tool-link">
+            <i class="fas fa-users tool-icon" aria-label="Group Photo Maker"></i>
+            <h3>Group Photo Maker</h3>
+            <p>Create group photos from multiple images</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="multifunction-calculator.html" class="tool-link">
+            <i class="fas fa-calculator tool-icon" aria-label="Multifunction Calculator"></i>
+            <h3>Multifunction Calculator</h3>
+            <p>Currency, Area, Weight, Distance & More</p>
+        </a>
+    </div>
+    <div class="tool-card">
+        <a href="passport-size-photo-maker.html" class="tool-link">
+            <i class="fas fa-id-card tool-icon" aria-label="Passport Size Photo Maker"></i>
+            <h3>Passport Size Photo Maker</h3>
+            <p>Create passport-sized photos easily</p>
+        </a>
+    </div>
+</section>
