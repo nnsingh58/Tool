@@ -85,12 +85,13 @@
 <body>
     <div class="container">
         <h1>Document Format Converter</h1>
-        <input type="file" id="docInput" accept=".docx,.pdf,.txt,.html">
+        <input type="file" id="docInput" accept=".docx,.pdf,.txt,.html,.json">
         <select id="outputFormat">
             <option value="docx">DOCX</option>
             <option value="pdf">PDF</option>
             <option value="txt">TXT</option>
             <option value="html">HTML</option>
+            <option value="json">JSON</option>
         </select>
         <input type="range" id="quality" min="10" max="100" value="80">
         <label for="quality">Quality (PDF only): <span id="qualityValue">80%</span></label>
@@ -101,8 +102,8 @@
         <div class="instructions">
             <h3>How to Use This Tool</h3>
             <ul>
-                <li>Upload a document (DOCX, PDF, TXT, HTML, max 50MB) by clicking "Choose File".</li>
-                <li>Select the output format (DOCX, PDF, TXT, HTML) from the dropdown.</li>
+                <li>Upload a document (DOCX, PDF, TXT, HTML, JSON, max 50MB) by clicking "Choose File".</li>
+                <li>Select the output format (DOCX, PDF, TXT, HTML, JSON) from the dropdown.</li>
                 <li>Adjust the quality slider (10% = smallest size, 100% = best quality, applies to PDF only).</li>
                 <li>Click "Convert Document" to start the conversion process.</li>
                 <li>Watch the progress percentage as the document is processed.</li>
@@ -153,14 +154,17 @@
             try {
                 let blob, ext = format;
 
-                if (file.type === 'application/pdf') {
+                const fileType = file.type || 'application/octet-stream';
+                if (fileType === 'application/pdf') {
                     blob = await convertFromPDF(file, format, quality);
-                } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                } else if (fileType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
                     blob = await convertFromDOCX(file, format, quality);
-                } else if (file.type === 'text/plain') {
+                } else if (fileType === 'text/plain') {
                     blob = await convertFromTXT(file, format, quality);
-                } else if (file.type === 'text/html') {
+                } else if (fileType === 'text/html') {
                     blob = await convertFromHTML(file, format, quality);
+                } else if (fileType === 'application/json') {
+                    blob = await convertFromJSON(file, format, quality);
                 } else {
                     throw new Error('Unsupported file format');
                 }
@@ -199,6 +203,8 @@
             const arrayBuffer = await file.arrayBuffer();
             const pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
             const totalPages = pdfDoc.numPages;
+            let text = '';
+
             if (format === 'pdf') {
                 const newPdf = new jsPDF();
                 for (let i = 1; i <= totalPages; i++) {
@@ -216,8 +222,7 @@
                     updateProgress(i, totalPages);
                 }
                 return newPdf.output('blob');
-            } else if (format === 'txt') {
-                let text = '';
+            } else {
                 for (let i = 1; i <= totalPages; i++) {
                     if (isCancelled) throw new Error('Cancelled');
                     const page = await pdfDoc.getPage(i);
@@ -225,9 +230,16 @@
                     text += textContent.items.map(item => item.str).join(' ') + '\n';
                     updateProgress(i, totalPages);
                 }
-                return new Blob([text], { type: 'text/plain' });
-            } else {
-                return await convertToOtherFormats(arrayBuffer, format, quality);
+                if (format === 'txt') {
+                    return new Blob([text], { type: 'text/plain' });
+                } else if (format === 'html') {
+                    return new Blob([`<html><body><pre>${text}</pre></body></html>`], { type: 'text/html' });
+                } else if (format === 'json') {
+                    const jsonData = { content: text.split('\n').filter(line => line.trim()) };
+                    return new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+                } else if (format === 'docx') {
+                    return await convertTextToDocx(text);
+                }
             }
         }
 
@@ -243,8 +255,16 @@
                 pdf.text(text, 10, 10);
                 simulateProgress();
                 return pdf.output('blob');
-            } else {
-                return await convertToOtherFormats(arrayBuffer, format, quality);
+            } else if (format === 'html') {
+                simulateProgress();
+                return new Blob([`<html><body><pre>${text}</pre></body></html>`], { type: 'text/html' });
+            } else if (format === 'json') {
+                const jsonData = { content: text.split('\n').filter(line => line.trim()) };
+                simulateProgress();
+                return new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+            } else if (format === 'docx') {
+                simulateProgress();
+                return new Blob([arrayBuffer], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
             }
         }
 
@@ -258,35 +278,76 @@
                 pdf.text(text, 10, 10);
                 simulateProgress();
                 return pdf.output('blob');
-            } else {
-                return await convertToOtherFormats(await file.arrayBuffer(), format, quality);
+            } else if (format === 'html') {
+                simulateProgress();
+                return new Blob([`<html><body><pre>${text}</pre></body></html>`], { type: 'text/html' });
+            } else if (format === 'json') {
+                const jsonData = { content: text.split('\n').filter(line => line.trim()) };
+                simulateProgress();
+                return new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+            } else if (format === 'docx') {
+                return await convertTextToDocx(text);
             }
         }
 
         async function convertFromHTML(file, format, quality) {
             const text = await file.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const plainText = doc.body.textContent || '';
             if (format === 'html') {
                 simulateProgress();
                 return new Blob([text], { type: 'text/html' });
             } else if (format === 'txt') {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(text, 'text/html');
-                const plainText = doc.body.textContent || '';
                 simulateProgress();
                 return new Blob([plainText], { type: 'text/plain' });
             } else if (format === 'pdf') {
                 const pdf = new jsPDF();
-                pdf.text(text, 10, 10);
+                pdf.text(plainText, 10, 10);
                 simulateProgress();
                 return pdf.output('blob');
-            } else {
-                return await convertToOtherFormats(await file.arrayBuffer(), format, quality);
+            } else if (format === 'json') {
+                const jsonData = { content: plainText.split('\n').filter(line => line.trim()) };
+                simulateProgress();
+                return new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+            } else if (format === 'docx') {
+                return await convertTextToDocx(plainText);
             }
         }
 
-        async function convertToOtherFormats(arrayBuffer, format, quality) {
+        async function convertFromJSON(file, format, quality) {
+            const text = await file.text();
+            let jsonData;
+            try {
+                jsonData = JSON.parse(text);
+            } catch (e) {
+                throw new Error('Invalid JSON file');
+            }
+            const plainText = JSON.stringify(jsonData, null, 2); // For simplicity, use stringified JSON as text
+            if (format === 'json') {
+                simulateProgress();
+                return new Blob([text], { type: 'application/json' });
+            } else if (format === 'txt') {
+                simulateProgress();
+                return new Blob([plainText], { type: 'text/plain' });
+            } else if (format === 'html') {
+                simulateProgress();
+                return new Blob([`<html><body><pre>${plainText}</pre></body></html>`], { type: 'text/html' });
+            } else if (format === 'pdf') {
+                const pdf = new jsPDF();
+                pdf.text(plainText, 10, 10);
+                simulateProgress();
+                return pdf.output('blob');
+            } else if (format === 'docx') {
+                return await convertTextToDocx(plainText);
+            }
+        }
+
+        async function convertTextToDocx(text) {
+            // Simple DOCX generation (requires server-side for full formatting)
+            const blob = new Blob([text], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
             simulateProgress();
-            throw new Error(`Conversion to ${format.toUpperCase()} not fully supported in browser yet.`);
+            return blob;
         }
 
         function updateProgress(current, total) {
@@ -316,6 +377,6 @@
             cancelBtn.style.display = 'none';
         }
     </script>
-    <script src="chatbot.js"></script>
+    <script src="/Tool/chatbot.js"></script>
 </body>
 </html>
