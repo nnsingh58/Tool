@@ -65,9 +65,18 @@
             margin-bottom: 1rem;
             cursor: pointer;
             transition: background 0.3s;
+            position: relative;
         }
         .drop-zone.dragover {
             background: #ffe6e6;
+        }
+        .drop-zone p {
+            margin: 0;
+        }
+        .drop-zone .file-name {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
         }
         .options {
             display: flex;
@@ -149,6 +158,7 @@
         <div class="tool-section">
             <div class="drop-zone" id="dropZone">
                 <p>Drag & Drop your photo here or click to upload</p>
+                <p id="fileName" class="file-name"></p>
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
             </div>
             <div id="uploadPreview"></div>
@@ -158,12 +168,6 @@
                     <option value="#87ceeb">Blue</option>
                     <option value="#ff0000">Red</option>
                     <option value="#d3d3d3">Gray</option>
-                </select>
-                <select id="dressOption">
-                    <option value="none">No Dress Change</option>
-                    <option value="suit_black">Black Suit with Tie</option>
-                    <option value="suit_navy">Navy Suit with Tie</option>
-                    <option value="suit_gray">Gray Suit with Tie</option>
                 </select>
                 <select id="photoSet">
                     <option value="1">1 Photo</option>
@@ -203,6 +207,7 @@
         // Elements
         const dropZone = document.getElementById('dropZone');
         const imageInput = document.getElementById('imageInput');
+        const fileNameDisplay = document.getElementById('fileName');
         const uploadPreview = document.getElementById('uploadPreview');
         const preview = document.getElementById('preview');
         const loading = document.getElementById('loading');
@@ -218,15 +223,22 @@
             e.preventDefault();
             dropZone.classList.remove('dragover');
             imageInput.files = e.dataTransfer.files;
+            fileNameDisplay.textContent = e.dataTransfer.files[0].name; // Show file name
             loadImage(e.dataTransfer.files[0]);
         });
-        imageInput.addEventListener('change', (e) => loadImage(e.target.files[0]));
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                fileNameDisplay.textContent = e.target.files[0].name; // Show file name
+                loadImage(e.target.files[0]);
+            }
+        });
 
         async function loadImage(file) {
             if (!file) {
                 console.log('No file selected');
                 return;
             }
+            loading.style.display = 'block'; // Show uploading indicator
             const reader = new FileReader();
             reader.onload = async function(e) {
                 uploadedImage = new Image();
@@ -240,6 +252,7 @@
                             alert('Please upload a front-facing photo!');
                             uploadedImage = null;
                             uploadPreview.innerHTML = '';
+                            fileNameDisplay.textContent = '';
                         } else {
                             uploadPreview.innerHTML = '<p class="success">Photo successfully uploaded!</p>';
                             const imgPreview = document.createElement('img');
@@ -254,6 +267,7 @@
                         imgPreview.src = uploadedImage.src;
                         uploadPreview.appendChild(imgPreview);
                     }
+                    loading.style.display = 'none'; // Hide uploading indicator
                 };
             };
             reader.readAsDataURL(file);
@@ -288,16 +302,12 @@
                 return;
             }
 
-            // Show loading indicator
-            loading.style.display = 'block';
+            loading.style.display = 'block'; // Show processing indicator
             preview.innerHTML = ''; // Clear previous preview
-
-            // Ensure UI updates before heavy processing
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 100)); // Ensure UI updates
 
             const bgColor = document.getElementById('backgroundColor').value;
             console.log('Selected background color:', bgColor); // Debug
-            const dressOption = document.getElementById('dressOption').value;
             const photoSet = parseInt(document.getElementById('photoSet').value);
             const photoSize = document.getElementById('photoSize').value;
             let width, height;
@@ -322,22 +332,14 @@
             canvas.width = width;
             canvas.height = height;
 
-            // Apply background color
+            // Apply background color first
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
-            ctx.drawImage(uploadedImage, 0, 0, width, height);
 
-            if (dressOption !== 'none') {
-                const suitColor = dressOption.split('_')[1];
-                ctx.fillStyle = suitColor;
-                ctx.fillRect(0, height * 0.5, width, height * 0.5);
-                ctx.fillStyle = '#000000';
-                ctx.beginPath();
-                ctx.moveTo(width * 0.45, height * 0.5);
-                ctx.lineTo(width * 0.55, height * 0.5);
-                ctx.lineTo(width * 0.5, height * 0.7);
-                ctx.fill();
-            }
+            // Draw image with transparent background support
+            ctx.globalCompositeOperation = 'destination-over'; // Ensure background stays
+            ctx.drawImage(uploadedImage, 0, 0, width, height);
+            ctx.globalCompositeOperation = 'source-over'; // Reset to default
 
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
@@ -345,7 +347,7 @@
             outputCanvas.width = width * cols + (cols - 1) * 10;
             outputCanvas.height = height * rows + (rows - 1) * 10;
             const outputCtx = outputCanvas.getContext('2d');
-            outputCtx.fillStyle = '#ffffff';
+            outputCtx.fillStyle = '#ffffff'; // White background for output sheet
             outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
 
             for (let i = 0; i < photoSet; i++) {
@@ -360,7 +362,7 @@
 
             canvasOutput = outputCanvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
-            loading.style.display = 'none';
+            loading.style.display = 'none'; // Hide processing indicator
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
