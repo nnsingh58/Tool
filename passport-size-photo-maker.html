@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passport Size Photo Maker - ToolHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -22,94 +24,30 @@
             z-index: 1000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .nav {
-            max-width: 1300px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
-        }
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-            margin-left: 2.5rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        .nav-links a:hover { color: #ffe66d; }
         .container {
             max-width: 1300px;
             margin: 100px auto 4rem;
             padding: 0 2rem;
             text-align: center;
         }
-        h1 {
-            font-size: 2.5rem;
-            color: #ff6b6b;
-            margin-bottom: 1.5rem;
-        }
-        .tool-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
         .drop-zone {
             border: 2px dashed #ff6b6b;
             padding: 2rem;
             margin-bottom: 1rem;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-        .drop-zone.dragover {
-            background: #ffe6e6;
-        }
-        .options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-            margin: 1rem 0;
-        }
-        select, input[type="number"] {
-            padding: 0.5rem;
-            font-size: 1rem;
-            border-radius: 5px;
-            border: 1px solid #ddd;
         }
         button {
             padding: 1rem 2rem;
             background: #ffe66d;
-            color: #333;
             border: none;
             border-radius: 50px;
-            font-weight: 600;
             font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s ease;
             margin: 0.5rem;
         }
-        button:hover {
-            background: #ffd700;
-            transform: translateY(-5px);
-        }
-        #preview {
-            margin-top: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
-        }
-        #preview img {
-            border: 5px solid black;
-            border-radius: 5px;
-            object-fit: cover;
-        }
+        button:hover { background: #ffd700; transform: translateY(-5px); }
+        #preview img { border: 5px solid black; border-radius: 5px; object-fit: cover; }
         .footer {
             background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
             color: white;
@@ -120,114 +58,65 @@
 </head>
 <body>
     <header class="header">
-        <nav class="nav">
-            <div class="logo">ToolHub</div>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="index.html#tools">Tools</a>
-                <a href="index.html#features">Features</a>
-                <a href="index.html#about">About</a>
-                <a href="index.html#contact">Contact</a>
-            </div>
-        </nav>
+        <h1>Passport Size Photo Maker</h1>
     </header>
 
     <div class="container">
-        <h1>Passport Size Photo Maker</h1>
-        <div class="tool-section">
-            <div class="drop-zone" id="dropZone">
-                <p>Drag & Drop your photo here or click to upload</p>
-                <input type="file" id="imageInput" accept="image/*" style="display: none;">
-            </div>
-            <div class="options">
-                <select id="backgroundColor">
-                    <option value="#ffffff">White</option>
-                    <option value="#87ceeb">Blue</option>
-                    <option value="#ff0000">Red</option>
-                    <option value="#d3d3d3">Gray</option>
-                </select>
-                <select id="dressOption">
-                    <option value="none">No Dress Change</option>
-                    <option value="suit_black">Black Suit with Tie</option>
-                    <option value="suit_navy">Navy Suit with Tie</option>
-                    <option value="suit_gray">Gray Suit with Tie</option>
-                </select>
-                <select id="photoSet">
-                    <option value="1">1 Photo</option>
-                    <option value="4">4 Photos</option>
-                    <option value="6">6 Photos</option>
-                    <option value="8">8 Photos</option>
-                </select>
-                <select id="photoSize">
-                    <option value="35x45">35x45 mm</option>
-                    <option value="2x2">2x2 inch</option>
-                    <option value="50x50">50x50 mm</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <div id="customSize" style="display: none;">
-                    <input type="number" id="width" placeholder="Width (mm)" min="10">
-                    <input type="number" id="height" placeholder="Height (mm)" min="10">
-                </div>
-            </div>
-            <button id="generateBtn">Generate</button>
-            <button id="downloadBtn" style="display: none;">Download</button>
-            <div id="preview"></div>
+        <div class="drop-zone" id="dropZone">
+            <p>Drag & Drop your photo here or click to upload</p>
+            <input type="file" id="imageInput" accept="image/*" style="display: none;">
         </div>
+        <div class="options">
+            <select id="backgroundColor">
+                <option value="#ffffff">White</option>
+                <option value="#87ceeb">Blue</option>
+                <option value="#ff0000">Red</option>
+                <option value="#d3d3d3">Gray</option>
+            </select>
+            <select id="dressOption">
+                <option value="none">No Dress Change</option>
+                <option value="suit_black">Black Suit</option>
+                <option value="suit_blue">Blue Suit</option>
+            </select>
+        </div>
+        <button id="generateBtn">Generate</button>
+        <button id="downloadBtn" style="display: none;">Download</button>
+        <div id="preview"></div>
     </div>
 
     <footer class="footer">
         <p>© 2025 ToolHub. All rights reserved.</p>
     </footer>
 
-    <!-- Load Local face-api.js and TensorFlow.js -->
-    <script src="tf.min.js"></script>
-    <script src="face-api.min.js"></script>
     <script>
         let uploadedImage = null;
         let canvasOutput = null;
 
-        // Drag and Drop functionality
-        const dropZone = document.getElementById('dropZone');
-        const imageInput = document.getElementById('imageInput');
-        dropZone.addEventListener('click', () => imageInput.click());
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            imageInput.files = e.dataTransfer.files;
-            loadImage(e.dataTransfer.files[0]);
-        });
-        imageInput.addEventListener('change', (e) => loadImage(e.target.files[0]));
+        async function loadModels() {
+            await faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/weights');
+            await faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/weights');
+            await faceapi.nets.faceRecognitionNet.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js/weights');
+        }
+        loadModels();
+
+        document.getElementById('dropZone').addEventListener('click', () => document.getElementById('imageInput').click());
+        document.getElementById('imageInput').addEventListener('change', (e) => loadImage(e.target.files[0]));
 
         async function loadImage(file) {
-            if (!file) {
-                console.log('No file selected');
-                return;
-            }
+            if (!file) return;
+
             const reader = new FileReader();
             reader.onload = async function(e) {
                 uploadedImage = new Image();
                 uploadedImage.src = e.target.result;
                 uploadedImage.onload = async () => {
-                    try {
-                        console.log('Loading face detection model...');
-                        const isFrontFacing = await detectFace(uploadedImage);
-                        console.log('Face detection result:', isFrontFacing);
-                        if (!isFrontFacing) {
-                            alert('Please upload a front-facing photo!');
-                            uploadedImage = null;
-                            document.getElementById('preview').innerHTML = '';
-                        } else {
-                            document.getElementById('preview').innerHTML = '<p>Image loaded. Click "Generate" to proceed.</p>';
-                        }
-                    } catch (error) {
-                        console.error('Face detection error:', error);
-                        alert('Error loading face detection: ' + error.message + '. Using image without validation.');
-                        document.getElementById('preview').innerHTML = '<p>Image loaded (no face detection). Click "Generate" to proceed.</p>';
+                    const isFrontFacing = await detectFace(uploadedImage);
+                    if (!isFrontFacing) {
+                        alert('Please upload a front-facing photo!');
+                        uploadedImage = null;
+                        document.getElementById('preview').innerHTML = '';
+                    } else {
+                        document.getElementById('preview').innerHTML = '<p>Image loaded. Click "Generate" to proceed.</p>';
                     }
                 };
             };
@@ -235,29 +124,11 @@
         }
 
         async function detectFace(img) {
-            const model = await faceLandmarksDetection.load(
-                faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
-            );
-            const predictions = await model.estimateFaces({ input: img });
-            if (predictions.length === 0) return false;
-
-            const landmarks = predictions[0].scaledMesh;
-            const leftEye = landmarks[33];
-            const rightEye = landmarks[263];
-            const nose = landmarks[1];
-
-            const eyeDistance = Math.abs(leftEye[0] - rightEye[0]);
-            const noseToLeftEye = Math.abs(nose[0] - leftEye[0]);
-            const noseToRightEye = Math.abs(nose[0] - rightEye[0]);
-
-            return Math.abs(noseToLeftEye - noseToRightEye) < eyeDistance * 0.2;
+            const detections = await faceapi.detectSingleFace(img).withFaceLandmarks();
+            return detections !== undefined;
         }
 
-        document.getElementById('photoSize').addEventListener('change', function() {
-            document.getElementById('customSize').style.display = this.value === 'custom' ? 'block' : 'none';
-        });
-
-        document.getElementById('generateBtn').addEventListener('click', async function() {
+        document.getElementById('generateBtn').addEventListener('click', function() {
             if (!uploadedImage) {
                 alert('Please upload a photo first!');
                 return;
@@ -265,75 +136,43 @@
 
             const bgColor = document.getElementById('backgroundColor').value;
             const dressOption = document.getElementById('dressOption').value;
-            const photoSet = parseInt(document.getElementById('photoSet').value);
-            const photoSize = document.getElementById('photoSize').value;
-            let width, height;
-
-            const dpi = 300;
-            if (photoSize === '35x45') {
-                width = Math.round(35 * dpi / 25.4);
-                height = Math.round(45 * dpi / 25.4);
-            } else if (photoSize === '2x2') {
-                width = 2 * dpi;
-                height = 2 * dpi;
-            } else if (photoSize === '50x50') {
-                width = Math.round(50 * dpi / 25.4);
-                height = Math.round(50 * dpi / 25.4);
-            } else {
-                width = Math.round((parseInt(document.getElementById('width').value) || 35) * dpi / 25.4);
-                height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
-            }
 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
+            const width = 413, height = 531;
+
             canvas.width = width;
             canvas.height = height;
-
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
             ctx.drawImage(uploadedImage, 0, 0, width, height);
 
             if (dressOption !== 'none') {
-                const suitColor = dressOption.split('_')[1];
-                ctx.fillStyle = suitColor;
-                ctx.fillRect(0, height * 0.5, width, height * 0.5);
-                ctx.fillStyle = '#000000';
-                ctx.beginPath();
-                ctx.moveTo(width * 0.45, height * 0.5);
-                ctx.lineTo(width * 0.55, height * 0.5);
-                ctx.lineTo(width * 0.5, height * 0.7);
-                ctx.fill();
+                const suitImg = new Image();
+                suitImg.src = dressOption === 'suit_black' ? 'black_suit.png' : 'blue_suit.png';
+                suitImg.onload = () => {
+                    ctx.drawImage(suitImg, 0, height * 0.5, width, height * 0.5);
+                    updatePreview(canvas);
+                };
+            } else {
+                updatePreview(canvas);
             }
+        });
 
-            const outputCanvas = document.createElement('canvas');
-            const cols = Math.ceil(Math.sqrt(photoSet));
-            const rows = Math.ceil(photoSet / cols);
-            outputCanvas.width = width * cols;
-            outputCanvas.height = height * rows;
-            const outputCtx = outputCanvas.getContext('2d');
-            outputCtx.fillStyle = '#ffffff';
-            outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
-
-            for (let i = 0; i < photoSet; i++) {
-                const x = (i % cols) * width;
-                const y = Math.floor(i / cols) * height;
-                outputCtx.drawImage(canvas, x, y, width, height);
-            }
-
+        function updatePreview(canvas) {
             const preview = document.getElementById('preview');
             preview.innerHTML = '';
             const resultImg = document.createElement('img');
-            resultImg.src = outputCanvas.toDataURL('image/jpeg', 1.0);
+            resultImg.src = canvas.toDataURL('image/jpeg', 1.0);
             preview.appendChild(resultImg);
-
-            canvasOutput = outputCanvas;
+            canvasOutput = canvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
-        });
+        }
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
             if (!canvasOutput) return;
             const link = document.createElement('a');
-            link.download = 'passport_photos.jpg';
+            link.download = 'passport_photo.jpg';
             link.href = canvasOutput.toDataURL('image/jpeg', 1.0);
             link.click();
         });
