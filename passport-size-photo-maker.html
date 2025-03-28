@@ -115,10 +115,12 @@
             font-size: 1.2rem;
             color: #ff6b6b;
             display: none;
+            margin-top: 1rem;
         }
         .success {
             color: #28a745;
             font-weight: bold;
+            margin-bottom: 1rem;
         }
         .footer {
             background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
@@ -198,13 +200,14 @@
         let uploadedImage = null;
         let canvasOutput = null;
 
-        // Drag and Drop functionality
+        // Elements
         const dropZone = document.getElementById('dropZone');
         const imageInput = document.getElementById('imageInput');
         const uploadPreview = document.getElementById('uploadPreview');
         const preview = document.getElementById('preview');
         const loading = document.getElementById('loading');
 
+        // Drag and Drop functionality
         dropZone.addEventListener('click', () => imageInput.click());
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -285,8 +288,15 @@
                 return;
             }
 
-            loading.style.display = 'block'; // Show loading spinner
+            // Show loading indicator
+            loading.style.display = 'block';
+            preview.innerHTML = ''; // Clear previous preview
+
+            // Ensure UI updates before heavy processing
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             const bgColor = document.getElementById('backgroundColor').value;
+            console.log('Selected background color:', bgColor); // Debug
             const dressOption = document.getElementById('dressOption').value;
             const photoSet = parseInt(document.getElementById('photoSet').value);
             const photoSize = document.getElementById('photoSize').value;
@@ -312,6 +322,7 @@
             canvas.width = width;
             canvas.height = height;
 
+            // Apply background color
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
             ctx.drawImage(uploadedImage, 0, 0, width, height);
@@ -331,8 +342,8 @@
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
             const rows = Math.ceil(photoSet / cols);
-            outputCanvas.width = width * cols + (cols - 1) * 10; // Add spacing
-            outputCanvas.height = height * rows + (rows - 1) * 10; // Add spacing
+            outputCanvas.width = width * cols + (cols - 1) * 10;
+            outputCanvas.height = height * rows + (rows - 1) * 10;
             const outputCtx = outputCanvas.getContext('2d');
             outputCtx.fillStyle = '#ffffff';
             outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
@@ -343,14 +354,13 @@
                 outputCtx.drawImage(canvas, x, y, width, height);
             }
 
-            preview.innerHTML = '';
             const resultImg = document.createElement('img');
             resultImg.src = outputCanvas.toDataURL('image/jpeg', 1.0);
             preview.appendChild(resultImg);
 
             canvasOutput = outputCanvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
-            loading.style.display = 'none'; // Hide loading spinner
+            loading.style.display = 'none';
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
