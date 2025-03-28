@@ -52,7 +52,7 @@
         h1 {
             font-size: 2.5rem;
             color: #ff6b6b;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .tool-section {
             background: white;
@@ -60,11 +60,8 @@
             border-radius: 15px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
         }
-        .upload-box {
-            margin-bottom: 2rem;
-        }
         input[type="file"] {
-            padding: 0.5rem;
+            margin: 1rem 0;
             font-size: 1rem;
         }
         button {
@@ -81,27 +78,16 @@
         button:hover {
             background: #ffd700;
             transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(255,230,109,0.6);
         }
         #preview {
             margin-top: 2rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            justify-content: center;
         }
         #preview img {
-            width: 100px; /* Passport size: 3.5cm x 4.5cm approximated */
+            width: 100px;
             height: 130px;
             object-fit: cover;
             border: 2px solid #ff6b6b;
             border-radius: 5px;
-        }
-        .footer {
-            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
         }
     </style>
 </head>
@@ -122,74 +108,45 @@
     <div class="container">
         <h1>Passport Size Photo Maker</h1>
         <div class="tool-section">
-            <div class="upload-box">
-                <input type="file" id="imageInput" accept="image/*" onchange="loadImage()">
-                <p>Upload an image to create passport-sized photos</p>
-            </div>
-            <button onclick="generatePhotos()">Generate</button>
+            <input type="file" id="imageInput" accept="image/*">
+            <button id="generateBtn">Generate</button>
             <div id="preview"></div>
         </div>
     </div>
 
-    <footer class="footer">
-        <p>© 2025 ToolHub. All rights reserved.</p>
-    </footer>
-
     <script>
-        let uploadedImage = null;
-
-        function loadImage() {
+        document.getElementById('generateBtn').addEventListener('click', function() {
             const fileInput = document.getElementById('imageInput');
             const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImage = new Image();
-                    uploadedImage.src = e.target.result;
-                    uploadedImage.onload = function() {
-                        document.getElementById('preview').innerHTML = '<p>Image loaded. Click "Generate" to create passport photos.</p>';
-                    };
-                };
-                reader.readAsDataURL(file);
-            }
-        }
+            const preview = document.getElementById('preview');
 
-        function generatePhotos() {
-            if (!uploadedImage) {
+            if (!file) {
                 alert('Please upload an image first!');
                 return;
             }
 
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const preview = document.getElementById('preview');
-            preview.innerHTML = ''; // Clear previous previews
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = 100; // Passport size width
+                    canvas.height = 130; // Passport size height
 
-            // Passport size in pixels (approx 3.5cm x 4.5cm at 300 DPI)
-            const width = 100; // 3.5cm
-            const height = 130; // 4.5cm
-            canvas.width = width;
-            canvas.height = height;
+                    // Draw image onto canvas
+                    ctx.drawImage(img, 0, 0, 100, 130);
 
-            // Generate 6 passport-sized photos (common requirement)
-            for (let i = 0; i < 6; i++) {
-                ctx.drawImage(uploadedImage, 0, 0, width, height);
-                const img = document.createElement('img');
-                img.src = canvas.toDataURL('image/jpeg');
-                preview.appendChild(img);
-            }
-
-            // Add download option
-            const downloadBtn = document.createElement('button');
-            downloadBtn.textContent = 'Download All';
-            downloadBtn.onclick = function() {
-                const link = document.createElement('a');
-                link.download = 'passport_photos.jpg';
-                link.href = canvas.toDataURL('image/jpeg');
-                link.click();
+                    // Display the result
+                    const resultImg = document.createElement('img');
+                    resultImg.src = canvas.toDataURL('image/jpeg');
+                    preview.innerHTML = '';
+                    preview.appendChild(resultImg);
+                };
             };
-            preview.appendChild(downloadBtn);
-        }
+            reader.readAsDataURL(file);
+        });
     </script>
 </body>
 </html>
