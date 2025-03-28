@@ -60,9 +60,18 @@
             border-radius: 15px;
             box-shadow: 0 5px 25px rgba(0,0,0,0.1);
         }
-        input[type="file"] {
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
             margin: 1rem 0;
+        }
+        select, input[type="number"], input[type="file"] {
+            padding: 0.5rem;
             font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
         }
         button {
             padding: 1rem 2rem;
@@ -81,13 +90,21 @@
         }
         #preview {
             margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
         }
         #preview img {
-            width: 100px;
-            height: 130px;
-            object-fit: cover;
-            border: 2px solid #ff6b6b;
+            border: 5px solid black; /* Black border */
             border-radius: 5px;
+            object-fit: cover;
+        }
+        .footer {
+            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 2rem;
+            text-align: center;
         }
     </style>
 </head>
@@ -109,20 +126,82 @@
         <h1>Passport Size Photo Maker</h1>
         <div class="tool-section">
             <input type="file" id="imageInput" accept="image/*">
+            <div class="options">
+                <select id="backgroundColor">
+                    <option value="#ffffff">White</option>
+                    <option value="#d3d3d3">Light Gray</option>
+                    <option value="#87ceeb">Sky Blue</option>
+                    <option value="#f0e68c">Light Yellow</option>
+                </select>
+                <select id="dressColor">
+                    <option value="none">No Dress Change</option>
+                    <option value="#000080">Navy Blue Shirt</option>
+                    <option value="#ffffff">White Shirt</option>
+                    <option value="#ff0000">Red Shirt</option>
+                </select>
+                <select id="tieColor">
+                    <option value="none">No Tie</option>
+                    <option value="#000000">Black Tie</option>
+                    <option value="#ff0000">Red Tie</option>
+                    <option value="#000080">Blue Tie</option>
+                </select>
+                <select id="photoSet">
+                    <option value="1">1 Photo</option>
+                    <option value="4">4 Photos</option>
+                    <option value="6">6 Photos</option>
+                    <option value="8">8 Photos</option>
+                </select>
+                <select id="photoSize">
+                    <option value="standard">Standard (3.5cm x 4.5cm)</option>
+                    <option value="us">US (2in x 2in)</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <div id="customSize" style="display: none;">
+                    <input type="number" id="width" placeholder="Width (px)" min="50">
+                    <input type="number" id="height" placeholder="Height (px)" min="50">
+                </div>
+            </div>
             <button id="generateBtn">Generate</button>
             <div id="preview"></div>
         </div>
     </div>
 
+    <footer class="footer">
+        <p>© 2025 ToolHub. All rights reserved.</p>
+    </footer>
+
     <script>
+        document.getElementById('photoSize').addEventListener('change', function() {
+            const customSizeDiv = document.getElementById('customSize');
+            customSizeDiv.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+
         document.getElementById('generateBtn').addEventListener('click', function() {
             const fileInput = document.getElementById('imageInput');
             const file = fileInput.files[0];
             const preview = document.getElementById('preview');
+            const bgColor = document.getElementById('backgroundColor').value;
+            const dressColor = document.getElementById('dressColor').value;
+            const tieColor = document.getElementById('tieColor').value;
+            const photoSet = parseInt(document.getElementById('photoSet').value);
+            const photoSize = document.getElementById('photoSize').value;
+            let width, height;
 
             if (!file) {
                 alert('Please upload an image first!');
                 return;
+            }
+
+            // Set photo dimensions
+            if (photoSize === 'standard') {
+                width = 105; // 3.5cm at 300 DPI
+                height = 135; // 4.5cm at 300 DPI
+            } else if (photoSize === 'us') {
+                width = 150; // 2in at 300 DPI
+                height = 150; // 2in at 300 DPI
+            } else {
+                width = parseInt(document.getElementById('width').value) || 105;
+                height = parseInt(document.getElementById('height').value) || 135;
             }
 
             const reader = new FileReader();
@@ -130,19 +209,49 @@
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = function() {
+                    // Basic front-face check (assuming centered face)
+                    if (img.width < 100 || img.height < 100) {
+                        alert('Please upload a front-facing photo with a clear face!');
+                        return;
+                    }
+
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
-                    canvas.width = 100; // Passport size width
-                    canvas.height = 130; // Passport size height
+                    canvas.width = width;
+                    canvas.height = height;
 
-                    // Draw image onto canvas
-                    ctx.drawImage(img, 0, 0, 100, 130);
+                    // Set background color
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(0, 0, width, height);
 
-                    // Display the result
-                    const resultImg = document.createElement('img');
-                    resultImg.src = canvas.toDataURL('image/jpeg');
+                    // Draw image
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Simulate dress change (rectangle for shirt)
+                    if (dressColor !== 'none') {
+                        ctx.fillStyle = dressColor;
+                        ctx.fillRect(0, height * 0.5, width, height * 0.5); // Bottom half as shirt
+                    }
+
+                    // Simulate tie (triangle shape)
+                    if (tieColor !== 'none') {
+                        ctx.fillStyle = tieColor;
+                        ctx.beginPath();
+                        ctx.moveTo(width * 0.45, height * 0.5);
+                        ctx.lineTo(width * 0.55, height * 0.5);
+                        ctx.lineTo(width * 0.5, height * 0.7);
+                        ctx.fill();
+                    }
+
+                    // Generate photo set
                     preview.innerHTML = '';
-                    preview.appendChild(resultImg);
+                    for (let i = 0; i < photoSet; i++) {
+                        const resultImg = document.createElement('img');
+                        resultImg.src = canvas.toDataURL('image/jpeg', 1.0); // High quality
+                        resultImg.style.width = `${width}px`;
+                        resultImg.style.height = `${height}px`;
+                        preview.appendChild(resultImg);
+                    }
                 };
             };
             reader.readAsDataURL(file);
