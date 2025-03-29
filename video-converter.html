@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Converter</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         * {
             margin: 0;
@@ -11,12 +19,10 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-
         body {
             background: #f0f2f5;
             padding: 20px;
         }
-
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -25,13 +31,11 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-
         h1 {
             text-align: center;
             color: #1a73e8;
             margin-bottom: 30px;
         }
-
         .upload-section {
             border: 2px dashed #1a73e8;
             padding: 30px;
@@ -39,11 +43,9 @@
             margin-bottom: 20px;
             border-radius: 5px;
         }
-
         #fileInput {
             display: none;
         }
-
         .custom-file-upload {
             background: #1a73e8;
             color: white;
@@ -53,19 +55,16 @@
             display: inline-block;
             margin: 10px;
         }
-
         .format-select {
             margin: 20px 0;
             text-align: center;
         }
-
         select {
             padding: 8px 15px;
             font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
-
         #convertBtn {
             background: #1a73e8;
             color: white;
@@ -78,17 +77,14 @@
             margin: 0 auto;
             transition: background 0.3s;
         }
-
         #convertBtn:hover {
             background: #1557b0;
         }
-
         #status {
             margin-top: 20px;
             text-align: center;
             color: #666;
         }
-
         .progress-bar {
             width: 100%;
             height: 20px;
@@ -98,14 +94,12 @@
             overflow: hidden;
             display: none;
         }
-
         .progress {
             width: 0%;
             height: 100%;
             background: #1a73e8;
             transition: width 0.3s ease;
         }
-
         #downloadLink {
             display: none;
             text-align: center;
@@ -118,13 +112,11 @@
 <body>
     <div class="container">
         <h1>Video Converter</h1>
-        
         <div class="upload-section">
             <input type="file" id="fileInput" accept="video/*">
             <label for="fileInput" class="custom-file-upload">Choose Video File</label>
             <p id="fileName">No file selected</p>
         </div>
-
         <div class="format-select">
             <select id="formatSelect">
                 <option value="mp4">MP4</option>
@@ -134,13 +126,10 @@
                 <option value="mkv">MKV</option>
             </select>
         </div>
-
         <button id="convertBtn">Convert Now</button>
-
         <div class="progress-bar">
             <div class="progress"></div>
         </div>
-
         <div id="status"></div>
         <a id="downloadLink" download>Download Converted File</a>
     </div>
@@ -157,13 +146,11 @@
 
         let selectedFile = null;
 
-        // File selection handler
         fileInput.addEventListener('change', function(e) {
             selectedFile = e.target.files[0];
             fileName.textContent = selectedFile ? selectedFile.name : 'No file selected';
         });
 
-        // Convert button handler
         convertBtn.addEventListener('click', async () => {
             if (!selectedFile) {
                 alert('Please select a file first!');
@@ -176,14 +163,18 @@
                 progressBar.style.display = 'block';
                 progress.style.width = '0%';
 
-                // Simulate conversion process
                 const convertedFile = await simulateConversion(selectedFile, formatSelect.value);
 
-                // Show download link
                 downloadLink.href = URL.createObjectURL(convertedFile);
                 downloadLink.download = `converted.${formatSelect.value}`;
                 downloadLink.style.display = 'block';
                 status.textContent = 'Conversion complete!';
+                
+                // Track conversion event
+                gtag('event', 'convert_video', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'Video Converter'
+                });
             } catch (error) {
                 status.textContent = `Error: ${error.message}`;
             } finally {
@@ -192,7 +183,6 @@
             }
         });
 
-        // Simulated Video Conversion
         async function simulateConversion(file, format) {
             return new Promise((resolve) => {
                 let progressValue = 0;
