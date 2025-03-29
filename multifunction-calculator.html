@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multifunction Calculator - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
@@ -191,6 +199,10 @@
                 case '/': result = num2 !== 0 ? num1 / num2 : 'Cannot divide by zero'; break;
             }
             resultDiv.textContent = `Result: ${result}`;
+            gtag('event', 'calculate_basic', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Basic Calculation'
+            });
         }
 
         function convertCurrency() {
@@ -201,6 +213,10 @@
             const rates = { USD: 1, INR: 83, EUR: 0.92 };
             const result = (amount / rates[from]) * rates[to];
             resultDiv.textContent = `${amount} ${from} = ${result.toFixed(2)} ${to}`;
+            gtag('event', 'convert_currency', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Currency Conversion'
+            });
         }
 
         function convertArea() {
@@ -209,17 +225,14 @@
             const to = document.getElementById('areaTo').value;
             if (isNaN(value)) return resultDiv.textContent = 'Enter a valid value';
             const rates = {
-                sqm: 1,          // Base unit: Square Meter
-                sqft: 10.7639,   // Square Feet
-                acre: 4046.86,   // Acre
-                hectare: 10000,  // Hectare
-                sqkm: 1000000,   // Square Kilometer
-                sqmi: 2589988.11,// Square Mile
-                sqyd: 0.836127,  // Square Yard
-                sqin: 0.00064516 // Square Inch
+                sqm: 1, sqft: 10.7639, acre: 4046.86, hectare: 10000, sqkm: 1000000, sqmi: 2589988.11, sqyd: 0.836127, sqin: 0.00064516
             };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
+            gtag('event', 'convert_area', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Area Conversion'
+            });
         }
 
         function convertWeight() {
@@ -228,17 +241,14 @@
             const to = document.getElementById('weightTo').value;
             if (isNaN(value)) return resultDiv.textContent = 'Enter a valid value';
             const rates = {
-                kg: 1,        // Base unit: Kilogram
-                lb: 0.453592, // Pound
-                g: 1000,      // Gram
-                oz: 0.0283495,// Ounce
-                ton: 0.001,   // Ton
-                mg: 1000000,  // Milligram
-                stone: 0.157473,// Stone
-                mt: 0.001     // Metric Ton
+                kg: 1, lb: 0.453592, g: 1000, oz: 0.0283495, ton: 0.001, mg: 1000000, stone: 0.157473, mt: 0.001
             };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
+            gtag('event', 'convert_weight', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Weight Conversion'
+            });
         }
 
         function convertDistance() {
@@ -247,18 +257,14 @@
             const to = document.getElementById('distanceTo').value;
             if (isNaN(value)) return resultDiv.textContent = 'Enter a valid value';
             const rates = {
-                km: 1,         // Base unit: Kilometer
-                mi: 0.621371,  // Mile
-                m: 1000,       // Meter
-                cm: 100000,    // Centimeter
-                mm: 1000000,   // Millimeter
-                yd: 1093.61,   // Yard
-                ft: 3280.84,   // Foot
-                in: 39370.1,   // Inch
-                nm: 0.539957   // Nautical Mile
+                km: 1, mi: 0.621371, m: 1000, cm: 100000, mm: 1000000, yd: 1093.61, ft: 3280.84, in: 39370.1, nm: 0.539957
             };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
+            gtag('event', 'convert_distance', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Distance Conversion'
+            });
         }
 
         function calculatePercentage() {
@@ -267,6 +273,10 @@
             if (isNaN(value) || isNaN(of)) return resultDiv.textContent = 'Enter valid values';
             const result = (value / 100) * of;
             resultDiv.textContent = `${value}% of ${of} = ${result.toFixed(2)}`;
+            gtag('event', 'calculate_percentage', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Percentage Calculation'
+            });
         }
     </script>
     <script src="chatbot.js"></script>
