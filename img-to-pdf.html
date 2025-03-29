@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to PDF - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
         .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -78,9 +86,7 @@
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
 
-                    // Compress image quality for smaller PDF size
-                    const imgData = canvas.toDataURL('image/jpeg', 0.3); // 0.3 = 30% quality
-
+                    const imgData = canvas.toDataURL('image/jpeg', 0.3);
                     if (!firstImage) pdf.addPage();
                     const pageWidth = pdf.internal.pageSize.getWidth();
                     const pageHeight = pdf.internal.pageSize.getHeight();
@@ -99,6 +105,12 @@
 
                 resultDiv.innerHTML = `<a href="${url}" download="converted.pdf">Download PDF (${(pdfBlob.size / 1024).toFixed(2)} KB)</a>`;
                 statusDiv.innerHTML = "Conversion complete!";
+                
+                // Track conversion event
+                gtag('event', 'convert_image_to_pdf', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'Image to PDF'
+                });
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
