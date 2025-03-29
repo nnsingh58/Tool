@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Translator - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -125,7 +133,6 @@
     </div>
 
     <script>
-        // Your Google Cloud Translate API key
         const API_KEY = 'AIzaSyCebJYGjWRbcxdIsM3PcfH9IjN09UhgiTI';
 
         function startVoiceTranslation() {
@@ -133,17 +140,15 @@
             const targetLang = document.getElementById('targetLang').value;
             const resultElement = document.getElementById('voiceResult');
 
-            // Check if SpeechRecognition is supported
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
                 resultElement.textContent = "Sorry, your browser doesn't support Speech Recognition.";
                 return;
             }
 
-            // Initialize Speech Recognition
             const recognition = new SpeechRecognition();
-            recognition.lang = sourceLang; // Set the source language for recognition
-            recognition.interimResults = false; // Only final results
+            recognition.lang = sourceLang;
+            recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
             resultElement.textContent = "Listening... Please speak.";
@@ -152,7 +157,6 @@
                 const spokenText = event.results[0][0].transcript;
                 resultElement.textContent = `You said: "${spokenText}" - Translating...`;
 
-                // Call Google Translate API
                 fetch(`https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`, {
                     method: 'POST',
                     headers: {
@@ -160,8 +164,8 @@
                     },
                     body: JSON.stringify({
                         q: spokenText,
-                        source: sourceLang.split('-')[0], // e.g., "en" from "en-GB"
-                        target: targetLang.split('-')[0], // e.g., "hi" from "hi"
+                        source: sourceLang.split('-')[0],
+                        target: targetLang.split('-')[0],
                         format: 'text'
                     })
                 })
@@ -171,10 +175,15 @@
                         const translatedText = data.data.translations[0].translatedText;
                         resultElement.textContent = `Translated: "${translatedText}"`;
 
-                        // Speak the translated text
                         const utterance = new SpeechSynthesisUtterance(translatedText);
-                        utterance.lang = targetLang; // Set the target language for speech
+                        utterance.lang = targetLang;
                         window.speechSynthesis.speak(utterance);
+                        
+                        // Track translation event
+                        gtag('event', 'voice_translation', {
+                            'event_category': 'Tool Usage',
+                            'event_label': 'Voice Translator'
+                        });
                     } else {
                         resultElement.textContent = "Translation failed. Check API key or input.";
                     }
