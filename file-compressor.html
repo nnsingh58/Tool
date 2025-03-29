@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Compressor - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
         .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -77,7 +85,7 @@
 
             statusDiv.innerHTML = "Processing (0% complete)...";
             try {
-                const quality = compressionLevel.value / 100; // 0 to 1 scale
+                const quality = compressionLevel.value / 100;
                 const arrayBuffer = await file.arrayBuffer();
                 const pdfDoc = await pdfjsLib.getDocument(arrayBuffer).promise;
                 const totalPages = pdfDoc.numPages;
@@ -95,7 +103,6 @@
                     if (i > 1) newPdf.addPage();
                     newPdf.addImage(imgData, 'JPEG', 0, 0, viewport.width, viewport.height);
 
-                    // Update progress
                     const progress = Math.round((i / totalPages) * 100);
                     statusDiv.innerHTML = `Processing (${progress}% complete)...`;
                 }
@@ -104,6 +111,12 @@
                 const url = URL.createObjectURL(blob);
                 resultDiv.innerHTML = `<a href="${url}" download="compressed.pdf">Download PDF (${(blob.size / 1024).toFixed(2)} KB)</a>`;
                 statusDiv.innerHTML = "Compression complete!";
+                
+                // Track compression event
+                gtag('event', 'compress_file', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'File Compressor'
+                });
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
