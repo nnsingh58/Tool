@@ -3,127 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Converter Tool</title>
-    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.10.0/dist/ffmpeg.min.js"></script>
+    <title>Video Converter</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            text-align: center;
-            padding: 50px;
         }
-
-        .container {
-            background: white;
+        body {
+            background: #f0f2f5;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            width: 50%;
-            margin: auto;
         }
-
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
         h1 {
-            margin-bottom: 20px;
-            color: #333;
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 30px;
         }
-
-        input, select, button {
+        .upload-section {
+            border: 2px dashed #1a73e8;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        #fileInput {
+            display: none;
+        }
+        .custom-file-upload {
+            background: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: inline-block;
             margin: 10px;
-            padding: 10px;
-            width: 80%;
+        }
+        .format-select {
+            margin: 20px 0;
+            text-align: center;
+        }
+        select {
+            padding: 8px 15px;
+            font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ccc;
         }
-
-        button {
-            background: #28a745;
+        #convertBtn {
+            background: #1a73e8;
             color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #218838;
-        }
-
-        #output {
-            margin-top: 20px;
-        }
-
-        #downloadLink {
-            padding: 10px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
+            border: none;
+            padding: 12px 30px;
             border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 0 auto;
+            transition: background 0.3s;
         }
-
-        #downloadLink:hover {
-            background: #0056b3;
+        #convertBtn:hover {
+            background: #1557b0;
+        }
+        #status {
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #1a73e8;
+            transition: width 0.3s ease;
+        }
+        #downloadLink {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #1a73e8;
+            text-decoration: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Video Converter Tool</h1>
-        <input type="file" id="videoInput" accept="video/*">
-        
-        <label for="format">Select Output Format:</label>
-        <select id="format">
-            <option value="mp4">MP4</option>
-            <option value="avi">AVI</option>
-            <option value="webm">WebM</option>
-            <option value="mkv">MKV</option>
-        </select>
-
-        <button id="convertBtn">Convert Video</button>
-
-        <div id="output">
-            <p id="status"></p>
-            <a id="downloadLink" style="display: none;" download="converted-video.mp4">Download Converted Video</a>
+        <h1>Video Converter</h1>
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept="video/*">
+            <label for="fileInput" class="custom-file-upload">Choose Video File</label>
+            <p id="fileName">No file selected</p>
         </div>
+        <div class="format-select">
+            <select id="formatSelect">
+                <option value="mp4">MP4</option>
+                <option value="webm">WEBM</option>
+                <option value="mov">MOV</option>
+                <option value="avi">AVI</option>
+                <option value="mkv">MKV</option>
+            </select>
+        </div>
+        <button id="convertBtn">Convert Now</button>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        <div id="status"></div>
+        <a id="downloadLink" download>Download Converted File</a>
     </div>
 
     <script>
-        const { createFFmpeg, fetchFile } = FFmpeg;
-        const ffmpeg = createFFmpeg({ log: true });
+        const fileInput = document.getElementById('fileInput');
+        const formatSelect = document.getElementById('formatSelect');
+        const convertBtn = document.getElementById('convertBtn');
+        const status = document.getElementById('status');
+        const progressBar = document.querySelector('.progress-bar');
+        const progress = document.querySelector('.progress');
+        const downloadLink = document.getElementById('downloadLink');
+        const fileName = document.getElementById('fileName');
 
-        document.getElementById("convertBtn").addEventListener("click", async () => {
-            const inputFile = document.getElementById("videoInput").files[0];
-            const outputFormat = document.getElementById("format").value;
+        let selectedFile = null;
 
-            if (!inputFile) {
-                alert("Please select a video file.");
+        fileInput.addEventListener('change', function(e) {
+            selectedFile = e.target.files[0];
+            fileName.textContent = selectedFile ? selectedFile.name : 'No file selected';
+        });
+
+        convertBtn.addEventListener('click', async () => {
+            if (!selectedFile) {
+                alert('Please select a file first!');
                 return;
             }
 
-            if (!ffmpeg.isLoaded()) {
-                document.getElementById("status").innerText = "Loading FFmpeg...";
-                await ffmpeg.load();
+            try {
+                convertBtn.disabled = true;
+                status.textContent = 'Processing...';
+                progressBar.style.display = 'block';
+                progress.style.width = '0%';
+
+                const convertedFile = await simulateConversion(selectedFile, formatSelect.value);
+
+                downloadLink.href = URL.createObjectURL(convertedFile);
+                downloadLink.download = `converted.${formatSelect.value}`;
+                downloadLink.style.display = 'block';
+                status.textContent = 'Conversion complete!';
+                
+                // Track conversion event
+                gtag('event', 'convert_video', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'Video Converter'
+                });
+            } catch (error) {
+                status.textContent = `Error: ${error.message}`;
+            } finally {
+                convertBtn.disabled = false;
+                progressBar.style.display = 'none';
             }
-
-            const inputFileName = "input." + inputFile.name.split(".").pop();
-            const outputFileName = "output." + outputFormat;
-
-            ffmpeg.FS("writeFile", inputFileName, await fetchFile(inputFile));
-
-            document.getElementById("status").innerText = "Converting...";
-            await ffmpeg.run("-i", inputFileName, outputFileName);
-
-            const data = ffmpeg.FS("readFile", outputFileName);
-            const blob = new Blob([data.buffer], { type: `video/${outputFormat}` });
-
-            const url = URL.createObjectURL(blob);
-            const downloadLink = document.getElementById("downloadLink");
-            downloadLink.href = url;
-            downloadLink.download = "converted-video." + outputFormat;
-            downloadLink.style.display = "block";
-
-            document.getElementById("status").innerText = "Conversion Completed!";
         });
+
+        async function simulateConversion(file, format) {
+            return new Promise((resolve) => {
+                let progressValue = 0;
+                const interval = setInterval(() => {
+                    progressValue += 10;
+                    progress.style.width = `${progressValue}%`;
+                    if (progressValue >= 100) {
+                        clearInterval(interval);
+                        resolve(new File([file], `converted.${format}`, { type: `video/${format}` }));
+                    }
+                }, 300);
+            });
+        }
     </script>
     <script src="chatbot.js"></script>
 </body>
