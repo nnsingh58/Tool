@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Format Converter - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
@@ -157,7 +165,6 @@
                     img.onerror = () => reject(new Error('Image load failed'));
                 });
 
-                // Simulate progress
                 for (let i = 0; i <= 100; i += 10) {
                     if (isCancelled) {
                         progressDiv.textContent = 'Conversion cancelled.';
@@ -185,6 +192,12 @@
                     <button onclick="resetForm()">Try Again</button>
                 `;
                 cancelBtn.style.display = 'none';
+                
+                // Track conversion event
+                gtag('event', 'convert_image_format', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'Image Format Converter'
+                });
             } catch (error) {
                 if (!isCancelled) {
                     progressDiv.textContent = 'Error: ' + error.message;
