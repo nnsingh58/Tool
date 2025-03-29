@@ -3,57 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self'; 
-                   script-src 'self' https://www.googletagmanager.com; 
-                   img-src 'self' data:; 
-                   style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com;">
     <title>Passport Size Photo Maker - ToolHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Updated Google Analytics with Cookie Compliance -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      
-      gtag('consent', 'default', {
-        'ad_storage': 'denied',
-        'analytics_storage': 'denied',
-        'functionality_storage': 'denied'
-      });
-      
-      gtag('set', {
-        'cookie_flags': 'SameSite=None; Secure'
-      });
+    <!-- CSP Meta Tag -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self';
+        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net;
+        style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';
+        font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
+        img-src 'self' data:;
+        connect-src 'self';
+    ">
 
-      gtag('js', new Date());
-      gtag('config', 'G-VBJFDCH3MH', { 
-        cookie_flags: 'SameSite=None;Secure',
-        anonymize_ip: true
-      });
-    </script>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script src="analytics.js"></script>
 
     <style>
-        /* Previous CSS with added progress bar styles */
-        .progress-bar {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
+            padding: 1.5rem 2rem;
+            position: fixed;
             width: 100%;
-            height: 10px;
-            background: #eee;
-            border-radius: 5px;
-            margin-top: 1rem;
-            overflow: hidden;
-            display: none;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: #4ecdc4;
-            transition: width 0.3s ease;
+        .nav {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .error-message {
-            color: #ff0000;
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            margin-left: 2.5rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .nav-links a:hover { color: #ffe66d; }
+        .container {
+            max-width: 1300px;
+            margin: 100px auto 4rem;
+            padding: 0 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #ff6b6b;
+            margin-bottom: 1.5rem;
+        }
+        .tool-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        }
+        .drop-zone {
+            border: 2px dashed #ff6b6b;
+            padding: 2rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .drop-zone.dragover {
+            background: #ffe6e6;
+        }
+        .drop-zone p {
+            margin: 0;
+        }
+        .drop-zone .file-name {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
             margin: 1rem 0;
+        }
+        select, input[type="number"] {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 1rem 2rem;
+            background: #ffe66d;
+            color: #333;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+        button:hover {
+            background: #ffd700;
+            transform: translateY(-5px);
+        }
+        #preview, #uploadPreview {
+            margin-top: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+        #preview img, #uploadPreview img {
+            border-radius: 5px;
+            object-fit: cover;
+            max-width: 150px;
+        }
+        .loading {
+            font-size: 1.2rem;
+            color: #ff6b6b;
+            display: none;
+            margin-top: 1rem;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .footer {
+            background: linear-gradient(120deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 2rem;
+            text-align: center;
         }
     </style>
 </head>
@@ -74,117 +169,50 @@
     <div class="container">
         <h1>Passport Size Photo Maker</h1>
         <div class="tool-section">
-            <!-- Updated Drop Zone with Accessibility -->
-            <div class="drop-zone" id="dropZone" role="region" aria-label="Photo upload area">
+            <div class="drop-zone" id="dropZone">
                 <p>Drag & Drop your photo here or click to upload</p>
-                <div class="file-input-wrapper">
-                    <input type="file" id="imageInput" accept="image/*,capture=camera" hidden 
-                           aria-label="Upload photo">
-                    <button class="camera-btn" onclick="document.getElementById('imageInput').click()">
-                        <i class="fas fa-camera"></i> Use Camera
-                    </button>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-                <p class="error-message" id="errorMessage"></p>
+                <p id="fileName" class="file-name"></p>
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
             </div>
-            
-            <!-- Options with Proper Labels -->
+            <div id="uploadPreview"></div>
             <div class="options">
-                <div class="option-group">
-                    <label for="backgroundColor">Background Color:</label>
-                    <select id="backgroundColor" aria-label="Select background color">
-                        <option value="#ffffff">White</option>
-                        <option value="#87ceeb">Sky Blue</option>
-                        <option value="#ff0000">Red</option>
-                        <option value="#d3d3d3">Light Gray</option>
-                    </select>
-                </div>
-                
-                <div class="option-group">
-                    <label for="photoSet">Photo Layout:</label>
-                    <select id="photoSet" aria-label="Select photo layout">
-                        <option value="1">1 Photo</option>
-                        <option value="4">4 Photos</option>
-                        <option value="6">6 Photos</option>
-                        <option value="8">8 Photos</option>
-                    </select>
-                </div>
-
-                <div class="option-group">
-                    <label for="photoSize">Photo Size:</label>
-                    <select id="photoSize" aria-label="Select photo size">
-                        <option value="35x45">35x45 mm</option>
-                        <option value="2x2">2x2 inch</option>
-                        <option value="50x50">50x50 mm</option>
-                        <option value="custom">Custom</option>
-                    </select>
-                    <div id="customSize" class="size-inputs">
-                        <input type="number" id="width" placeholder="Width (mm)" min="10"
-                               aria-label="Custom width in millimeters">
-                        <input type="number" id="height" placeholder="Height (mm)" min="10"
-                               aria-label="Custom height in millimeters">
-                    </div>
+                <select id="backgroundColor">
+                    <option value="#ffffff">White</option>
+                    <option value="#87ceeb">Blue</option>
+                    <option value="#ff0000">Red</option>
+                    <option value="#d3d3d3">Gray</option>
+                </select>
+                <select id="photoSet">
+                    <option value="1">1 Photo</option>
+                    <option value="4">4 Photos</option>
+                    <option value="6">6 Photos</option>
+                    <option value="8">8 Photos</option>
+                </select>
+                <select id="photoSize">
+                    <option value="35x45">35x45 mm</option>
+                    <option value="2x2">2x2 inch</option>
+                    <option value="50x50">50x50 mm</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <div id="customSize" style="display: none;">
+                    <input type="number" id="width" placeholder="Width (mm)" min="10">
+                    <input type="number" id="height" placeholder="Height (mm)" min="10">
                 </div>
             </div>
-
-            <button id="generateBtn" class="generate-btn">
-                <i class="fas fa-magic"></i> Generate Photos
-            </button>
-            <button id="downloadBtn" class="download-btn" style="display: none;">
-                <i class="fas fa-download"></i> Download
-            </button>
-            
+            <button id="generateBtn">Generate</button>
+            <button id="downloadBtn" style="display: none;">Download</button>
+            <p id="loading" class="loading">Processing: 0%</p>
             <div id="preview"></div>
         </div>
     </div>
 
-    <script>
-        // Updated Drag and Drop Handlers
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('dropZone').classList.add('dragover');
-        }
+    <footer class="footer">
+        <p>© 2025 ToolHub. All rights reserved.</p>
+    </footer>
 
-        function handleDragLeave(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('dropZone').classList.remove('dragover');
-        }
-
-        async function handleFileDrop(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            document.getElementById('dropZone').classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                await handleImageFile(files[0]);
-            }
-        }
-
-        // Updated Analytics Tracking
-        function trackEvent(eventName, params) {
-            gtag('event', eventName, {
-                ...params,
-                cookie_flags: 'SameSite=None;Secure',
-                send_to: 'G-VBJFDCH3MH',
-                anonymize_ip: true
-            });
-        }
-
-        // Storage Access Check
-        if (navigator.storage && navigator.storage.estimate) {
-            navigator.storage.estimate().then(estimate => {
-                console.log('Storage usage:', estimate);
-            });
-        }
-
-        // Rest of your original JavaScript code with improved background removal
-        // [यहाँ आपका मूल JavaScript कोड रहेगा जो पहले बताया गया था]
-        
-    </script>
+    <!-- External Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+    <script src="passport-photo-maker.js"></script>
 </body>
 </html>
