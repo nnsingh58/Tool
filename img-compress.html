@@ -5,8 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Compress JPG, PNG, GIF images instantly. Boost SEO and website speed with Singh Digital Hub's free compression tool.">
     <title>Image Compression Tool - Singh Digital Hub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
-        /* CSS Styles */
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -51,24 +58,16 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <h1>Image Compressor</h1>
     <p>Optimize images for faster websites and better SEO</p>
-
-    <!-- Upload Area -->
     <div class="upload-box" onclick="document.getElementById('fileInput').click()">
         🖼️ Drag and drop or click to upload image
     </div>
     <input type="file" id="fileInput" accept="image/*" hidden>
-
-    <!-- Preview & Controls -->
     <img id="preview">
     <div class="stats" id="stats"></div>
     <button onclick="compressImage()" id="compressBtn" disabled>Compress & Download</button>
-
-    <!-- AdSense Integration -->
     <div style="margin: 30px auto;">
-        <!-- Replace with your AdSense code -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-pub-9239182778221521"
@@ -77,13 +76,11 @@
     </div>
 
     <script>
-        // JavaScript Logic
         const fileInput = document.getElementById('fileInput');
         const preview = document.getElementById('preview');
         const compressBtn = document.getElementById('compressBtn');
         const statsDiv = document.getElementById('stats');
 
-        // Handle File Selection
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -100,7 +97,6 @@
             }
         });
 
-        // Compression Logic
         function compressImage(quality = 0.7) {
             const img = new Image();
             img.src = preview.src;
@@ -108,32 +104,30 @@
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-
-                // Set canvas dimensions (max 800px width)
                 const scale = Math.min(1, 800 / img.width);
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
-
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                // Convert to JPEG
                 canvas.toBlob((blob) => {
                     const link = document.createElement('a');
                     link.download = `compressed-${Date.now()}.jpg`;
                     link.href = URL.createObjectURL(blob);
                     link.click();
-                    
-                    // Update stats
                     statsDiv.innerHTML += `<br>Compressed Size: ${(blob.size/1024).toFixed(2)} KB`;
                     URL.revokeObjectURL(link.href);
+                    
+                    // Track compression event
+                    gtag('event', 'compress_image', {
+                        'event_category': 'Tool Usage',
+                        'event_label': 'Image Compressor'
+                    });
                 }, 'image/jpeg', quality);
             };
         }
 
-        // Initialize AdSense
         (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
-    <!-- Chatbot Script Link -->
     <script src="chatbot.js"></script>
 </body>
 </html>
