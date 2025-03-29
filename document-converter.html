@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Format Converter - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -182,6 +190,12 @@
                     <button onclick="resetForm()">Try Again</button>
                 `;
                 cancelBtn.style.display = 'none';
+                
+                // Track conversion event
+                gtag('event', 'convert_document', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'Document Format Converter'
+                });
             } catch (error) {
                 if (!isCancelled) {
                     progressDiv.textContent = 'Error: ' + error.message;
@@ -278,105 +292,4 @@
                 pdf.text(text, 10, 10);
                 simulateProgress();
                 return pdf.output('blob');
-            } else if (format === 'html') {
-                simulateProgress();
-                return new Blob([`<html><body><pre>${text}</pre></body></html>`], { type: 'text/html' });
-            } else if (format === 'json') {
-                const jsonData = { content: text.split('\n').filter(line => line.trim()) };
-                simulateProgress();
-                return new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-            } else if (format === 'docx') {
-                return await convertTextToDocx(text);
-            }
-        }
-
-        async function convertFromHTML(file, format, quality) {
-            const text = await file.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            const plainText = doc.body.textContent || '';
-            if (format === 'html') {
-                simulateProgress();
-                return new Blob([text], { type: 'text/html' });
-            } else if (format === 'txt') {
-                simulateProgress();
-                return new Blob([plainText], { type: 'text/plain' });
-            } else if (format === 'pdf') {
-                const pdf = new jsPDF();
-                pdf.text(plainText, 10, 10);
-                simulateProgress();
-                return pdf.output('blob');
-            } else if (format === 'json') {
-                const jsonData = { content: plainText.split('\n').filter(line => line.trim()) };
-                simulateProgress();
-                return new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-            } else if (format === 'docx') {
-                return await convertTextToDocx(plainText);
-            }
-        }
-
-        async function convertFromJSON(file, format, quality) {
-            const text = await file.text();
-            let jsonData;
-            try {
-                jsonData = JSON.parse(text);
-            } catch (e) {
-                throw new Error('Invalid JSON file');
-            }
-            const plainText = JSON.stringify(jsonData, null, 2); // For simplicity, use stringified JSON as text
-            if (format === 'json') {
-                simulateProgress();
-                return new Blob([text], { type: 'application/json' });
-            } else if (format === 'txt') {
-                simulateProgress();
-                return new Blob([plainText], { type: 'text/plain' });
-            } else if (format === 'html') {
-                simulateProgress();
-                return new Blob([`<html><body><pre>${plainText}</pre></body></html>`], { type: 'text/html' });
-            } else if (format === 'pdf') {
-                const pdf = new jsPDF();
-                pdf.text(plainText, 10, 10);
-                simulateProgress();
-                return pdf.output('blob');
-            } else if (format === 'docx') {
-                return await convertTextToDocx(plainText);
-            }
-        }
-
-        async function convertTextToDocx(text) {
-            // Simple DOCX generation (requires server-side for full formatting)
-            const blob = new Blob([text], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-            simulateProgress();
-            return blob;
-        }
-
-        function updateProgress(current, total) {
-            if (isCancelled) return;
-            const progress = Math.round((current / total) * 100);
-            progressDiv.textContent = `Processing (${progress}%)...`;
-        }
-
-        async function simulateProgress() {
-            for (let i = 0; i <= 100; i += 10) {
-                if (isCancelled) return;
-                progressDiv.textContent = `Processing (${i}%)...`;
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-        }
-
-        function cancelConversion() {
-            isCancelled = true;
-        }
-
-        function resetForm() {
-            document.getElementById('docInput').value = '';
-            progressDiv.textContent = '';
-            resultDiv.innerHTML = '';
-            qualityInput.value = 80;
-            qualityValue.textContent = '80%';
-            cancelBtn.style.display = 'none';
-        }
-    </script>
-    <script src="/Tool/chatbot.js"></script>
-</body>
-</html>
+            } else if (format === 'html
