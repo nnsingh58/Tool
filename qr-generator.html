@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Generator - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -63,6 +71,12 @@
                 const qrImg = document.createElement('img');
                 qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
                 qrDiv.appendChild(qrImg);
+                
+                // Track QR generation event
+                gtag('event', 'generate_qr_code', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'QR Code Generator'
+                });
             } else {
                 document.getElementById('qrResult').textContent = 'Please enter text or URL.';
             }
