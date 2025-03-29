@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Photo Maker - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -90,23 +98,19 @@
                 return;
             }
 
-            // Calculate grid layout
-            const totalSlots = Math.max(files.length + 1, 9); // Minimum 3x3 grid for center focus
+            const totalSlots = Math.max(files.length + 1, 9);
             const cols = Math.ceil(Math.sqrt(totalSlots));
             const rows = Math.ceil(totalSlots / cols);
             canvas.width = cols * (frameWidth + gap) - gap;
             canvas.height = rows * (frameHeight + gap) - gap;
 
-            // Clear canvas with white background
             ctx.fillStyle = '#fff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Calculate center position
             const centerRow = Math.floor(rows / 2);
             const centerCol = Math.floor(cols / 2);
             const centerIndex = centerRow * cols + centerCol;
 
-            // Load and draw images
             let imgIndex = 0;
             for (let i = 0; i < rows * cols; i++) {
                 const x = (i % cols) * (frameWidth + gap);
@@ -114,12 +118,11 @@
 
                 if (i === centerIndex) {
                     if (addCenterImage) {
-                        // Add scenic image in center
                         const centerImg = new Image();
-                        centerImg.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80'; // Mountain
+                        centerImg.src = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80';
                         await new Promise(resolve => centerImg.onload = resolve);
                         ctx.drawImage(centerImg, x, y, frameWidth, frameHeight);
-                    } // Else leave blank (white)
+                    }
                 } else if (imgIndex < files.length) {
                     const img = new Image();
                     img.src = URL.createObjectURL(files[imgIndex]);
@@ -129,13 +132,18 @@
                 }
             }
 
-            // High-quality output
             const dataUrl = canvas.toDataURL('image/png', 1.0);
             const blob = await (await fetch(dataUrl)).blob();
             const url = URL.createObjectURL(blob);
             document.getElementById('result').innerHTML = `
                 <button onclick="downloadFile('${url}', 'group-photo.png')">Download Group Photo (${(blob.size / 1024).toFixed(2)} KB)</button>
             `;
+            
+            // Track group photo creation event
+            gtag('event', 'create_group_photo', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Group Photo Maker'
+            });
         }
 
         function downloadFile(url, filename) {
