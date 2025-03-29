@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passport Size Photo Maker - ToolHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -313,22 +323,17 @@
             canvas.width = width;
             canvas.height = height;
 
-            // Draw original image
             ctx.drawImage(img, 0, 0, width, height);
-
-            // Get face landmarks
             const landmarks = predictions[0].scaledMesh;
 
-            // Create a mask for the face
             ctx.beginPath();
-            ctx.moveTo(landmarks[10][0] * width / img.width, landmarks[10][1] * height / img.height); // Forehead
+            ctx.moveTo(landmarks[10][0] * width / img.width, landmarks[10][1] * height / img.height);
             for (let i = 0; i < landmarks.length; i++) {
                 ctx.lineTo(landmarks[i][0] * width / img.width, landmarks[i][1] * height / img.height);
             }
             ctx.closePath();
             ctx.clip();
 
-            // Redraw image within the clipped area
             ctx.clearRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
 
@@ -344,6 +349,12 @@
                 alert('Please upload a photo first!');
                 return;
             }
+
+            // Track the event in Google Analytics
+            gtag('event', 'generate_passport_photo', {
+                'event_category': 'Tool Usage',
+                'event_label': 'Passport Size Photo Maker'
+            });
 
             loading.style.display = 'block';
             loading.textContent = 'Processing: 0%';
@@ -380,7 +391,6 @@
                 height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
             }
 
-            // Remove background and get processed image
             const processedImage = await removeBackground(uploadedImage, width, height);
 
             const canvas = document.createElement('canvas');
@@ -388,11 +398,8 @@
             canvas.width = width;
             canvas.height = height;
 
-            // Apply selected background color
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
-
-            // Draw processed image over background
             ctx.drawImage(processedImage, 0, 0, width, height);
 
             const outputCanvas = document.createElement('canvas');
@@ -404,13 +411,12 @@
             outputCtx.fillStyle = '#ffffff';
             outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
 
-            // Draw each photo with individual border
             for (let i = 0; i < photoSet; i++) {
                 const x = (i % cols) * (width + 10);
                 const y = Math.floor(i / cols) * (height + 10);
-                outputCtx.fillStyle = '#000000'; // Black border
-                outputCtx.fillRect(x - 5, y - 5, width + 10, height + 10); // Border
-                outputCtx.drawImage(canvas, x, y, width, height); // Photo
+                outputCtx.fillStyle = '#000000';
+                outputCtx.fillRect(x - 5, y - 5, width + 10, height + 10);
+                outputCtx.drawImage(canvas, x, y, width, height);
             }
 
             const resultImg = document.createElement('img');
