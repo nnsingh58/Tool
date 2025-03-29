@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Converter - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
         .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -58,13 +66,11 @@
                 const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
                 if (format === 'mp3') {
-                    // MP3 as-is (no conversion, just passthrough)
                     const blob = new Blob([arrayBuffer], { type: 'audio/mp3' });
                     const url = URL.createObjectURL(blob);
                     resultDiv.innerHTML = `<a href="${url}" download="output.mp3">Download MP3</a>`;
                     statusDiv.innerHTML = "Done! (Original MP3)";
                 } else if (format === 'wav') {
-                    // Convert to WAV
                     const wavBlob = audioBufferToWav(audioBuffer);
                     const url = URL.createObjectURL(wavBlob);
                     resultDiv.innerHTML = `<a href="${url}" download="output.wav">Download WAV</a>`;
@@ -72,6 +78,12 @@
                 }
 
                 audioContext.close();
+                
+                // Track conversion event
+                gtag('event', 'convert_audio', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'Audio Converter'
+                });
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
@@ -85,22 +97,20 @@
             const buffer = new ArrayBuffer(length);
             const view = new DataView(buffer);
 
-            // WAV header
             writeString(view, 0, 'RIFF');
             view.setUint32(4, 36 + audioBuffer.length * numChannels * 2, true);
             writeString(view, 8, 'WAVE');
             writeString(view, 12, 'fmt ');
             view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); // PCM format
+            view.setUint16(20, 1, true);
             view.setUint16(22, numChannels, true);
             view.setUint32(24, sampleRate, true);
             view.setUint32(28, sampleRate * numChannels * 2, true);
             view.setUint16(32, numChannels * 2, true);
-            view.setUint16(34, 16, true); // 16-bit
+            view.setUint16(34, 16, true);
             writeString(view, 36, 'data');
             view.setUint32(40, audioBuffer.length * numChannels * 2, true);
 
-            // Write PCM data
             let offset = 44;
             for (let i = 0; i < audioBuffer.length; i++) {
                 for (let channel = 0; channel < numChannels; channel++) {
