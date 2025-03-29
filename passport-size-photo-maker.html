@@ -6,18 +6,24 @@
     <title>Passport Size Photo Maker - ToolHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- CSP Meta Tag with 'unsafe-eval' -->
+    <!-- CSP Meta Tag with 'unsafe-inline' and 'unsafe-eval' -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net 'unsafe-eval';
+        script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://pagead2.googlesyndication.com 'unsafe-eval' 'unsafe-inline';
         style-src 'self' https://cdnjs.cloudflare.com 'unsafe-inline';
         font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com;
-        img-src 'self' data:;
-        connect-src 'self';
+        img-src 'self' data: https://*.google.com https://*.googlesyndication.com;
+        connect-src 'self' https://*.google.com https://*.googlesyndication.com;
     ">
+
+    <!-- Google AdSense Account Meta Tag -->
+    <meta name="google-adsense-account" content="ca-pub-9239182778221521">
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+
+    <!-- Google AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -157,6 +163,10 @@
         #captureBtn {
             display: none;
         }
+        .ad-container {
+            margin: 2rem auto;
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -214,6 +224,19 @@
             <p id="loading" class="loading">Processing: 0%</p>
             <div id="preview"></div>
         </div>
+
+        <!-- AdSense Ad Unit (Example: Responsive Display Ad) -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9239182778221521"
+                 data-ad-slot="1234567890" <!-- Replace with your actual ad slot ID -->
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
     </div>
 
     <footer class="footer">
@@ -252,25 +275,38 @@
         // Load BodyPix model
         async function loadBodyPixModel() {
             console.log('Loading BodyPix model...');
-            bodyPixNet = await bodyPix.load({
-                architecture: 'MobileNetV1',
-                outputStride: 16,
-                multiplier: 0.75,
-                quantBytes: 2
-            });
-            console.log('BodyPix model loaded.');
+            try {
+                bodyPixNet = await bodyPix.load({
+                    architecture: 'MobileNetV1',
+                    outputStride: 16,
+                    multiplier: 0.75,
+                    quantBytes: 2
+                });
+                console.log('BodyPix model loaded successfully.');
+            } catch (error) {
+                console.error('Error loading BodyPix model:', error);
+                alert('Failed to load BodyPix model. Background removal may not work.');
+            }
         }
 
         loadBodyPixModel();
 
         // Drag and Drop functionality
-        dropZone.addEventListener('click', () => imageInput.click());
+        dropZone.addEventListener('click', () => {
+            console.log('Drop zone clicked');
+            imageInput.click();
+        });
         dropZone.addEventListener('dragover', (e) => {
+            console.log('Drag over');
             e.preventDefault();
             dropZone.classList.add('dragover');
         });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('dragleave', () => {
+            console.log('Drag leave');
+            dropZone.classList.remove('dragover');
+        });
         dropZone.addEventListener('drop', (e) => {
+            console.log('File dropped');
             e.preventDefault();
             dropZone.classList.remove('dragover');
             imageInput.files = e.dataTransfer.files;
@@ -278,6 +314,7 @@
             loadImage(e.dataTransfer.files[0]);
         });
         imageInput.addEventListener('change', (e) => {
+            console.log('File input changed');
             if (e.target.files[0]) {
                 fileNameDisplay.textContent = e.target.files[0].name;
                 loadImage(e.target.files[0]);
@@ -286,6 +323,7 @@
 
         // Camera functionality
         cameraBtn.addEventListener('click', async () => {
+            console.log('Camera button clicked');
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 alert('Your browser does not support camera access.');
                 return;
@@ -305,6 +343,7 @@
         });
 
         captureBtn.addEventListener('click', () => {
+            console.log('Capture button clicked');
             const canvas = document.createElement('canvas');
             canvas.width = cameraPreview.videoWidth;
             canvas.height = cameraPreview.videoHeight;
@@ -323,6 +362,7 @@
         });
 
         function stopCamera() {
+            console.log('Stopping camera');
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 cameraPreview.style.display = 'none';
@@ -333,6 +373,7 @@
         }
 
         async function loadImage(file) {
+            console.log('Loading image from file');
             if (!file) {
                 console.log('No file selected');
                 return;
@@ -364,57 +405,64 @@
         }
 
         async function removeBackground(img, bgColor) {
+            console.log('Removing background');
             if (!bodyPixNet) {
                 console.error('BodyPix model not loaded yet.');
-                return img; // Fallback to original image
+                alert('Background removal model not loaded. Using original image.');
+                return img;
             }
 
-            const segmentation = await bodyPixNet.segmentPerson(img, {
-                flipHorizontal: false,
-                internalResolution: 'medium',
-                segmentationThreshold: 0.7
-            });
+            try {
+                const segmentation = await bodyPixNet.segmentPerson(img, {
+                    flipHorizontal: false,
+                    internalResolution: 'medium',
+                    segmentationThreshold: 0.7
+                });
 
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
 
-            // Fill with selected background color
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Draw original image
-            ctx.drawImage(img, 0, 0);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
+                ctx.drawImage(img, 0, 0);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imageData.data;
 
-            // Apply segmentation mask
-            for (let i = 0; i < data.length; i += 4) {
-                const pixelIndex = i / 4;
-                if (!segmentation.data[pixelIndex]) {
-                    data[i] = parseInt(bgColor.slice(1, 3), 16);     // Red
-                    data[i + 1] = parseInt(bgColor.slice(3, 5), 16); // Green
-                    data[i + 2] = parseInt(bgColor.slice(5, 7), 16); // Blue
-                    data[i + 3] = 255;                               // Alpha
+                for (let i = 0; i < data.length; i += 4) {
+                    const pixelIndex = i / 4;
+                    if (!segmentation.data[pixelIndex]) {
+                        data[i] = parseInt(bgColor.slice(1, 3), 16);     // Red
+                        data[i + 1] = parseInt(bgColor.slice(3, 5), 16); // Green
+                        data[i + 2] = parseInt(bgColor.slice(5, 7), 16); // Blue
+                        data[i + 3] = 255;                               // Alpha
+                    }
                 }
-            }
 
-            ctx.putImageData(imageData, 0, 0);
-            return canvas;
+                ctx.putImageData(imageData, 0, 0);
+                console.log('Background removed successfully');
+                return canvas;
+            } catch (error) {
+                console.error('Error in background removal:', error);
+                alert('Error removing background. Using original image.');
+                return img;
+            }
         }
 
         document.getElementById('photoSize').addEventListener('change', function() {
+            console.log('Photo size changed');
             document.getElementById('customSize').style.display = this.value === 'custom' ? 'block' : 'none';
         });
 
         document.getElementById('generateBtn').addEventListener('click', async function() {
+            console.log('Generate button clicked');
             if (!uploadedImage) {
                 alert('Please upload or capture a photo first!');
                 return;
             }
 
-            // Track the event in Google Analytics
             gtag('event', 'generate_passport_photo', {
                 'event_category': 'Tool Usage',
                 'event_label': 'Passport Size Photo Maker'
@@ -453,10 +501,8 @@
                 height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
             }
 
-            // Remove background
             const processedCanvas = await removeBackground(uploadedImage, bgColor);
 
-            // Resize to passport size
             const canvas = document.createElement('canvas');
             canvas.width = width;
             canvas.height = height;
@@ -464,13 +510,11 @@
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
 
-            // Center the image
             const scale = Math.min(width / processedCanvas.width, height / processedCanvas.height);
             const newWidth = processedCanvas.width * scale;
             const newHeight = processedCanvas.height * scale;
             ctx.drawImage(processedCanvas, (width - newWidth) / 2, (height - newHeight) / 2, newWidth, newHeight);
 
-            // Create photo set
             const outputCanvas = document.createElement('canvas');
             const cols = Math.ceil(Math.sqrt(photoSet));
             const rows = Math.ceil(photoSet / cols);
@@ -495,9 +539,11 @@
             canvasOutput = outputCanvas;
             document.getElementById('downloadBtn').style.display = 'inline-block';
             loading.style.display = 'none';
+            console.log('Photo generation complete');
         });
 
         document.getElementById('downloadBtn').addEventListener('click', function() {
+            console.log('Download button clicked');
             if (!canvasOutput) return;
             const link = document.createElement('a');
             link.download = 'passport_photos.jpg';
