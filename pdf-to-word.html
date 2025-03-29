@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF to Word Converter - ToolHub</title>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-VBJFDCH3MH');
+    </script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
         .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -43,7 +51,7 @@
             }
 
             const file = fileInput.files[0];
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            if (file.size > 5 * 1024 * 1024) {
                 statusDiv.innerHTML = "File too large (max 5MB).";
                 return;
             }
@@ -64,6 +72,12 @@
                 const url = URL.createObjectURL(blob);
                 resultDiv.innerHTML = `<a href="${url}" download="converted.doc">Download Word File</a>`;
                 statusDiv.innerHTML = "Conversion complete!";
+                
+                // Track conversion event
+                gtag('event', 'convert_pdf_to_word', {
+                    'event_category': 'Tool Usage',
+                    'event_label': 'PDF to Word'
+                });
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
