@@ -34,6 +34,7 @@
             <option value="image/png">PNG</option>
             <option value="image/jpeg">JPEG</option>
             <option value="image/webp">WebP</option>
+            <option value="text/html">HTML</option> <!-- Added HTML option -->
         </select>
         <input type="range" id="quality" min="10" max="100" value="80" aria-label="Quality Slider">
         <label for="quality">Quality: <span id="qualityValue">80%</span></label>
@@ -46,9 +47,9 @@
             <h3>How to Use This Tool</h3>
             <ul>
                 <li>Upload an image (max 50MB).</li>
-                <li>Choose output format (PNG, JPEG, WebP).</li>
-                <li>Adjust quality (10% = smallest, 100% = best).</li>
-                <li>Check "Compress Image" for smaller size.</li>
+                <li>Choose output format (PNG, JPEG, WebP, or HTML).</li>
+                <li>Adjust quality (10% = smallest, 100% = best; ignored for HTML).</li>
+                <li>Check "Compress Image" for smaller size (applies to image formats only).</li>
                 <li>Click "Convert Image" and download the result.</li>
             </ul>
         </div>
@@ -100,7 +101,7 @@
 
             try {
                 let processedFile = file;
-                if (shouldCompress) {
+                if (shouldCompress && format !== 'text/html') { // Compression only for image formats
                     processedFile = await new Promise((resolve, reject) => {
                         new Compressor(file, {
                             quality: quality,
@@ -127,16 +128,44 @@
                     await new Promise(resolve => setTimeout(resolve, 50));
                 }
 
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-
-                const dataUrl = canvas.toDataURL(format, quality);
-                const blob = await (await fetch(dataUrl)).blob();
-                const url = URL.createObjectURL(blob);
-                const ext = format.split('/')[1];
+                let url, blob, ext;
+                if (format === 'text/html') {
+                    // Generate HTML with Base64 image
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const dataUrl = canvas.toDataURL('image/png'); // Default to PNG for HTML embedding
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Converted Image</title>
+                        </head>
+                        <body>
+                            <h1>Your Converted Image</h1>
+                            <img src="${dataUrl}" alt="Converted Image" style="max-width: 100%;">
+                        </body>
+                        </html>
+                    `;
+                    blob = new Blob([htmlContent], { type: 'text/html' });
+                    url = URL.createObjectURL(blob);
+                    ext = 'html';
+                } else {
+                    // Handle image formats (PNG, JPEG, WebP)
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    const dataUrl = canvas.toDataURL(format, quality);
+                    blob = await (await fetch(dataUrl)).blob();
+                    url = URL.createObjectURL(blob);
+                    ext = format.split('/')[1];
+                }
 
                 progressDiv.textContent = `Conversion complete! Before: ${(file.size / 1024).toFixed(2)} KB`;
                 resultDiv.innerHTML = `
