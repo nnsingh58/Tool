@@ -401,17 +401,13 @@
                     height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
                 }
 
-                // Create single photo canvas (native)
+                // Create single photo canvas (native) - only for cropping
                 const photoCanvas = document.createElement('canvas');
                 photoCanvas.width = width;
                 photoCanvas.height = height;
                 const ctx = photoCanvas.getContext('2d');
 
-                // Set background color
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, width, height);
-
-                // Calculate cropping dimensions with padding
+                // No background here, just crop the image
                 const aspectRatio = width / height;
                 const sourceWidth = uploadedImage.width;
                 const sourceHeight = uploadedImage.height;
@@ -428,7 +424,6 @@
                 const cropY = (sourceHeight - cropHeight) / 2;
                 const padding = 20;
                 
-                // Draw cropped image with padding
                 ctx.drawImage(
                     uploadedImage,
                     cropX, cropY, cropWidth, cropHeight,
