@@ -407,31 +407,32 @@
                 photoCanvas.height = height;
                 const ctx = photoCanvas.getContext('2d');
 
-                // Set background color
+                // Set background color with padding
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, width, height);
 
-                // Calculate cropping dimensions
+                // Calculate cropping dimensions with slight padding
                 const aspectRatio = width / height;
                 const sourceWidth = uploadedImage.width;
                 const sourceHeight = uploadedImage.height;
                 
-                let cropHeight = sourceHeight * 0.7;
+                let cropHeight = sourceHeight * 0.6; // Reduced to show more background
                 let cropWidth = cropHeight * aspectRatio;
                 
                 if (cropWidth > sourceWidth) {
-                    cropWidth = sourceWidth;
+                    cropWidth = sourceWidth * 0.9;
                     cropHeight = cropWidth / aspectRatio;
                 }
                 
                 const cropX = (sourceWidth - cropWidth) / 2;
                 const cropY = (sourceHeight - cropHeight) / 2;
+                const padding = 10; // Add padding to show background
                 
-                // Draw cropped image
+                // Draw cropped image with padding
                 ctx.drawImage(
                     uploadedImage,
                     cropX, cropY, cropWidth, cropHeight,
-                    0, 0, width, height
+                    padding, padding, width - 2 * padding, height - 2 * padding
                 );
 
                 // Create grid with fabric.js
