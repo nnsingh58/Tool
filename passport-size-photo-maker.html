@@ -407,26 +407,26 @@
                 photoCanvas.height = height;
                 const ctx = photoCanvas.getContext('2d');
 
-                // Set background color with padding
+                // Set background color
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, width, height);
 
-                // Calculate cropping dimensions with slight padding
+                // Calculate cropping dimensions with padding
                 const aspectRatio = width / height;
                 const sourceWidth = uploadedImage.width;
                 const sourceHeight = uploadedImage.height;
                 
-                let cropHeight = sourceHeight * 0.6; // Reduced to show more background
+                let cropHeight = sourceHeight * 0.5;
                 let cropWidth = cropHeight * aspectRatio;
                 
                 if (cropWidth > sourceWidth) {
-                    cropWidth = sourceWidth * 0.9;
+                    cropWidth = sourceWidth * 0.8;
                     cropHeight = cropWidth / aspectRatio;
                 }
                 
                 const cropX = (sourceWidth - cropWidth) / 2;
                 const cropY = (sourceHeight - cropHeight) / 2;
-                const padding = 10; // Add padding to show background
+                const padding = 20;
                 
                 // Draw cropped image with padding
                 ctx.drawImage(
@@ -469,25 +469,39 @@
                         const x = col * (width + 10);
                         const y = row * (height + 10);
 
+                        // Background rectangle for each photo
+                        const bgRect = new fabric.Rect({
+                            left: x,
+                            top: y,
+                            width: width,
+                            height: height,
+                            fill: bgColor,
+                            selectable: false
+                        });
+                        gridCanvas.add(bgRect);
+
                         // Black border
                         const border = new fabric.Rect({
-                            left: x - 2,
-                            top: y - 2,
-                            width: width + 4,
-                            height: height + 4,
+                            left: x - 5,
+                            top: y - 5,
+                            width: width + 10,
+                            height: height + 10,
                             fill: '#000000',
                             selectable: false
                         });
                         gridCanvas.add(border);
 
-                        // Add photo
+                        // Add photo on top
                         const clonedPhoto = fabric.util.object.clone(photo);
                         clonedPhoto.set({
-                            left: x,
-                            top: y,
+                            left: x + padding,
+                            top: y + padding,
+                            width: width - 2 * padding,
+                            height: height - 2 * padding,
                             selectable: false
                         });
                         gridCanvas.add(clonedPhoto);
+                        gridCanvas.bringToFront(clonedPhoto); // Ensure photo is on top
                         photosAdded++;
 
                         if (photosAdded === photoCount) {
