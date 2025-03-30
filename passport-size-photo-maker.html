@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passport Size Photo Maker - ToolHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -384,11 +383,10 @@
                 const photoCount = parseInt(document.getElementById('photoSet').value);
                 const photoSize = document.getElementById('photoSize').value;
                 const bgColor = document.getElementById('backgroundColor').value;
-                
+
                 // Calculate dimensions in pixels (300 DPI)
                 let width, height;
                 const dpi = 300;
-                
                 if (photoSize === '35x45') {
                     width = Math.round(35 * dpi / 25.4);
                     height = Math.round(45 * dpi / 25.4);
@@ -401,137 +399,85 @@
                     height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
                 }
 
-                // Create single photo canvas (native) - only for cropping
-                const photoCanvas = document.createElement('canvas');
-                photoCanvas.width = width;
-                photoCanvas.height = height;
-                const ctx = photoCanvas.getContext('2d');
-
-                // No background here, just crop the image
-                const aspectRatio = width / height;
-                const sourceWidth = uploadedImage.width;
-                const sourceHeight = uploadedImage.height;
-                
-                let cropHeight = sourceHeight * 0.5;
-                let cropWidth = cropHeight * aspectRatio;
-                
-                if (cropWidth > sourceWidth) {
-                    cropWidth = sourceWidth * 0.8;
-                    cropHeight = cropWidth / aspectRatio;
-                }
-                
-                const cropX = (sourceWidth - cropWidth) / 2;
-                const cropY = (sourceHeight - cropHeight) / 2;
-                const padding = 20;
-                
-                ctx.drawImage(
-                    uploadedImage,
-                    cropX, cropY, cropWidth, cropHeight,
-                    padding, padding, width - 2 * padding, height - 2 * padding
-                );
-
-                // Create grid with fabric.js
+                // Grid layout
                 let cols, rows;
                 if (photoCount === 1) { cols = 1; rows = 1; }
                 else if (photoCount === 4) { cols = 2; rows = 2; }
                 else if (photoCount === 6) { cols = 3; rows = 2; }
                 else if (photoCount === 8) { cols = 4; rows = 2; }
 
-                console.log('Initializing fabric canvas');
-                const gridCanvas = new fabric.Canvas(null, {
-                    width: cols * (width + 10) - 10,
-                    height: rows * (height + 10) - 10
-                });
+                // Create canvas
+                const canvas = document.createElement('canvas');
+                const spacing = 10;
+                canvas.width = cols * (width + spacing) - spacing;
+                canvas.height = rows * (height + spacing) - spacing;
+                const ctx = canvas.getContext('2d');
 
-                // Grid background
-                const gridBg = new fabric.Rect({
-                    left: 0,
-                    top: 0,
-                    width: gridCanvas.width,
-                    height: gridCanvas.height,
-                    fill: '#ffffff',
-                    selectable: false
-                });
-                gridCanvas.add(gridBg);
+                // Canvas background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                console.log('Adding photos to grid');
-                fabric.Image.fromURL(photoCanvas.toDataURL('image/jpeg'), function(photo) {
-                    console.log('Photo loaded into fabric');
-                    let photosAdded = 0;
-                    for (let i = 0; i < photoCount; i++) {
-                        const col = i % cols;
-                        const row = Math.floor(i / cols);
-                        const x = col * (width + 10);
-                        const y = row * (height + 10);
+                // Cropping calculations
+                const aspectRatio = width / height;
+                const sourceWidth = uploadedImage.width;
+                const sourceHeight = uploadedImage.height;
+                let cropWidth = sourceWidth * 0.8;
+                let cropHeight = cropWidth / aspectRatio;
+                if (cropHeight > sourceHeight) {
+                    cropHeight = sourceHeight * 0.8;
+                    cropWidth = cropHeight * aspectRatio;
+                }
+                const cropX = (sourceWidth - cropWidth) / 2;
+                const cropY = (sourceHeight - cropHeight) / 2;
+                const padding = 10;
+                const photoWidth = width - 2 * padding;
+                const photoHeight = height - 2 * padding;
 
-                        // Background rectangle for each photo
-                        const bgRect = new fabric.Rect({
-                            left: x,
-                            top: y,
-                            width: width,
-                            height: height,
-                            fill: bgColor,
-                            selectable: false
-                        });
-                        gridCanvas.add(bgRect);
+                // Draw photos
+                for (let i = 0; i < photoCount; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const x = col * (width + spacing);
+                    const y = row * (height + spacing);
 
-                        // Black border
-                        const border = new fabric.Rect({
-                            left: x - 5,
-                            top: y - 5,
-                            width: width + 10,
-                            height: height + 10,
-                            fill: '#000000',
-                            selectable: false
-                        });
-                        gridCanvas.add(border);
+                    // Draw background
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(x, y, width, height);
 
-                        // Add photo on top
-                        const clonedPhoto = fabric.util.object.clone(photo);
-                        clonedPhoto.set({
-                            left: x + padding,
-                            top: y + padding,
-                            width: width - 2 * padding,
-                            height: height - 2 * padding,
-                            selectable: false
-                        });
-                        gridCanvas.add(clonedPhoto);
-                        gridCanvas.bringToFront(clonedPhoto); // Ensure photo is on top
-                        photosAdded++;
+                    // Draw black border
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#000000';
+                    ctx.strokeRect(x - 2, y - 2, width + 4, height + 4);
 
-                        if (photosAdded === photoCount) {
-                            console.log('All photos added, rendering grid');
-                            gridCanvas.renderAll();
-                            const resultImg = document.createElement('img');
-                            resultImg.src = gridCanvas.toDataURL('image/jpeg', 0.95);
-                            resultImg.onload = function() {
-                                console.log('Result image loaded');
-                                preview.appendChild(resultImg);
-                                canvasOutput = gridCanvas;
-                                downloadBtn.style.display = 'inline-block';
-                                
-                                // Start processing indicator
-                                let progress = 0;
-                                const interval = setInterval(() => {
-                                    progress += 10;
-                                    loading.textContent = `Processing: ${progress}%`;
-                                    if (progress >= 100) {
-                                        clearInterval(interval);
-                                        loading.style.display = 'none';
-                                    }
-                                }, 100);
-                            };
-                            resultImg.onerror = function() {
-                                console.error('Error loading result image');
-                                showStatus('Error displaying result', 'error');
-                            };
+                    // Draw photo
+                    ctx.drawImage(
+                        uploadedImage,
+                        cropX, cropY, cropWidth, cropHeight,
+                        x + padding, y + padding, photoWidth, photoHeight
+                    );
+                }
+
+                // Display result
+                console.log('Rendering grid');
+                const resultImg = document.createElement('img');
+                resultImg.src = canvas.toDataURL('image/jpeg', 0.95);
+                resultImg.onload = function() {
+                    console.log('Result image loaded');
+                    preview.appendChild(resultImg);
+                    canvasOutput = canvas;
+                    downloadBtn.style.display = 'inline-block';
+
+                    // Processing indicator
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        loading.textContent = `Processing: ${progress}%`;
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            loading.style.display = 'none';
                         }
-                    }
-                }, { crossOrigin: 'anonymous' }, function(err) {
-                    console.error('Error loading photo into fabric:', err);
-                    showStatus('Error processing image', 'error');
-                    loading.style.display = 'none';
-                });
+                    }, 100);
+                };
             }
 
             // Download functionality
