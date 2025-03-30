@@ -180,12 +180,6 @@
             <div id="uploadStatus" class="success" style="display: none;"></div>
             <div id="uploadPreview"></div>
             <div class="options">
-                <select id="backgroundColor">
-                    <option value="#ffffff">White</option>
-                    <option value="#87ceeb">Blue</option>
-                    <option value="#ff0000">Red</option>
-                    <option value="#d3d3d3">Gray</option>
-                </select>
                 <select id="photoSet">
                     <option value="1">1 Photo</option>
                     <option value="4">4 Photos</option>
@@ -355,7 +349,7 @@
             // Generate photos
             generateBtn.addEventListener('click', generatePhotos);
 
-            async function generatePhotos() {
+            function generatePhotos() {
                 if (!uploadedImage) {
                     showStatus('Please upload or capture a photo first!', 'error');
                     return;
@@ -365,20 +359,24 @@
                 loading.textContent = 'Processing: 0%';
                 preview.innerHTML = '';
 
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 10;
-                    loading.textContent = `Processing: ${progress}%`;
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        loading.style.display = 'none';
-                        createPhotoGrid();
-                    }
-                }, 100);
+                try {
+                    createPhotoGrid();
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        loading.textContent = `Processing: ${progress}%`;
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            loading.style.display = 'none';
+                        }
+                    }, 100);
+                } catch (error) {
+                    showStatus('Error generating photos: ' + error.message, 'error');
+                    loading.style.display = 'none';
+                }
             }
 
             function createPhotoGrid() {
-                const bgColor = document.getElementById('backgroundColor').value;
                 const photoCount = parseInt(document.getElementById('photoSet').value);
                 const photoSize = document.getElementById('photoSize').value;
                 
@@ -404,10 +402,6 @@
                 photoCanvas.height = height;
                 const ctx = photoCanvas.getContext('2d');
 
-                // Fill with selected background color FIRST
-                ctx.fillStyle = bgColor;
-                ctx.fillRect(0, 0, width, height);
-
                 // Calculate cropping dimensions
                 const aspectRatio = width / height;
                 const sourceWidth = uploadedImage.width;
@@ -427,16 +421,29 @@
                 const cropX = (sourceWidth - cropWidth) / 2;
                 const cropY = (sourceHeight - cropHeight) / 2;
                 
-                // Draw cropped image on top of background
+                // Draw cropped image
                 ctx.drawImage(
                     uploadedImage,
                     cropX, cropY, cropWidth, cropHeight,
                     0, 0, width, height
                 );
 
-                // Create photo grid
-                const cols = Math.ceil(Math.sqrt(photoCount));
-                const rows = Math.ceil(photoCount / cols);
+                // Create photo grid with equal rows
+                let cols, rows;
+                if (photoCount === 1) {
+                    cols = 1;
+                    rows = 1;
+                } else if (photoCount === 4) {
+                    cols = 2;
+                    rows = 2;
+                } else if (photoCount === 6) {
+                    cols = 3;
+                    rows = 2;
+                } else if (photoCount === 8) {
+                    cols = 4;
+                    rows = 2;
+                }
+
                 const gridCanvas = document.createElement('canvas');
                 gridCanvas.width = cols * (width + 10) - 10;
                 gridCanvas.height = rows * (height + 10) - 10;
@@ -446,7 +453,7 @@
                 gridCtx.fillStyle = '#ffffff';
                 gridCtx.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
                 
-                // Draw each photo with border
+                // Draw photos in equal rows
                 for (let i = 0; i < photoCount; i++) {
                     const col = i % cols;
                     const row = Math.floor(i / cols);
