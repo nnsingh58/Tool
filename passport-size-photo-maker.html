@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Passport Size Photo Maker - ToolHub</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Updated CSP Meta Tag -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://www.googletagmanager.com https://cdn.jsdelivr.net https://pagead2.googlesyndication.com 'unsafe-eval' 'unsafe-inline';
@@ -16,16 +14,9 @@
         connect-src 'self' https://*.google.com https://*.googlesyndication.com https://storage.googleapis.com https://*.adtrafficquality.google https://www.google-analytics.com;
         frame-src 'self' https://googleads.g.doubleclick.net;
     ">
-
-    <!-- Google AdSense Account Meta Tag -->
     <meta name="google-adsense-account" content="ca-pub-9239182778221521">
-
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-
-    <!-- Google AdSense Script -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -226,12 +217,11 @@
             <div id="preview"></div>
         </div>
 
-        <!-- AdSense Ad Unit (Example: Responsive Display Ad) -->
         <div class="ad-container">
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-9239182778221521"
-                 data-ad-slot="7274852761" <!-- Replace with your actual ad slot ID -->
+                 data-ad-slot="7274852761"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
             <script>
@@ -244,25 +234,19 @@
         <p>© 2025 ToolHub. All rights reserved.</p>
     </footer>
 
-    <!-- External Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
-
-    <!-- Combined Inline Script -->
     <script>
-        // Google Analytics Setup
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
         gtag('config', 'G-VBJFDCH3MH');
 
-        // Main Script
         let uploadedImage = null;
         let canvasOutput = null;
         let bodyPixNet;
         let stream = null;
 
-        // Elements
         const dropZone = document.getElementById('dropZone');
         const imageInput = document.getElementById('imageInput');
         const fileNameDisplay = document.getElementById('fileName');
@@ -273,15 +257,14 @@
         const cameraPreview = document.getElementById('cameraPreview');
         const captureBtn = document.getElementById('captureBtn');
 
-        // Load BodyPix model
         async function loadBodyPixModel() {
             console.log('Loading BodyPix model...');
             try {
                 bodyPixNet = await bodyPix.load({
                     architecture: 'MobileNetV1',
                     outputStride: 16,
-                    multiplier: 0.75,
-                    quantBytes: 2
+                    multiplier: 1.0, // Increased for better accuracy
+                    quantBytes: 4    // Increased for better precision
                 });
                 console.log('BodyPix model loaded successfully.');
             } catch (error) {
@@ -292,7 +275,6 @@
 
         loadBodyPixModel();
 
-        // Drag and Drop functionality
         dropZone.addEventListener('click', () => {
             console.log('Drop zone clicked');
             imageInput.click();
@@ -322,7 +304,6 @@
             }
         });
 
-        // Camera functionality
         cameraBtn.addEventListener('click', async () => {
             console.log('Camera button clicked');
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -414,10 +395,11 @@
             }
 
             try {
+                // Improved segmentation settings
                 const segmentation = await bodyPixNet.segmentPerson(img, {
                     flipHorizontal: false,
-                    internalResolution: 'medium',
-                    segmentationThreshold: 0.7
+                    internalResolution: 'high', // Higher resolution for better detail
+                    segmentationThreshold: 0.5  // Stricter threshold for cleaner mask
                 });
 
                 const canvas = document.createElement('canvas');
@@ -425,16 +407,22 @@
                 canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
 
+                // Fill with background color
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+                // Draw original image
                 ctx.drawImage(img, 0, 0);
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
+                // Apply segmentation mask with dilation to smooth edges
+                const mask = new Uint8Array(segmentation.data);
+                const dilatedMask = dilateMask(mask, canvas.width, canvas.height, 2); // Dilate by 2 pixels
+
                 for (let i = 0; i < data.length; i += 4) {
                     const pixelIndex = i / 4;
-                    if (!segmentation.data[pixelIndex]) {
+                    if (!dilatedMask[pixelIndex]) {
                         data[i] = parseInt(bgColor.slice(1, 3), 16);     // Red
                         data[i + 1] = parseInt(bgColor.slice(3, 5), 16); // Green
                         data[i + 2] = parseInt(bgColor.slice(5, 7), 16); // Blue
@@ -450,6 +438,34 @@
                 alert('Error removing background. Using original image.');
                 return img;
             }
+        }
+
+        // Simple dilation function to smooth the segmentation mask
+        function dilateMask(mask, width, height, radius) {
+            const dilated = new Uint8Array(mask.length);
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = y * width + x;
+                    if (mask[index]) {
+                        dilated[index] = 1;
+                        continue;
+                    }
+                    // Check neighboring pixels within radius
+                    for (let dy = -radius; dy <= radius; dy++) {
+                        for (let dx = -radius; dx <= radius; dx++) {
+                            const ny = y + dy;
+                            const nx = x + dx;
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                if (mask[ny * width + nx]) {
+                                    dilated[index] = 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return dilated;
         }
 
         document.getElementById('photoSize').addEventListener('change', function() {
