@@ -374,7 +374,7 @@
                 } catch (error) {
                     console.error('Error in generatePhotos:', error);
                     showStatus('Error generating photos: ' + error.message, 'error');
-                    loading.style.display = 'none';
+                    loading.style.display = 'none');
                 }
             }
 
@@ -421,7 +421,7 @@
                 const aspectRatio = width / height;
                 const sourceWidth = uploadedImage.width;
                 const sourceHeight = uploadedImage.height;
-                let cropWidth = sourceWidth * 0.8;
+                let cropWidth = sourceWidth * 0.8; // Increased to include more of the image
                 let cropHeight = cropWidth / aspectRatio;
                 if (cropHeight > sourceHeight) {
                     cropHeight = sourceHeight * 0.8;
@@ -429,7 +429,7 @@
                 }
                 const cropX = (sourceWidth - cropWidth) / 2;
                 const cropY = (sourceHeight - cropHeight) / 2;
-                const padding = 10;
+                const padding = 15; // Adjusted padding
                 const photoWidth = width - 2 * padding;
                 const photoHeight = height - 2 * padding;
 
@@ -440,21 +440,21 @@
                     const x = col * (width + spacing);
                     const y = row * (height + spacing);
 
-                    // Draw background
+                    // Draw background first
                     ctx.fillStyle = bgColor;
                     ctx.fillRect(x, y, width, height);
 
-                    // Draw black border
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#000000';
-                    ctx.strokeRect(x - 2, y - 2, width + 4, height + 4);
-
-                    // Draw photo
+                    // Draw photo on top with padding
                     ctx.drawImage(
                         uploadedImage,
                         cropX, cropY, cropWidth, cropHeight,
                         x + padding, y + padding, photoWidth, photoHeight
                     );
+
+                    // Draw black border last
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#000000';
+                    ctx.strokeRect(x - 2, y - 2, width + 4, height + 4);
                 }
 
                 // Display result
