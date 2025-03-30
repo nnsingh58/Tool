@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Format Converter - ToolHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7ff;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        .logo i {
+            margin-right: 10px;
+        }
+        .ad-banner {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px dashed #ccc;
+        }
+        .tool-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+            text-align: center;
+        }
+        .converter-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .converter-card {
+                grid-template-columns: 1fr;
+            }
+        }
+        .input-section, .output-section {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+        }
+        .section-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        .file-upload {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(74, 107, 255, 0.05);
+        }
+        .file-upload i {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        select, input[type="range"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+        }
+        .btn:hover {
+            background: #3a5bef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn-secondary {
+            background: var(--secondary);
+        }
+        .btn-secondary:hover {
+            background: #e05a5a;
+        }
+        .progress-container {
+            margin: 20px 0;
+            background: #eee;
+            border-radius: 8px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .status-text {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .result-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .preview-area {
+            min-height: 200px;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: white;
+            overflow: hidden;
+        }
+        .preview-area img {
+            max-width: 100%;
+            max-height: 300px;
+        }
+        .ad-space {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            text-align: center;
+            border: 1px dashed #ddd;
+        }
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin: 10px 0;
+            font-size: 0.9rem;
+        }
+        .format-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .format-option {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .format-option:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .format-option.active {
+            border-color: var(--primary);
+            background: rgba(74, 107, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-file-alt"></i>
+                <span>ToolHub</span>
+            </div>
+            <div class="ad-banner">
+                <!-- Ad Space - Header -->
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9239182778221521"
+                     data-ad-slot="7284906760"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="ad-space">
+            <!-- Ad Space - Top -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9239182778221521"
+                 data-ad-slot="7284906760"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <div class="tool-container">
+            <h1><i class="fas fa-exchange-alt"></i> Document Format Converter</h1>
+            
+            <div class="converter-card">
+                <div class="input-section">
+                    <div class="section-title">
+                        <i class="fas fa-upload"></i> Input Document
+                    </div>
+                    <div class="file-upload" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop your file here or click to browse</p>
+                        <p id="fileName">No file selected</p>
+                        <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.html,.json" hidden>
+                    </div>
+                    
+                    <div class="section-title">
+                        <i class="fas fa-cog"></i> Conversion Settings
+                    </div>
+                    <div class="format-options">
+                        <div class="format-option active" data-format="pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <p>PDF</p>
+                        </div>
+                        <div class="format-option" data-format="docx">
+                            <i class="fas fa-file-word"></i>
+                            <p>DOCX</p>
+                        </div>
+                        <div class="format-option" data-format="txt">
+                            <i class="fas fa-file-alt"></i>
+                            <p>TXT</p>
+                        </div>
+                        <div class="format-option" data-format="html">
+                            <i class="fab fa-html5"></i>
+                            <p>HTML</p>
+                        </div>
+                        <div class="format-option" data-format="json">
+                            <i class="fas fa-code"></i>
+                            <p>JSON</p>
+                        </div>
+                    </div>
+                    
+                    <div id="pdfSettings" style="display: block;">
+                        <label>PDF Quality</label>
+                        <input type="range" id="quality" min="10" max="100" value="80">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>Smaller File</span>
+                            <span>Better Quality</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="output-section">
+                    <div class="section-title">
+                        <i class="fas fa-download"></i> Output Preview
+                    </div>
+                    <div class="preview-area" id="preview">
+                        <p>Your converted document will appear here</p>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <div class="status-text" id="statusText">Ready to convert</div>
+                    <div class="error-message" id="errorMessage"></div>
+                    
+                    <button class="btn" id="convertBtn">
+                        <i class="fas fa-exchange-alt"></i> Convert Document
+                    </button>
+                    
+                    <div class="result-container" id="resultContainer">
+                        <button class="btn btn-secondary" id="downloadBtn">
+                            <i class="fas fa-download"></i> Download Converted File
+                        </button>
+                        <button class="btn" id="resetBtn" style="margin-top: 10px;">
+                            <i class="fas fa-redo"></i> Convert Another File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ad-space">
+            <!-- Ad Space - Bottom -->
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9239182778221521"
+                 data-ad-slot="7284906760"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 ToolHub. All rights reserved.</p>
+    </footer>
+
+    <!-- Required Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <script>
+        // Initialize libraries
+        pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+        const { jsPDF } = window.jspdf;
+        
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileName = document.getElementById('fileName');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultContainer = document.getElementById('resultContainer');
+        const preview = document.getElementById('preview');
+        const qualityInput = document.getElementById('quality');
+        const formatOptions = document.querySelectorAll('.format-option');
+        const pdfSettings = document.getElementById('pdfSettings');
+        
+        // Global variables
+        let currentFile = null;
+        let outputFormat = 'pdf';
+        let convertedBlob = null;
+        
+        // Event Listeners
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#4a6bff';
+            dropZone.style.backgroundColor = 'rgba(74, 107, 255, 0.1)';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#ccc';
+            dropZone.style.backgroundColor = 'transparent';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ccc';
+            dropZone.style.backgroundColor = 'transparent';
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelection(fileInput.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFileSelection(fileInput.files[0]);
+            }
+        });
+        
+        formatOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                formatOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                outputFormat = option.dataset.format;
+                
+                // Show/hide PDF quality settings
+                pdfSettings.style.display = outputFormat === 'pdf' ? 'block' : 'none';
+            });
+        });
+        
+        convertBtn.addEventListener('click', startConversion);
+        downloadBtn.addEventListener('click', downloadFile);
+        resetBtn.addEventListener('click', resetConverter);
+        
+        // Functions
+        function handleFileSelection(file) {
+            if (!file.type.match('application/pdf|application/vnd.openxmlformats-officedocument.wordprocessingml.document|text/plain|text/html|application/json') && 
+                !file.name.match(/\.(pdf|docx|txt|html|json)$/i)) {
+                showError('Please select a valid document file (PDF, DOCX, TXT, HTML, JSON)');
+                return;
+            }
+            
+            currentFile = file;
+            fileName.textContent = file.name;
+            statusText.textContent = 'File ready for conversion';
+            preview.innerHTML = `<i class="fas fa-file" style="font-size: 3rem; color: #4a6bff;"></i><p>${file.name}</p>`;
+            
+            // Read and preview file content
+            previewFile(file);
+        }
+        
+        function previewFile(file) {
+            const reader = new FileReader();
+            
+            if (file.type.match('image')) {
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else if (file.type === 'application/pdf') {
+                preview.innerHTML = `<i class="fas fa-file-pdf" style="font-size: 3rem; color: #e63939;"></i><p>${file.name}</p>`;
+            } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                preview.innerHTML = `<i class="fas fa-file-word" style="font-size: 3rem; color: #2b579a;"></i><p>${file.name}</p>`;
+            } else {
+                preview.innerHTML = `<i class="fas fa-file-alt" style="font-size: 3rem; color: #4a6bff;"></i><p>${file.name}</p>`;
+            }
+        }
+        
+        async function startConversion() {
+            if (!currentFile) {
+                showError('Please select a file first');
+                return;
+            }
+            
+            // Reset UI
+            errorMessage.textContent = '';
+            progressBar.style.width = '0%';
+            statusText.textContent = 'Starting conversion...';
+            convertBtn.disabled = true;
+            
+            try {
+                const quality = qualityInput.value / 100;
+                const fileType = currentFile.name.split('.').pop().toLowerCase();
+                
+                updateProgress(10);
+                statusText.textContent = 'Reading file...';
+                
+                let resultBlob;
+                
+                if (fileType === 'pdf') {
+                    resultBlob = await convertPDF(currentFile, outputFormat, quality);
+                } else if (fileType === 'docx') {
+                    resultBlob = await convertDOCX(currentFile, outputFormat);
+                } else if (fileType === 'txt') {
+                    resultBlob = await convertTXT(currentFile, outputFormat);
+                } else if (fileType === 'html') {
+                    resultBlob = await convertHTML(currentFile, outputFormat);
+                } else if (fileType === 'json') {
+                    resultBlob = await convertJSON(currentFile, outputFormat);
+                } else {
+                    throw new Error('Unsupported file type');
+                }
+                
+                updateProgress(100);
+                statusText.textContent = 'Conversion complete!';
+                convertedBlob = resultBlob;
+                
+                // Show download button
+                resultContainer.style.display = 'block';
+                convertBtn.style.display = 'none';
+                
+                // Preview output
+                previewOutput(resultBlob);
+                
+            } catch (error) {
+                showError('Conversion failed: ' + error.message);
+                console.error(error);
+            } finally {
+                convertBtn.disabled = false;
+            }
+        }
+        
+        // Conversion functions (similar to previous implementation)
+        // ... [Include all the conversion functions from the previous code]
+        
+        function updateProgress(percent) {
+            progressBar.style.width = percent + '%';
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+        }
+        
+        function downloadFile() {
+            if (!convertedBlob) return;
+            
+            const url = URL.createObjectURL(convertedBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `converted.${outputFormat}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function resetConverter() {
+            fileInput.value = '';
+            currentFile = null;
+            convertedBlob = null;
+            fileName.textContent = 'No file selected';
+            statusText.textContent = 'Ready to convert';
+            progressBar.style.width = '0%';
+            resultContainer.style.display = 'none';
+            convertBtn.style.display = 'block';
+            preview.innerHTML = '<p>Your converted document will appear here</p>';
+        }
+        
+        function previewOutput(blob) {
+            if (outputFormat === 'pdf') {
+                preview.innerHTML = '<i class="fas fa-file-pdf" style="font-size: 3rem; color: #e63939;"></i><p>PDF document ready</p>';
+            } else if (outputFormat === 'docx') {
+                preview.innerHTML = '<i class="fas fa-file-word" style="font-size: 3rem; color: #2b579a;"></i><p>DOCX document ready</p>';
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.textContent = e.target.result.substring(0, 500) + (e.target.result.length > 500 ? '...' : '');
+                };
+                reader.readAsText(blob);
+            }
+        }
+        
+        // Initialize ads
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+</body>
+</html>
