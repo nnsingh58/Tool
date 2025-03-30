@@ -4,43 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Multifunction Calculator - ToolHub</title>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VBJFDCH3MH');
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f0f2f5, #e0e7ff);
-            padding: 2rem;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            max-width: 800px;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f2f5, #e0e7ff); padding: 2rem; margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { max-width: 800px; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
         h1 { color: #1e3c72; font-size: 1.8rem; text-align: center; }
         .tab-buttons { display: flex; gap: 1rem; justify-content: center; margin: 1rem 0; flex-wrap: wrap; }
-        .tab-btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            background: #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+        .tab-btn { padding: 0.8rem 1.5rem; border: none; background: #ddd; border-radius: 5px; cursor: pointer; transition: background 0.3s; }
         .tab-btn.active { background: #00d4ff; color: white; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -61,7 +32,6 @@
             <button class="tab-btn" onclick="openTab('distance')">Distance</button>
             <button class="tab-btn" onclick="openTab('percentage')">Percentage</button>
         </div>
-
         <div id="basic" class="tab-content active">
             <input type="number" id="basicNum1" placeholder="First Number">
             <select id="basicOp">
@@ -73,7 +43,6 @@
             <input type="number" id="basicNum2" placeholder="Second Number">
             <button onclick="calculateBasic()">Calculate</button>
         </div>
-
         <div id="currency" class="tab-content">
             <input type="number" id="currencyAmount" placeholder="Amount">
             <select id="currencyFrom">
@@ -88,7 +57,6 @@
             </select>
             <button onclick="convertCurrency()">Convert</button>
         </div>
-
         <div id="area" class="tab-content">
             <input type="number" id="areaValue" placeholder="Value">
             <select id="areaFrom">
@@ -113,7 +81,6 @@
             </select>
             <button onclick="convertArea()">Convert</button>
         </div>
-
         <div id="weight" class="tab-content">
             <input type="number" id="weightValue" placeholder="Value">
             <select id="weightFrom">
@@ -138,7 +105,6 @@
             </select>
             <button onclick="convertWeight()">Convert</button>
         </div>
-
         <div id="distance" class="tab-content">
             <input type="number" id="distanceValue" placeholder="Value">
             <select id="distanceFrom">
@@ -165,16 +131,24 @@
             </select>
             <button onclick="convertDistance()">Convert</button>
         </div>
-
         <div id="percentage" class="tab-content">
             <input type="number" id="percentValue" placeholder="Value">
             <input type="number" id="percentOf" placeholder="Percentage Of">
             <button onclick="calculatePercentage()">Calculate</button>
         </div>
-
         <div id="result"></div>
     </div>
-
+    <div style="margin: 20px auto; text-align: center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9239182778221521"
+             data-ad-slot="7274852761"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <script>
         const resultDiv = document.getElementById('result');
 
@@ -199,10 +173,6 @@
                 case '/': result = num2 !== 0 ? num1 / num2 : 'Cannot divide by zero'; break;
             }
             resultDiv.textContent = `Result: ${result}`;
-            gtag('event', 'calculate_basic', {
-                'event_category': 'Tool Usage',
-                'event_label': 'Basic Calculation'
-            });
         }
 
         function convertCurrency() {
@@ -213,10 +183,6 @@
             const rates = { USD: 1, INR: 83, EUR: 0.92 };
             const result = (amount / rates[from]) * rates[to];
             resultDiv.textContent = `${amount} ${from} = ${result.toFixed(2)} ${to}`;
-            gtag('event', 'convert_currency', {
-                'event_category': 'Tool Usage',
-                'event_label': 'Currency Conversion'
-            });
         }
 
         function convertArea() {
@@ -229,10 +195,6 @@
             };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
-            gtag('event', 'convert_area', {
-                'event_category': 'Tool Usage',
-                'event_label': 'Area Conversion'
-            });
         }
 
         function convertWeight() {
@@ -245,10 +207,6 @@
             };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
-            gtag('event', 'convert_weight', {
-                'event_category': 'Tool Usage',
-                'event_label': 'Weight Conversion'
-            });
         }
 
         function convertDistance() {
@@ -261,10 +219,6 @@
             };
             const result = (value / rates[from]) * rates[to];
             resultDiv.textContent = `${value} ${from} = ${result.toFixed(2)} ${to}`;
-            gtag('event', 'convert_distance', {
-                'event_category': 'Tool Usage',
-                'event_label': 'Distance Conversion'
-            });
         }
 
         function calculatePercentage() {
@@ -273,10 +227,6 @@
             if (isNaN(value) || isNaN(of)) return resultDiv.textContent = 'Enter valid values';
             const result = (value / 100) * of;
             resultDiv.textContent = `${value}% of ${of} = ${result.toFixed(2)}`;
-            gtag('event', 'calculate_percentage', {
-                'event_category': 'Tool Usage',
-                'event_label': 'Percentage Calculation'
-            });
         }
     </script>
     <script src="chatbot.js"></script>
