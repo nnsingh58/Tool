@@ -4,81 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Format Converter - ToolHub</title>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VBJFDCH3MH');
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #f0f2f5, #e0e7ff);
-            color: #333;
-            padding: 2rem;
-            text-align: center;
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            max-width: 600px;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        h1 {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-        input, select, button {
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        button {
-            background: #00d4ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
-        button:hover {
-            background: #00b7d9;
-            transform: scale(1.05);
-        }
-        button.cancel {
-            background: #ff4d4d;
-        }
-        button.cancel:hover {
-            background: #e63939;
-        }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #f0f2f5, #e0e7ff); color: #333; padding: 2rem; text-align: center; margin: 0; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .container { max-width: 600px; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        h1 { color: #1e3c72; margin-bottom: 1.5rem; font-size: 1.8rem; }
+        input, select, button { padding: 0.8rem; margin: 0.5rem 0; border-radius: 5px; border: 1px solid #ddd; width: 100%; font-size: 1rem; box-sizing: border-box; }
+        button { background: #00d4ff; color: white; border: none; cursor: pointer; transition: background 0.3s ease, transform 0.2s ease; }
+        button:hover { background: #00b7d9; transform: scale(1.05); }
+        button.cancel { background: #ff4d4d; }
+        button.cancel:hover { background: #e63939; }
         #progress { margin-top: 1rem; font-size: 1rem; color: #2a5298; }
         #progress.error { color: #ff4d4d; }
         #result { margin-top: 1rem; }
         .btn-group { display: flex; gap: 1rem; justify-content: center; }
-        .instructions {
-            margin-top: 2rem;
-            text-align: left;
-            font-size: 0.9rem;
-            color: #555;
-        }
+        .instructions { margin-top: 2rem; text-align: left; font-size: 0.9rem; color: #555; }
         .instructions h3 { color: #1e3c72; margin-bottom: 0.5rem; }
         .instructions ul { padding-left: 1.5rem; }
         .checkbox-label { font-size: 0.9rem; margin: 0.5rem 0; }
@@ -111,7 +53,17 @@
             </ul>
         </div>
     </div>
-
+    <div style="margin: 20px auto; text-align: center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9239182778221521"
+             data-ad-slot="7274852761"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.1.1/compressor.min.js"></script>
     <script>
         let isCancelled = false;
@@ -192,12 +144,6 @@
                     <button onclick="resetForm()">Try Again</button>
                 `;
                 cancelBtn.style.display = 'none';
-                
-                // Track conversion event
-                gtag('event', 'convert_image_format', {
-                    'event_category': 'Tool Usage',
-                    'event_label': 'Image Format Converter'
-                });
             } catch (error) {
                 if (!isCancelled) {
                     progressDiv.textContent = 'Error: ' + error.message;
