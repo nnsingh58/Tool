@@ -4,14 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image to PDF - ToolHub</title>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VBJFDCH3MH');
-    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
         .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
@@ -45,7 +38,17 @@
             </ul>
         </div>
     </div>
-
+    <div style="margin: 20px auto; text-align: center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9239182778221521"
+             data-ad-slot="7274852761"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         const { jsPDF } = window.jspdf;
@@ -105,12 +108,6 @@
 
                 resultDiv.innerHTML = `<a href="${url}" download="converted.pdf">Download PDF (${(pdfBlob.size / 1024).toFixed(2)} KB)</a>`;
                 statusDiv.innerHTML = "Conversion complete!";
-                
-                // Track conversion event
-                gtag('event', 'convert_image_to_pdf', {
-                    'event_category': 'Tool Usage',
-                    'event_label': 'Image to PDF'
-                });
             } catch (error) {
                 statusDiv.innerHTML = "Error: " + error.message;
                 resultDiv.innerHTML = "";
