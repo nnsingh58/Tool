@@ -398,11 +398,17 @@
                     height = Math.round((parseInt(document.getElementById('height').value) || 45) * dpi / 25.4);
                 }
 
-                // Create temporary canvas for cropping
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                // Calculate cropping dimensions (head and shoulders)
+                // Create single photo canvas
+                const photoCanvas = document.createElement('canvas');
+                photoCanvas.width = width;
+                photoCanvas.height = height;
+                const ctx = photoCanvas.getContext('2d');
+
+                // Fill with selected background color FIRST
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, width, height);
+
+                // Calculate cropping dimensions
                 const aspectRatio = width / height;
                 const sourceWidth = uploadedImage.width;
                 const sourceHeight = uploadedImage.height;
@@ -421,32 +427,12 @@
                 const cropX = (sourceWidth - cropWidth) / 2;
                 const cropY = (sourceHeight - cropHeight) / 2;
                 
-                tempCanvas.width = width;
-                tempCanvas.height = height;
-                
-                // Fill with selected background
-                tempCtx.fillStyle = bgColor;
-                tempCtx.fillRect(0, 0, width, height);
-                
-                // Draw cropped image
-                tempCtx.drawImage(
+                // Draw cropped image on top of background
+                ctx.drawImage(
                     uploadedImage,
                     cropX, cropY, cropWidth, cropHeight,
                     0, 0, width, height
                 );
-
-                // Create single photo canvas with proper border
-                const photoCanvas = document.createElement('canvas');
-                photoCanvas.width = width + 4; // 2px border each side
-                photoCanvas.height = height + 4;
-                const ctx = photoCanvas.getContext('2d');
-                
-                // Draw black border
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, photoCanvas.width, photoCanvas.height);
-                
-                // Draw cropped photo inside border
-                ctx.drawImage(tempCanvas, 2, 2);
 
                 // Create photo grid
                 const cols = Math.ceil(Math.sqrt(photoCount));
@@ -460,32 +446,45 @@
                 gridCtx.fillStyle = '#ffffff';
                 gridCtx.fillRect(0, 0, gridCanvas.width, gridCanvas.height);
                 
-                // Draw each photo
+                // Draw each photo with border
                 for (let i = 0; i < photoCount; i++) {
                     const col = i % cols;
                     const row = Math.floor(i / cols);
                     const x = col * (width + 10);
                     const y = row * (height + 10);
+                    
+                    // Draw black border
+                    gridCtx.fillStyle = '#000000';
+                    gridCtx.fillRect(x - 2, y - 2, width + 4, height + 4);
+                    
+                    // Draw photo
                     gridCtx.drawImage(photoCanvas, x, y);
                 }
                 
                 // Display result
                 const resultImg = document.createElement('img');
-                resultImg.src = gridCanvas.toDataURL('image/jpeg');
+                resultImg.src = gridCanvas.toDataURL('image/jpeg', 0.95);
                 preview.appendChild(resultImg);
                 
-                // Enable download
+                // Store for download
                 canvasOutput = gridCanvas;
                 downloadBtn.style.display = 'inline-block';
             }
 
             // Download functionality
             downloadBtn.addEventListener('click', function() {
-                if (!canvasOutput) return;
+                if (!canvasOutput) {
+                    showStatus('No image to download!', 'error');
+                    return;
+                }
+                
+                const dataUrl = canvasOutput.toDataURL('image/jpeg', 0.95);
                 const link = document.createElement('a');
+                link.href = dataUrl;
                 link.download = 'passport-photos.jpg';
-                link.href = canvasOutput.toDataURL('image/jpeg', 0.95); // High quality JPEG
+                document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link);
             });
         });
     </script>
