@@ -5,56 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Compress JPG, PNG, GIF images instantly. Boost SEO and website speed with Singh Digital Hub's free compression tool.">
     <title>Image Compression Tool - Singh Digital Hub</title>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VBJFDCH3MH');
-    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            text-align: center;
-            background: #f5f6fa;
-        }
-        .upload-box {
-            border: 2px dashed #007bff;
-            padding: 30px;
-            margin: 20px 0;
-            cursor: pointer;
-            background: #fff;
-            transition: 0.3s;
-        }
-        .upload-box:hover {
-            background: #e3f2fd;
-        }
-        #preview {
-            max-width: 100%;
-            margin: 20px 0;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            cursor: pointer;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        .stats {
-            margin: 15px 0;
-            color: #666;
-        }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; text-align: center; background: #f5f6fa; }
+        .upload-box { border: 2px dashed #007bff; padding: 30px; margin: 20px 0; cursor: pointer; background: #fff; transition: 0.3s; }
+        .upload-box:hover { background: #e3f2fd; }
+        #preview { max-width: 100%; margin: 20px 0; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        button { background: #007bff; color: white; border: none; padding: 12px 25px; cursor: pointer; border-radius: 5px; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        .stats { margin: 15px 0; color: #666; }
     </style>
 </head>
 <body>
@@ -67,14 +26,17 @@
     <img id="preview">
     <div class="stats" id="stats"></div>
     <button onclick="compressImage()" id="compressBtn" disabled>Compress & Download</button>
-    <div style="margin: 30px auto;">
+    <div style="margin: 30px auto; text-align: center;">
         <ins class="adsbygoogle"
              style="display:block"
-             data-ad-client="ca-pub-pub-9239182778221521"
-             data-ad-slot="1234567890"
-             data-ad-format="auto"></ins>
+             data-ad-client="ca-pub-9239182778221521"
+             data-ad-slot="7274852761"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
     </div>
-
     <script>
         const fileInput = document.getElementById('fileInput');
         const preview = document.getElementById('preview');
@@ -107,6 +69,7 @@
                 const scale = Math.min(1, 800 / img.width);
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
+
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
                 canvas.toBlob((blob) => {
@@ -116,17 +79,9 @@
                     link.click();
                     statsDiv.innerHTML += `<br>Compressed Size: ${(blob.size/1024).toFixed(2)} KB`;
                     URL.revokeObjectURL(link.href);
-                    
-                    // Track compression event
-                    gtag('event', 'compress_image', {
-                        'event_category': 'Tool Usage',
-                        'event_label': 'Image Compressor'
-                    });
                 }, 'image/jpeg', quality);
             };
         }
-
-        (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
     <script src="chatbot.js"></script>
 </body>
