@@ -34,7 +34,7 @@
             <option value="image/png">PNG</option>
             <option value="image/jpeg">JPEG</option>
             <option value="image/webp">WebP</option>
-            <option value="text/html">HTML</option> <!-- Added HTML option -->
+            <option value="text/html">HTML</option>
         </select>
         <input type="range" id="quality" min="10" max="100" value="80" aria-label="Quality Slider">
         <label for="quality">Quality: <span id="qualityValue">80%</span></label>
@@ -54,15 +54,17 @@
             </ul>
         </div>
     </div>
-    <div style="margin: 20px auto; text-align: center;">
+    <div style="margin: 20px auto; text-align: center; min-width: 300px;">
         <ins class="adsbygoogle"
-             style="display:block"
+             style="display:block; min-width: 300px;"
              data-ad-client="ca-pub-9239182778221521"
              data-ad-slot="7274852761"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
         <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
+            window.addEventListener('load', function() {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            });
         </script>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.1.1/compressor.min.js"></script>
@@ -101,7 +103,7 @@
 
             try {
                 let processedFile = file;
-                if (shouldCompress && format !== 'text/html') { // Compression only for image formats
+                if (shouldCompress && format !== 'text/html') {
                     processedFile = await new Promise((resolve, reject) => {
                         new Compressor(file, {
                             quality: quality,
@@ -130,13 +132,12 @@
 
                 let url, blob, ext;
                 if (format === 'text/html') {
-                    // Generate HTML with Base64 image
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    const dataUrl = canvas.toDataURL('image/png'); // Default to PNG for HTML embedding
+                    const dataUrl = canvas.toDataURL('image/png');
                     const htmlContent = `
                         <!DOCTYPE html>
                         <html lang="en">
@@ -155,7 +156,6 @@
                     url = URL.createObjectURL(blob);
                     ext = 'html';
                 } else {
-                    // Handle image formats (PNG, JPEG, WebP)
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
@@ -169,7 +169,9 @@
 
                 progressDiv.textContent = `Conversion complete! Before: ${(file.size / 1024).toFixed(2)} KB`;
                 resultDiv.innerHTML = `
-                    <button onclick="window.location.href='${url}'" download="converted.${ext}">Download ${ext.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</button>
+                    <a href="${url}" download="converted.${ext}">
+                        <button>Download ${ext.toUpperCase()} (${(blob.size / 1024).toFixed(2)} KB)</button>
+                    </a>
                     <button onclick="resetForm()">Try Again</button>
                 `;
                 cancelBtn.style.display = 'none';
