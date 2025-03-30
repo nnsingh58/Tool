@@ -4,77 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Translator - ToolHub</title>
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-VBJFDCH3MH');
-    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            color: #333;
-            padding: 2rem;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #1e3c72;
-            margin-bottom: 1.5rem;
-        }
-        select, button {
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
-        }
-        button {
-            background: #00d4ff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background: #00b7d9;
-        }
-        #voiceResult {
-            margin-top: 1rem;
-            font-size: 1.1rem;
-        }
+        body { font-family: 'Poppins', sans-serif; background: #f0f2f5; color: #333; padding: 2rem; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        h1 { color: #1e3c72; margin-bottom: 1.5rem; }
+        select, button { padding: 0.8rem; margin: 0.5rem 0; border-radius: 5px; border: 1px solid #ddd; width: 100%; }
+        button { background: #00d4ff; color: white; border: none; cursor: pointer; transition: background 0.3s ease; }
+        button:hover { background: #00b7d9; }
+        #voiceResult { margin-top: 1rem; font-size: 1.1rem; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Voice Translator</h1>
         <select id="sourceLang">
-            <!-- English Variants (UK, US) -->
             <option value="en-GB">English (UK)</option>
             <option value="en-US">English (US)</option>
-            <!-- European Languages -->
             <option value="es">Spanish</option>
             <option value="fr">French</option>
             <option value="de">German</option>
             <option value="it">Italian</option>
-            <!-- Asian Languages -->
             <option value="zh-CN">Chinese (Simplified)</option>
             <option value="ja">Japanese</option>
             <option value="ko">Korean</option>
             <option value="th">Thai</option>
             <option value="vi">Vietnamese</option>
             <option value="id">Indonesian</option>
-            <!-- Indian Languages -->
             <option value="hi">Hindi</option>
             <option value="bn">Bengali</option>
             <option value="te">Telugu</option>
@@ -94,22 +50,18 @@
             <option value="ur">Urdu</option>
         </select>
         <select id="targetLang">
-            <!-- English Variants (UK, US) -->
             <option value="en-GB">English (UK)</option>
             <option value="en-US">English (US)</option>
-            <!-- European Languages -->
             <option value="es">Spanish</option>
             <option value="fr">French</option>
             <option value="de">German</option>
             <option value="it">Italian</option>
-            <!-- Asian Languages -->
             <option value="zh-CN">Chinese (Simplified)</option>
             <option value="ja">Japanese</option>
             <option value="ko">Korean</option>
             <option value="th">Thai</option>
             <option value="vi">Vietnamese</option>
             <option value="id">Indonesian</option>
-            <!-- Indian Languages -->
             <option value="hi">Hindi</option>
             <option value="bn">Bengali</option>
             <option value="te">Telugu</option>
@@ -131,7 +83,17 @@
         <button onclick="startVoiceTranslation()">Start Recording</button>
         <p id="voiceResult"></p>
     </div>
-
+    <div style="margin: 20px auto; text-align: center;">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9239182778221521"
+             data-ad-slot="7274852761"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
     <script>
         const API_KEY = 'AIzaSyCebJYGjWRbcxdIsM3PcfH9IjN09UhgiTI';
 
@@ -159,9 +121,7 @@
 
                 fetch(`https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         q: spokenText,
                         source: sourceLang.split('-')[0],
@@ -174,16 +134,9 @@
                     if (data.data && data.data.translations) {
                         const translatedText = data.data.translations[0].translatedText;
                         resultElement.textContent = `Translated: "${translatedText}"`;
-
                         const utterance = new SpeechSynthesisUtterance(translatedText);
                         utterance.lang = targetLang;
                         window.speechSynthesis.speak(utterance);
-                        
-                        // Track translation event
-                        gtag('event', 'voice_translation', {
-                            'event_category': 'Tool Usage',
-                            'event_label': 'Voice Translator'
-                        });
                     } else {
                         resultElement.textContent = "Translation failed. Check API key or input.";
                     }
