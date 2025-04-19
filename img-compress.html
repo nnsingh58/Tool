@@ -14,6 +14,9 @@
         button { background: #007bff; color: white; border: none; padding: 12px 25px; cursor: pointer; border-radius: 5px; font-size: 16px; transition: 0.3s; }
         button:hover { background: #0056b3; }
         .stats { margin: 15px 0; color: #666; }
+        .size-input { margin: 10px 0; }
+        .size-input input { padding: 8px; width: 100px; margin-left: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .error { color: red; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -25,6 +28,11 @@
     <input type="file" id="fileInput" accept="image/*" hidden>
     <img id="preview">
     <div class="stats" id="stats"></div>
+    <div class="size-input">
+        <label>Desired Size (KB): </label>
+        <input type="number" id="targetSize" min="1" placeholder="e.g. 100">
+    </div>
+    <div class="error" id="error"></div>
     <button onclick="compressImage()" id="compressBtn" disabled>Compress & Download</button>
     <div style="margin: 30px auto; text-align: center;">
         <ins class="adsbygoogle"
@@ -42,6 +50,8 @@
         const preview = document.getElementById('preview');
         const compressBtn = document.getElementById('compressBtn');
         const statsDiv = document.getElementById('stats');
+        const targetSizeInput = document.getElementById('targetSize');
+        const errorDiv = document.getElementById('error');
 
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -54,32 +64,65 @@
                         Original Size: ${(file.size/1024).toFixed(2)} KB<br>
                         Format: ${file.type.split('/')[1].toUpperCase()}
                     `;
+                    errorDiv.textContent = '';
                 };
                 reader.readAsDataURL(file);
             }
         });
 
-        function compressImage(quality = 0.7) {
+        async function compressImage() {
+            const targetSizeKB = parseFloat(targetSizeInput.value) || 100; // Default to 100 KB if not specified
+            const targetSizeBytes = targetSizeKB * 1024;
             const img = new Image();
             img.src = preview.src;
 
-            img.onload = function() {
+            img.onload = async function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 const scale = Math.min(1, 800 / img.width);
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
-
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-                canvas.toBlob((blob) => {
-                    const link = document.createElement('a');
-                    link.download = `compressed-${Date.now()}.jpg`;
-                    link.href = URL.createObjectURL(blob);
-                    link.click();
-                    statsDiv.innerHTML += `<br>Compressed Size: ${(blob.size/1024).toFixed(2)} KB`;
-                    URL.revokeObjectURL(link.href);
-                }, 'image/jpeg', quality);
+                let quality = 0.7;
+                let minQuality = 0.1;
+                let maxQuality = 0.9;
+                let compressedBlob = null;
+                let attempts = 0;
+                const maxAttempts = 10;
+
+                // Binary search for optimal quality
+                while (attempts < maxAttempts) {
+                    compressedBlob = await new Promise(resolve => {
+                        canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+                    });
+
+                    const sizeDiff = compressedBlob.size - targetSizeBytes;
+                    if (Math.abs(sizeDiff) < 0.05 * targetSizeBytes || (maxQuality - minQuality) < 0.01) {
+                        break; // Close enough or quality range too small
+                    }
+
+                    if (sizeDiff > 0) {
+                        maxQuality = quality;
+                        quality = (quality + minQuality) / 2;
+                    } else {
+                        minQuality = quality;
+                        quality = (quality + maxQuality) / 2;
+                    }
+                    attempts++;
+                }
+
+                if (compressedBlob.size > targetSizeBytes * 1.2) {
+                    errorDiv.textContent = 'Could not compress to desired size without significant quality loss.';
+                    return;
+                }
+
+                const link = document.createElement('a');
+                link.download = `compressed-${Date.now()}.jpg`;
+                link.href = URL.createObjectURL(compressedBlob);
+                link.click();
+                statsDiv.innerHTML += `<br>Compressed Size: ${(compressedBlob.size/1024).toFixed(2)} KB<br>Quality: ${(quality*100).toFixed(0)}%`;
+                URL.revokeObjectURL(link.href);
             };
         }
     </script>
