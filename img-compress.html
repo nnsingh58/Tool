@@ -15,7 +15,8 @@
         button:hover { background: #0056b3; }
         .stats { margin: 15px 0; color: #666; }
         .size-input { margin: 10px 0; }
-        .size-input input { padding: 8px; width: 100px; margin-left: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .size-input input[type="number"] { padding: 8px; width: 100px; margin-left: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .size-input label { margin-right: 10px; }
         .error { color: red; margin: 10px 0; }
     </style>
 </head>
@@ -30,7 +31,9 @@
     <div class="stats" id="stats"></div>
     <div class="size-input">
         <label>Desired Size (KB): </label>
-        <input type="number" id="targetSize" min="1" placeholder="e.g. 100">
+        <input type="number" id="targetSize" min="10" placeholder="e.g. 100" oninput="validateTargetSize()">
+        <br>
+        <label><input type="checkbox" id="forceCompress"> Force compression (may reduce quality)</label>
     </div>
     <div class="error" id="error"></div>
     <button onclick="compressImage()" id="compressBtn" disabled>Compress & Download</button>
@@ -42,7 +45,13 @@
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
         <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
+            window.adsbygoogle = window.adsbygoogle || [];
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.error('AdSense error:', e);
+                document.getElementById('error').textContent = 'Failed to load ads. Please disable ad blockers.';
+            }
         </script>
     </div>
     <script>
@@ -52,6 +61,15 @@
         const statsDiv = document.getElementById('stats');
         const targetSizeInput = document.getElementById('targetSize');
         const errorDiv = document.getElementById('error');
+        const forceCompressCheckbox = document.getElementById('forceCompress');
+
+        // Global error handler for fetch issues
+        window.addEventListener('error', function(event) {
+            if (event.error && event.error.message.includes('fetch')) {
+                console.error('Global fetch error:', event.error);
+                errorDiv.textContent = 'Network error occurred. Please check your connection.';
+            }
+        });
 
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -60,38 +78,53 @@
                 reader.onload = function(e) {
                     preview.src = e.target.result;
                     compressBtn.disabled = false;
+                    const originalSizeKB = file.size / 1024;
+                    const recommendedSize = Math.max(10, Math.round(originalSizeKB / 10));
                     statsDiv.innerHTML = `
-                        Original Size: ${(file.size/1024).toFixed(2)} KB<br>
-                        Format: ${file.type.split('/')[1].toUpperCase()}
+                        Original Size: ${originalSizeKB.toFixed(2)} KB<br>
+                        Format: ${file.type.split('/')[1].toUpperCase()}<br>
+                        Recommended Minimum Size: ${recommendedSize} KB
                     `;
                     errorDiv.textContent = '';
+                    validateTargetSize(); // Validate initial input
                 };
                 reader.readAsDataURL(file);
             }
         });
 
+        function validateTargetSize() {
+            const targetSize = parseFloat(targetSizeInput.value);
+            if (targetSize < 10 && !forceCompressCheckbox.checked) {
+                errorDiv.textContent = 'Target size must be at least 10 KB for acceptable quality unless force compression is enabled.';
+                compressBtn.disabled = true;
+            } else {
+                errorDiv.textContent = '';
+                compressBtn.disabled = false;
+            }
+        }
+
         async function compressImage() {
-            const targetSizeKB = parseFloat(targetSizeInput.value) || 100; // Default to 100 KB if not specified
+            const targetSizeKB = parseFloat(targetSizeInput.value) || 100;
             const targetSizeBytes = targetSizeKB * 1024;
+            const forceCompress = forceCompressCheckbox.checked;
             const img = new Image();
             img.src = preview.src;
 
             img.onload = async function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                const scale = Math.min(1, 800 / img.width);
+                const scale = Math.min(1, Math.max(800 / img.width, targetSizeKB / 100)); // Dynamic scaling
                 canvas.width = img.width * scale;
                 canvas.height = img.height * scale;
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
                 let quality = 0.7;
-                let minQuality = 0.1;
+                let minQuality = forceCompress ? 0.05 : 0.1; // Lower min quality if forced
                 let maxQuality = 0.9;
                 let compressedBlob = null;
                 let attempts = 0;
                 const maxAttempts = 10;
 
-                // Binary search for optimal quality
                 while (attempts < maxAttempts) {
                     compressedBlob = await new Promise(resolve => {
                         canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
@@ -99,7 +132,7 @@
 
                     const sizeDiff = compressedBlob.size - targetSizeBytes;
                     if (Math.abs(sizeDiff) < 0.05 * targetSizeBytes || (maxQuality - minQuality) < 0.01) {
-                        break; // Close enough or quality range too small
+                        break;
                     }
 
                     if (sizeDiff > 0) {
@@ -112,8 +145,8 @@
                     attempts++;
                 }
 
-                if (compressedBlob.size > targetSizeBytes * 1.2) {
-                    errorDiv.textContent = 'Could not compress to desired size without significant quality loss.';
+                if (compressedBlob.size > targetSizeBytes * 1.2 && !forceCompress) {
+                    errorDiv.textContent = 'Could not compress to desired size without significant quality loss. Try a larger size or enable force compression.';
                     return;
                 }
 
