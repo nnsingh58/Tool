@@ -299,7 +299,6 @@
                 console.log('BodyPix loaded successfully');
             } catch (error) {
                 console.error('Error loading BodyPix:', error);
-                alert('Failed to load background removal model. Please try again.');
             }
         }
         loadBodyPix();
@@ -308,7 +307,6 @@
         applyBgBtn.addEventListener('click', () => {
             currentBgColor = bgColorInput.value;
             bgPreview.style.backgroundColor = currentBgColor;
-            console.log('Background color set to:', currentBgColor);
         });
 
         imageInput.addEventListener('change', () => {
@@ -333,18 +331,6 @@
             let processedImg = img;
             if (removeBgCheckbox.checked && net) {
                 processedImg = await removeBackground(img, currentBgColor);
-            } else {
-                // If no background removal, create a canvas with selected background color
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = currentBgColor;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-                processedImg = new Image();
-                processedImg.src = canvas.toDataURL();
-                await new Promise(resolve => processedImg.onload = resolve);
             }
 
             // Auto align and crop
@@ -359,7 +345,6 @@
 
         async function removeBackground(img, bgColor) {
             try {
-                console.log('Starting background removal with color:', bgColor);
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.width = img.width;
@@ -369,25 +354,20 @@
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-                // Perform segmentation
+                // Draw segmented person on top
                 const segmentation = await net.segmentPerson(img, {
                     segmentationThreshold: 0.7,
                     internalResolution: 'medium'
                 });
-                console.log('Segmentation completed');
 
-                // Create a temporary canvas for the original image
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const tempCanvas = document.createElement('canvas');
                 tempCanvas.width = img.width;
                 tempCanvas.height = img.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(img, 0, 0);
 
-                // Get image data
                 const tempImageData = tempCtx.getImageData(0, 0, img.width, img.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-                // Copy human body pixels over the colored background
                 for (let i = 0; i < imageData.data.length; i += 4) {
                     if (segmentation.data[i / 4]) {
                         imageData.data[i] = tempImageData.data[i]; // Red
@@ -397,12 +377,10 @@
                     }
                 }
                 ctx.putImageData(imageData, 0, 0);
-                console.log('Human body drawn over background color');
 
                 const tempImg = new Image();
                 tempImg.src = canvas.toDataURL();
                 await new Promise(resolve => tempImg.onload = resolve);
-                console.log('Background removal completed');
                 return tempImg;
             } catch (error) {
                 console.error('Background removal error:', error);
