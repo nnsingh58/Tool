@@ -1,154 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Passport Photo Maker</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.3.0"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.5"></script>
-  <style>
-    body { text-align: center; font-family: sans-serif; }
-    canvas { border: 1px solid #aaa; margin-top: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://cdn.jsdelivr.net;">
+    <title>Passport Size Photo Maker</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
+    <!-- TensorFlow.js and BodyPix -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.3.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.5"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff9a8b, #4facfe);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            width: 90%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            margin: 30px 0;
+        }
+        h1 {
+            text-align: center;
+            background: linear-gradient(45deg, #ff9a8b, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            background: linear-gradient(45deg, #2c3e50, #ff9a8b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        input[type="file"], input[type="color"], select, input[type="range"], input[type="checkbox"] {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="file"]:focus, input[type="color"]:focus, select:focus, input[type="range"]:focus {
+            border-color: #ff9a8b;
+            box-shadow: 0 0 8px rgba(255, 154, 139, 0.3);
+            outline: none;
+        }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+        #applyBgBtn, #generateBtn {
+            background: linear-gradient(45deg, #28a745, #34c759);
+            color: white;
+        }
+        #downloadBtn {
+            background: linear-gradient(45deg, #007bff, #00d4ff);
+            color: white;
+            display: none;
+        }
+        #preview, #outputCanvas {
+            max-width: 100%;
+            margin-top: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+        .how-it-works {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+        }
+        .how-it-works ul {
+            list-style: none;
+            padding: 0;
+        }
+        .how-it-works li {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #2c3e50;
+        }
+        .how-it-works li::before {
+            content: "✔";
+            color: #ff9a8b;
+            font-size: 1.5em;
+        }
+        .how-it-works li strong {
+            background: linear-gradient(45deg, #ff9a8b, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ad-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        footer {
+            text-align: center;
+            margin: 30px 0;
+            color: white;
+            font-size: 1.1em;
+        }
+        footer a {
+            color: #ffeb3b;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s;
+        }
+        footer a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+        .flex-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .flex-group label {
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        #bgPreview {
+            width: 100px;
+            height: 50px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .section h2 {
+                font-size: 1.5em;
+            }
+            button {
+                padding: 12px 20px;
+            }
+            .flex-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Passport Size Photo Maker</h1>
 
-  <h2>Passport Size Photo Maker</h2>
+        <!-- AdSense Ad Unit -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9239182778221521"
+                 data-ad-slot="YOUR_AD_SLOT_ID"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
 
-  <input type="file" id="upload" accept="image/*"><br>
-  <label>BG Color: <input type="color" id="bgColor" value="#ffffff"></label><br>
-  <label>Copies: <input type="number" id="copies" min="1" value="4"></label><br>
-  <label><input type="checkbox" id="bw"> Black & White</label><br>
-  <button onclick="processImage()">Make Photo</button>
-  <button onclick="downloadImage()">Download</button><br>
+        <!-- Input Section -->
+        <div class="section">
+            <h2>Upload Photo</h2>
+            <div class="input-group">
+                <input type="file" id="imageInput" accept="image/*" required>
+                <img id="preview" alt="Photo Preview" style="display: none;">
+            </div>
+        </div>
 
-  <canvas id="canvas" width="600" height="800"></canvas>
-  <p id="status"></p>
+        <!-- Settings Section -->
+        <div class="section">
+            <h2>Photo Settings</h2>
+            <div class="input-group">
+                <div class="flex-group">
+                    <label for="size">Photo Size:</label>
+                    <select id="size">
+                        <option value="35x45">35mm x 45mm (India, Standard)</option>
+                        <option value="2x2">2x2 inch (USA)</option>
+                        <option value="40x50">40mm x 50mm</option>
+                    </select>
+                </div>
+                <div class="flex-group">
+                    <label for="copies">Number of Copies:</label>
+                    <select id="copies">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </div>
+                <div class="flex-group">
+                    <label for="bgColor">Background Color:</label>
+                    <input type="color" id="bgColor" value="#ffffff">
+                    <button id="applyBgBtn">Apply Background</button>
+                </div>
+                <div class="flex-group">
+                    <label>Background Preview:</label>
+                    <div id="bgPreview"></div>
+                </div>
+                <div class="flex-group">
+                    <label for="removeBg">Remove Background:</label>
+                    <input type="checkbox" id="removeBg" checked>
+                </div>
+                <div class="flex-group">
+                    <label for="quality">Quality (Low to High):</label>
+                    <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.8">
+                </div>
+                <div class="flex-group">
+                    <label for="bw">Black & White:</label>
+                    <input type="checkbox" id="bw">
+                </div>
+                <button id="generateBtn">Generate Photos</button>
+            </div>
+        </div>
 
-  <script>
-    let model;
-    let img = new Image();
+        <!-- Output Section -->
+        <div class="section">
+            <h2>Output</h2>
+            <canvas id="outputCanvas" style="display: none;"></canvas>
+            <button id="downloadBtn">Download Photos</button>
+            <p id="status"></p>
+        </div>
 
-    async function loadModel() {
-      document.getElementById('status').innerText = "Loading model...";
-      model = await bodyPix.load();
-      document.getElementById('status').innerText = "Model loaded. Upload a photo.";
-    }
+        <!-- How It Works Section -->
+        <div class="section how-it-works">
+            <h2>Kaise Kaam Karta Hai?</h2>
+            <ul>
+                <li><strong>Step 1: Photo Upload</strong> - Apni photo select karen ya drag-and-drop karen.</li>
+                <li><strong>Step 2: Settings Chunein</strong> - Size, copies, background color (Apply karen), quality, aur B/W option set karen.</li>
+                <li><strong>Step 3: Generate Karen</strong> - "Generate Photos" button par click karen.</li>
+                <li><strong>Step 4: Download Karen</strong> - Passport size photos download karen.</li>
+            </ul>
+        </div>
+    </div>
 
-    loadModel();
+    <!-- Footer with Links -->
+    <footer>
+        <a href="about.html">About</a> | <a href="contact.html">Contact</a> | <a href="privacy.html">Privacy Policy</a>
+    </footer>
 
-    document.getElementById('upload').addEventListener('change', (e) => {
-      const reader = new FileReader();
-      reader.onload = (evt) => {
-        img.onload = () => {
-          const canvas = document.getElementById('canvas');
-          const ctx = canvas.getContext('2d');
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, 300, 400); // just preview
-          document.getElementById('status').innerText = "Image loaded.";
-        };
-        img.src = evt.target.result;
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    });
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const preview = document.getElementById('preview');
+        const sizeSelect = document.getElementById('size');
+        const copiesSelect = document.getElementById('copies');
+        const bgColorInput = document.getElementById('bgColor');
+        const applyBgBtn = document.getElementById('applyBgBtn');
+        const bgPreview = document.getElementById('bgPreview');
+        const removeBgCheckbox = document.getElementById('removeBg');
+        const qualityInput = document.getElementById('quality');
+        const bwCheckbox = document.getElementById('bw');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputCanvas = document.getElementById('outputCanvas');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const status = document.getElementById('status');
 
-    async function processImage() {
-      if (!img.src || !model) {
-        alert("Upload image and wait for model to load.");
-        return;
-      }
+        let model;
+        let currentBgColor = bgColorInput.value;
 
-      document.getElementById('status').innerText = "Processing...";
-
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
-
-      const bgColor = document.getElementById('bgColor').value;
-      const num = parseInt(document.getElementById('copies').value);
-      const bw = document.getElementById('bw').checked;
-
-      const width = 300;
-      const height = 400;
-
-      const cols = Math.ceil(Math.sqrt(num));
-      const rows = Math.ceil(num / cols);
-      canvas.width = cols * width;
-      canvas.height = rows * height;
-
-      // Draw image onto offscreen canvas with correct aspect ratio
-      const off = document.createElement('canvas');
-      off.width = width;
-      off.height = height;
-      const octx = off.getContext('2d');
-      octx.clearRect(0, 0, width, height);
-
-      const imgRatio = img.width / img.height;
-      const targetRatio = width / height;
-      let drawW, drawH;
-
-      if (imgRatio > targetRatio) {
-        drawH = height;
-        drawW = img.width * (height / img.height);
-      } else {
-        drawW = width;
-        drawH = img.height * (width / img.width);
-      }
-
-      const offsetX = (width - drawW) / 2;
-      const offsetY = (height - drawH) / 2;
-
-      octx.drawImage(img, offsetX, offsetY, drawW, drawH);
-
-      const segmentation = await model.segmentPerson(off, {
-        internalResolution: 'medium',
-        segmentationThreshold: 0.7
-      });
-
-      const mask = bodyPix.toMask(segmentation, {r:0, g:0, b:0, a:0}, hexToRgba(bgColor));
-      const blended = await bodyPix.drawMask(off, mask, 1, 5, false); // blur:5 for smooth edges
-
-      const final = document.createElement('canvas');
-      final.width = width;
-      final.height = height;
-      const fctx = final.getContext('2d');
-      fctx.drawImage(blended, 0, 0, width, height);
-
-      if (bw) {
-        const imageData = fctx.getImageData(0, 0, width, height);
-        const data = imageData.data;
-        for (let i = 0; i < data.length; i += 4) {
-          const avg = (data[i] + data[i+1] + data[i+2]) / 3;
-          data[i] = data[i+1] = data[i+2] = avg;
+        // Load BodyPix model
+        async function loadModel() {
+            status.innerText = "Loading model...";
+            try {
+                model = await bodyPix.load({
+                    architecture: 'MobileNetV1',
+                    outputStride: 32,
+                    multiplier: 0.50,
+                    quantBytes: 2
+                });
+                status.innerText = "Model loaded. Upload a photo.";
+                console.log('BodyPix loaded successfully');
+            } catch (error) {
+                console.error('Error loading BodyPix:', error);
+                status.innerText = "Failed to load model. Please try again.";
+                alert('Failed to load background removal model.');
+            }
         }
-        fctx.putImageData(imageData, 0, 0);
-      }
+        loadModel();
 
-      for (let i = 0; i < num; i++) {
-        const x = (i % cols) * width;
-        const y = Math.floor(i / cols) * height;
-        ctx.drawImage(final, x, y);
-      }
+        // Update background preview
+        applyBgBtn.addEventListener('click', () => {
+            currentBgColor = bgColorInput.value;
+            bgPreview.style.backgroundColor = currentBgColor;
+            console.log('Background color set to:', currentBgColor);
+        });
 
-      document.getElementById('status').innerText = "Done!";
-    }
+        imageInput.addEventListener('change', () => {
+            const file = imageInput.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                status.innerText = "Image loaded.";
+            }
+        });
 
-    function hexToRgba(hex) {
-      const bigint = parseInt(hex.slice(1), 16);
-      return {
-        r: (bigint >> 16) & 255,
-        g: (bigint >> 8) & 255,
-        b: bigint & 255,
-        a: 255
-      };
-    }
+        generateBtn.addEventListener('click', async () => {
+            const file = imageInput.files[0];
+            if (!file) {
+                alert('Please select a photo.');
+                status.innerText = "No photo selected.";
+                return;
+            }
+            if (!model) {
+                alert('Model not loaded yet. Please wait.');
+                status.innerText = "Model not loaded.";
+                return;
+            }
 
-    function downloadImage() {
-      const canvas = document.getElementById('canvas');
-      const link = document.createElement('a');
-      link.download = 'passport_photo.jpg';
-      link.href = canvas.toDataURL('image/jpeg', 1.0);
-      link.click();
-    }
-  </script>
+            status.innerText = "Processing...";
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            await new Promise(resolve => img.onload = resolve);
 
+            let processedImg = img;
+            if (removeBgCheckbox.checked) {
+                processedImg = await removeBackground(img, currentBgColor);
+            } else {
+                // Apply background color without removal
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = currentBgColor;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                processedImg = new Image();
+                processedImg.src = canvas.toDataURL();
+                await new Promise(resolve => processedImg.onload = resolve);
+            }
+
+            // Auto align and crop
+            const alignedImg = await autoAlignAndCrop(processedImg);
+
+            const size = sizeSelect.value;
+            const copies = parseInt(copiesSelect.value);
+            const quality = parseFloat(qualityInput.value);
+            const isBW = bwCheckbox.checked;
+
+            generatePassportPhotos(alignedImg, size, copies, currentBgColor, quality, isBW);
+            status.innerText = "Done!";
+        });
+
+        async function removeBackground(img, bgColor) {
+            try {
+                console.log('Starting background removal with color:', bgColor);
+                const offCanvas = document.createElement('canvas');
+                offCanvas.width = img.width;
+                offCanvas.height = img.height;
+                const octx = offCanvas.getContext('2d');
+
+                // Draw image with correct aspect ratio
+                const imgRatio = img.width / img.height;
+                const targetRatio = offCanvas.width / offCanvas.height;
+                let drawW, drawH, offsetX, offsetY;
+
+                if (imgRatio > targetRatio) {
+                    drawH = offCanvas.height;
+                    drawW = img.width * (offCanvas.height / img.height);
+                    offsetX = (offCanvas.width - drawW) / 2;
+                    offsetY = 0;
+                } else {
+                    drawW = offCanvas.width;
+                    drawH = img.height * (offCanvas.width / img.width);
+                    offsetX = 0;
+                    offsetY = (offCanvas.height - drawH) / 2;
+                }
+
+                octx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+                // Perform segmentation
+                const segmentation = await model.segmentPerson(offCanvas, {
+                    internalResolution: 'low',
+                    segmentationThreshold: 0.75
+                });
+                console.log('Segmentation completed');
+
+                // Create mask with background color
+                const bgRgba = hexToRgba(bgColor);
+                const mask = bodyPix.toMask(segmentation, {r:0, g:0, b:0, a:0}, bgRgba);
+
+                // Apply mask with smooth edges
+                const blended = await bodyPix.drawMask(offCanvas, mask, 1, 3, false);
+                console.log('Mask applied with background color');
+
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = offCanvas.width;
+                finalCanvas.height = offCanvas.height;
+                const fctx = finalCanvas.getContext('2d');
+                fctx.drawImage(blended, 0, 0);
+
+                const finalImg = new Image();
+                finalImg.src = finalCanvas.toDataURL();
+                await new Promise(resolve => finalImg.onload = resolve);
+                console.log('Background removal completed');
+                return finalImg;
+            } catch (error) {
+                console.error('Background removal error:', error);
+                status.innerText = "Background removal failed.";
+                alert('Background removal failed. Please try again or disable the option.');
+                return img;
+            }
+        }
+
+        async function autoAlignAndCrop(img) {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                const segmentation = await model.segmentPerson(img, {
+                    internalResolution: 'low',
+                    segmentationThreshold: 0.75
+                });
+
+                // Find bounding box of person
+                let minX = img.width, minY = img.height, maxX = 0, maxY = 0;
+                for (let y = 0; y < img.height; y++) {
+                    for (let x = 0; x < img.width; x++) {
+                        if (segmentation.data[y * img.width + x]) {
+                            minX = Math.min(minX, x);
+                            minY = Math.min(minY, y);
+                            maxX = Math.max(maxX, x);
+                            maxY = Math.max(maxY, y);
+                        }
+                    }
+                }
+
+                // Calculate shoulder area (top 1/3 of bounding box)
+                const shoulderHeight = (maxY - minY) / 3;
+                const shoulderY = minY + shoulderHeight;
+
+                // Crop to selected size (will adjust later in generatePassportPhotos)
+                const cropWidth = maxX - minX;
+                const cropHeight = shoulderY - minY + (cropWidth * 45 / 35); // Assume 35x45mm ratio for cropping
+
+                const cropX = minX;
+                const cropY = minY;
+
+                const finalCropWidth = Math.min(cropWidth, img.width - cropX);
+                const finalCropHeight = Math.min(cropHeight, img.height - cropY);
+
+                const croppedCanvas = document.createElement('canvas');
+                croppedCanvas.width = finalCropWidth;
+                croppedCanvas.height = finalCropHeight;
+                const croppedCtx = croppedCanvas.getContext('2d');
+
+                croppedCtx.drawImage(
+                    img,
+                    cropX, cropY, finalCropWidth, finalCropHeight,
+                    0, 0, finalCropWidth, finalCropHeight
+                );
+
+                const croppedImg = new Image();
+                croppedImg.src = croppedCanvas.toDataURL();
+                await new Promise(resolve => croppedImg.onload = resolve);
+                return croppedImg;
+            } catch (error) {
+                console.error('Auto align/crop error:', error);
+                return img;
+            }
+        }
+
+        function generatePassportPhotos(img, size, copies, bgColor, quality, isBW) {
+            // Define photo dimensions based on size (300 DPI)
+            let photoWidth, photoHeight;
+            switch (size) {
+                case '35x45':
+                    photoWidth = 35 * 5; // 35mm
+                    photoHeight = 45 * 5; // 45mm
+                    break;
+                case '2x2':
+                    photoWidth = 2 * 150; // 2 inch
+                    photoHeight = 2 * 150; // 2 inch
+                    break;
+                case '40x50':
+                    photoWidth = 40 * 5; // 40mm
+                    photoHeight = 50 * 5; // 50mm
+                    break;
+            }
+
+            const borderWidth = 5; // 1mm border
+            const gap = 10; // 2mm gap
+            const cols = Math.ceil(Math.sqrt(copies));
+            const rows = Math.ceil(copies / cols);
+
+            outputCanvas.width = (photoWidth + 2 * borderWidth + gap) * cols - gap;
+            outputCanvas.height = (photoHeight + 2 * borderWidth + gap) * rows - gap;
+            const ctx = outputCanvas.getContext('2d');
+
+            // Set canvas background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
+
+            for (let i = 0; i < copies; i++) {
+                const x = (i % cols) * (photoWidth + 2 * borderWidth + gap);
+                const y = Math.floor(i / cols) * (photoHeight + 2 * borderWidth + gap);
+
+                // Draw border
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(x, y, photoWidth + 2 * borderWidth, photoHeight + 2 * borderWidth);
+
+                // Apply B/W filter
+                if (isBW) {
+                    ctx.filter = 'grayscale(100%)';
+                } else {
+                    ctx.filter = 'none';
+                }
+
+                // Draw photo
+                ctx.drawImage(img, x + borderWidth, y + borderWidth, photoWidth, photoHeight);
+            }
+
+            outputCanvas.style.display = 'block';
+            downloadBtn.style.display = 'block';
+            downloadBtn.onclick = () => {
+                const link = document.createElement('a');
+                link.href = outputCanvas.toDataURL('image/jpeg', quality);
+                link.download = 'passport_photos.jpg';
+                link.click();
+            };
+        }
+
+        function hexToRgba(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return {
+                r: (bigint >> 16) & 255,
+                g: (bigint >> 8) & 255,
+                b: bigint & 255,
+                a: 255
+            };
+        }
+    </script>
 </body>
 </html>
