@@ -2,23 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Passport Size Photo Maker</title>
+  <title>Passport Photo Maker</title>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.3.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.5"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 20px;
-    }
-    canvas {
-      border: 1px solid #ccc;
-      margin: 10px;
-      background: #f0f0f0;
-    }
-    input, label, button {
-      margin: 10px;
-    }
+    body { text-align: center; font-family: sans-serif; }
+    canvas { border: 1px solid #aaa; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -26,139 +15,137 @@
   <h2>Passport Size Photo Maker</h2>
 
   <input type="file" id="upload" accept="image/*"><br>
-
-  <label>Background Color: <input type="color" id="bgColor" value="#ffffff"></label><br>
-
-  <label>Image Quality: <input type="range" id="quality" min="0.1" max="1" step="0.1" value="1"></label><br>
-
-  <label><input type="checkbox" id="bwMode"> Black & White</label><br>
-
-  <label>Number of Copies: <input type="number" id="copies" min="1" value="4"></label><br>
-
+  <label>BG Color: <input type="color" id="bgColor" value="#ffffff"></label><br>
+  <label>Copies: <input type="number" id="copies" min="1" value="4"></label><br>
+  <label><input type="checkbox" id="bw"> Black & White</label><br>
   <button onclick="processImage()">Make Photo</button>
   <button onclick="downloadImage()">Download</button><br>
 
-  <canvas id="canvas" width="300" height="400"></canvas>
-
+  <canvas id="canvas" width="600" height="800"></canvas>
   <p id="status"></p>
 
   <script>
-    let img = new Image();
     let model;
+    let img = new Image();
 
     async function loadModel() {
-      document.getElementById('status').innerText = 'Loading model...';
+      document.getElementById('status').innerText = "Loading model...";
       model = await bodyPix.load();
-      document.getElementById('status').innerText = 'Model loaded!';
+      document.getElementById('status').innerText = "Model loaded. Upload a photo.";
     }
 
     loadModel();
 
-    document.getElementById('upload').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          img.onload = function() {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 300;
-            canvas.height = 400;
-            ctx.drawImage(img, 0, 0, 300, 400);
-            document.getElementById('status').innerText = 'Image loaded. Now click "Make Photo".';
-          }
-          img.src = evt.target.result;
-        }
-        reader.readAsDataURL(file);
-      }
+    document.getElementById('upload').addEventListener('change', (e) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        img.onload = () => {
+          const canvas = document.getElementById('canvas');
+          const ctx = canvas.getContext('2d');
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, 300, 400); // just preview
+          document.getElementById('status').innerText = "Image loaded.";
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(e.target.files[0]);
     });
 
     async function processImage() {
       if (!img.src || !model) {
-        alert("Please upload image and wait for model to load.");
+        alert("Upload image and wait for model to load.");
         return;
       }
 
-      document.getElementById('status').innerText = 'Processing... please wait';
+      document.getElementById('status').innerText = "Processing...";
 
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
 
       const bgColor = document.getElementById('bgColor').value;
-      const quality = parseFloat(document.getElementById('quality').value);
-      const bw = document.getElementById('bwMode').checked;
-      const numCopies = parseInt(document.getElementById('copies').value);
+      const num = parseInt(document.getElementById('copies').value);
+      const bw = document.getElementById('bw').checked;
 
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 300;
-      tempCanvas.height = 400;
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(img, 0, 0, 300, 400);
+      const width = 300;
+      const height = 400;
 
-      const segmentation = await model.segmentPerson(tempCanvas);
-      const imageData = tempCtx.getImageData(0, 0, 300, 400);
-      const newImageData = tempCtx.createImageData(imageData);
+      const cols = Math.ceil(Math.sqrt(num));
+      const rows = Math.ceil(num / cols);
+      canvas.width = cols * width;
+      canvas.height = rows * height;
 
-      const bg = hexToRgb(bgColor);
+      // Draw image onto offscreen canvas with correct aspect ratio
+      const off = document.createElement('canvas');
+      off.width = width;
+      off.height = height;
+      const octx = off.getContext('2d');
+      octx.clearRect(0, 0, width, height);
 
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        const segIndex = i / 4;
-        if (segmentation.data[segIndex] === 1) {
-          newImageData.data[i] = imageData.data[i];
-          newImageData.data[i + 1] = imageData.data[i + 1];
-          newImageData.data[i + 2] = imageData.data[i + 2];
-          newImageData.data[i + 3] = 255;
-        } else {
-          newImageData.data[i] = bg.r;
-          newImageData.data[i + 1] = bg.g;
-          newImageData.data[i + 2] = bg.b;
-          newImageData.data[i + 3] = 255;
-        }
+      const imgRatio = img.width / img.height;
+      const targetRatio = width / height;
+      let drawW, drawH;
+
+      if (imgRatio > targetRatio) {
+        drawH = height;
+        drawW = img.width * (height / img.height);
+      } else {
+        drawW = width;
+        drawH = img.height * (width / img.width);
       }
+
+      const offsetX = (width - drawW) / 2;
+      const offsetY = (height - drawH) / 2;
+
+      octx.drawImage(img, offsetX, offsetY, drawW, drawH);
+
+      const segmentation = await model.segmentPerson(off, {
+        internalResolution: 'medium',
+        segmentationThreshold: 0.7
+      });
+
+      const mask = bodyPix.toMask(segmentation, {r:0, g:0, b:0, a:0}, hexToRgba(bgColor));
+      const blended = await bodyPix.drawMask(off, mask, 1, 5, false); // blur:5 for smooth edges
+
+      const final = document.createElement('canvas');
+      final.width = width;
+      final.height = height;
+      const fctx = final.getContext('2d');
+      fctx.drawImage(blended, 0, 0, width, height);
 
       if (bw) {
-        for (let i = 0; i < newImageData.data.length; i += 4) {
-          const avg = (newImageData.data[i] + newImageData.data[i + 1] + newImageData.data[i + 2]) / 3;
-          newImageData.data[i] = newImageData.data[i + 1] = newImageData.data[i + 2] = avg;
+        const imageData = fctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          const avg = (data[i] + data[i+1] + data[i+2]) / 3;
+          data[i] = data[i+1] = data[i+2] = avg;
         }
+        fctx.putImageData(imageData, 0, 0);
       }
 
-      const photoWidth = 300;
-      const photoHeight = 400;
-      const cols = Math.ceil(Math.sqrt(numCopies));
-      const rows = Math.ceil(numCopies / cols);
-      canvas.width = photoWidth * cols;
-      canvas.height = photoHeight * rows;
-
-      for (let i = 0; i < numCopies; i++) {
-        const col = i % cols;
-        const row = Math.floor(i / cols);
-        const tempCopyCanvas = document.createElement('canvas');
-        tempCopyCanvas.width = photoWidth;
-        tempCopyCanvas.height = photoHeight;
-        const tempCopyCtx = tempCopyCanvas.getContext('2d');
-        tempCopyCtx.putImageData(newImageData, 0, 0);
-        ctx.drawImage(tempCopyCanvas, col * photoWidth, row * photoHeight, photoWidth, photoHeight);
+      for (let i = 0; i < num; i++) {
+        const x = (i % cols) * width;
+        const y = Math.floor(i / cols) * height;
+        ctx.drawImage(final, x, y);
       }
 
-      document.getElementById('status').innerText = 'Done!';
+      document.getElementById('status').innerText = "Done!";
     }
 
-    function hexToRgb(hex) {
+    function hexToRgba(hex) {
       const bigint = parseInt(hex.slice(1), 16);
       return {
         r: (bigint >> 16) & 255,
         g: (bigint >> 8) & 255,
-        b: bigint & 255
+        b: bigint & 255,
+        a: 255
       };
     }
 
     function downloadImage() {
       const canvas = document.getElementById('canvas');
-      const quality = parseFloat(document.getElementById('quality').value);
       const link = document.createElement('a');
       link.download = 'passport_photo.jpg';
-      link.href = canvas.toDataURL('image/jpeg', quality);
+      link.href = canvas.toDataURL('image/jpeg', 1.0);
       link.click();
     }
   </script>
