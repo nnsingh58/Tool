@@ -1,153 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Passport Photo Maker</title>
-    <style>
-        /* ... पिछला CSS कोड वही रखें ... */
-    </style>
+  <meta charset="UTF-8">
+  <title>Passport Size Photo Maker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.3.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.5"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin: 10px;
+    }
+    input, label, button {
+      margin: 10px;
+    }
+  </style>
 </head>
 <body>
-    <h1 style="text-align: center; color: #2c3e50;">📷 पासपोर्ट फोटो मेकर</h1>
-    
-    <div class="container">
-        <!-- नियंत्रण पैनल -->
-        <div class="controls">
-            <!-- फ़ाइल अपलोड सेक्शन -->
-            <div class="controls-group">
-                <h3>📤 फोटो अपलोड करें</h3>
-                <div class="upload-area">
-                    <button onclick="document.getElementById('fileInput').click()">
-                        फ़ाइल चुनें
-                    </button>
-                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" hidden>
-                </div>
-                <img id="imagePreview" class="image-preview" alt="अपलोड पूर्वावलोकन">
-            </div>
 
-            <!-- बैकग्राउंड रंग चयन -->
-            <div class="controls-group">
-                <h3>🎨 पृष्ठभूमि रंग</h3>
-                <div class="color-swatches">
-                    <div class="color-swatch active" style="background: #ffffff" 
-                         onclick="setBackgroundColor('#ffffff')"></div>
-                    <div class="color-swatch" style="background: #007bff" 
-                         onclick="setBackgroundColor('#007bff')"></div>
-                    <div class="color-swatch" style="background: #dc3545" 
-                         onclick="setBackgroundColor('#dc3545')"></div>
-                    <input type="color" id="colorPicker">
-                </div>
-            </div>
+  <h2>Passport Size Photo Maker</h2>
 
-            <!-- समायोजन नियंत्रण -->
-            <div class="controls-group">
-                <h3>⚙️ समायोजन</h3>
-                <div class="slider-container">
-                    <label>क्षैतिज स्थिति</label>
-                    <input type="range" id="xPosition" min="-100" max="100" value="0">
-                </div>
-                <div class="slider-container">
-                    <label>ऊर्ध्वाधर स्थिति</label>
-                    <input type="range" id="yPosition" min="-100" max="100" value="0">
-                </div>
-                <div class="slider-container">
-                    <label>ज़ूम स्तर</label>
-                    <input type="range" id="scale" min="50" max="150" value="100">
-                </div>
-            </div>
+  <input type="file" id="upload" accept="image/*"><br>
 
-            <!-- डाउनलोड बटन -->
-            <div class="controls-group">
-                <button onclick="downloadPhoto()" style="width: 100%;">
-                    📥 JPG डाउनलोड करें
-                </button>
-            </div>
-        </div>
+  <label>Background Color: <input type="color" id="bgColor" value="#ffffff"></label><br>
 
-        <!-- पूर्वावलोकन क्षेत्र -->
-        <div class="preview-section">
-            <div class="preview-container">
-                <canvas id="previewCanvas"></canvas>
-            </div>
-        </div>
-    </div>
+  <label>Image Quality: <input type="range" id="quality" min="0.1" max="1" step="0.1" value="1"></label><br>
 
-    <script>
-        const canvas = document.getElementById('previewCanvas');
-        const ctx = canvas.getContext('2d');
-        let uploadedImage = null;
+  <label><input type="checkbox" id="bwMode"> Black & White</label><br>
 
-        // इमेज अपलोड हैंडलर
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+  <label>Number of Copies: <input type="number" id="copies" min="1" value="4"></label><br>
 
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const img = new Image();
-                img.onload = () => {
-                    uploadedImage = img;
-                    updateCanvas();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
+  <button onclick="processImage()">Make Photo</button>
+  <button onclick="downloadImage()">Download</button><br>
 
-        // कैनवास अपडेट फ़ंक्शन
-        function updateCanvas() {
-            if (!uploadedImage) return;
+  <canvas id="canvas" width="300" height="400"></canvas>
 
-            // कैनवास आकार सेट करें
-            canvas.width = 600;
-            canvas.height = 600;
+  <script>
+    let img = new Image();
+    let model;
 
-            // बैकग्राउंड भरें
-            ctx.fillStyle = document.getElementById('colorPicker').value;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    async function loadModel() {
+      model = await bodyPix.load();
+    }
 
-            // इमेज पोजीशन और स्केल कैलकुलेट करें
-            const scale = document.getElementById('scale').value / 100;
-            const xOffset = parseInt(document.getElementById('xPosition').value);
-            const yOffset = parseInt(document.getElementById('yPosition').value);
-            
-            const imgWidth = uploadedImage.width * scale;
-            const imgHeight = uploadedImage.height * scale;
-            
-            // इमेज को केंद्र में रखें
-            const x = (canvas.width - imgWidth)/2 + xOffset;
-            const y = (canvas.height - imgHeight)/2 + yOffset;
+    loadModel();
 
-            // इमेज ड्रॉ करें
-            ctx.drawImage(uploadedImage, x, y, imgWidth, imgHeight);
+    document.getElementById('upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          img.onload = function() {
+            processImage();
+          }
+          img.src = evt.target.result;
         }
+        reader.readAsDataURL(file);
+      }
+    });
 
-        // बैकग्राउंड रंग सेट करें
-        function setBackgroundColor(color) {
-            document.getElementById('colorPicker').value = color;
-            updateCanvas();
+    async function processImage() {
+      if (!img.src || !model) return;
+
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      const bgColor = document.getElementById('bgColor').value;
+      const quality = parseFloat(document.getElementById('quality').value);
+      const bw = document.getElementById('bwMode').checked;
+      const numCopies = parseInt(document.getElementById('copies').value);
+
+      // Resize image to canvas
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = img.width;
+      tempCanvas.height = img.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCtx.drawImage(img, 0, 0);
+
+      const segmentation = await model.segmentPerson(tempCanvas);
+
+      const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+      const newImageData = tempCtx.createImageData(imageData);
+
+      for (let i = 0; i < imageData.data.length; i += 4) {
+        const segIndex = i / 4;
+        if (segmentation.data[segIndex] === 1) {
+          newImageData.data[i] = imageData.data[i];
+          newImageData.data[i + 1] = imageData.data[i + 1];
+          newImageData.data[i + 2] = imageData.data[i + 2];
+          newImageData.data[i + 3] = 255;
+        } else {
+          const bg = hexToRgb(bgColor);
+          newImageData.data[i] = bg.r;
+          newImageData.data[i + 1] = bg.g;
+          newImageData.data[i + 2] = bg.b;
+          newImageData.data[i + 3] = 255;
         }
+      }
 
-        // डाउनलोड फ़ंक्शन
-        function downloadPhoto() {
-            if (!uploadedImage) {
-                alert('कृपया पहले फोटो अपलोड करें');
-                return;
-            }
-            const link = document.createElement('a');
-            link.download = 'passport-photo.jpg';
-            link.href = canvas.toDataURL('image/jpeg');
-            link.click();
+      // Apply black & white filter if checked
+      if (bw) {
+        for (let i = 0; i < newImageData.data.length; i += 4) {
+          const avg = (newImageData.data[i] + newImageData.data[i + 1] + newImageData.data[i + 2]) / 3;
+          newImageData.data[i] = newImageData.data[i + 1] = newImageData.data[i + 2] = avg;
         }
+      }
 
-        // इवेंट लिसनर्स
-        document.querySelectorAll('input[type="range"], #colorPicker').forEach(element => {
-            element.addEventListener('input', updateCanvas);
-        });
+      // Set canvas size for multiple copies
+      const photoWidth = 300;
+      const photoHeight = 400;
+      const cols = Math.ceil(Math.sqrt(numCopies));
+      const rows = Math.ceil(numCopies / cols);
+      canvas.width = photoWidth * cols;
+      canvas.height = photoHeight * rows;
 
-        // प्रारंभिक सेटअप
-        setBackgroundColor('#ffffff');
-    </script>
+      for (let i = 0; i < numCopies; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const tempCopyCanvas = document.createElement('canvas');
+        tempCopyCanvas.width = photoWidth;
+        tempCopyCanvas.height = photoHeight;
+        const tempCopyCtx = tempCopyCanvas.getContext('2d');
+        tempCopyCtx.putImageData(newImageData, 0, 0);
+
+        ctx.drawImage(tempCopyCanvas, col * photoWidth, row * photoHeight, photoWidth, photoHeight);
+      }
+    }
+
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.slice(1), 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    function downloadImage() {
+      const canvas = document.getElementById('canvas');
+      const quality = parseFloat(document.getElementById('quality').value);
+      const link = document.createElement('a');
+      link.download = 'passport_photo.jpg';
+      link.href = canvas.toDataURL('image/jpeg', quality);
+      link.click();
+    }
+  </script>
+
 </body>
 </html>
