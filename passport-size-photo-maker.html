@@ -1,131 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- पिछला CSS कोड वही रहता है -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passport Photo Maker</title>
     <style>
-        /* ... पिछला CSS कोड ... */
-        
-        .preview-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            border-radius: 8px;
-        }
+        /* ... पिछला CSS कोड वही रखें ... */
     </style>
 </head>
 <body>
-    <!-- HTML संरचना वही रहती है -->
+    <h1 style="text-align: center; color: #2c3e50;">📷 पासपोर्ट फोटो मेकर</h1>
+    
+    <div class="container">
+        <!-- नियंत्रण पैनल -->
+        <div class="controls">
+            <!-- फ़ाइल अपलोड सेक्शन -->
+            <div class="controls-group">
+                <h3>📤 फोटो अपलोड करें</h3>
+                <div class="upload-area">
+                    <button onclick="document.getElementById('fileInput').click()">
+                        फ़ाइल चुनें
+                    </button>
+                    <input type="file" id="fileInput" accept=".jpg,.jpeg,.png" hidden>
+                </div>
+                <img id="imagePreview" class="image-preview" alt="अपलोड पूर्वावलोकन">
+            </div>
+
+            <!-- बैकग्राउंड रंग चयन -->
+            <div class="controls-group">
+                <h3>🎨 पृष्ठभूमि रंग</h3>
+                <div class="color-swatches">
+                    <div class="color-swatch active" style="background: #ffffff" 
+                         onclick="setBackgroundColor('#ffffff')"></div>
+                    <div class="color-swatch" style="background: #007bff" 
+                         onclick="setBackgroundColor('#007bff')"></div>
+                    <div class="color-swatch" style="background: #dc3545" 
+                         onclick="setBackgroundColor('#dc3545')"></div>
+                    <input type="color" id="colorPicker">
+                </div>
+            </div>
+
+            <!-- समायोजन नियंत्रण -->
+            <div class="controls-group">
+                <h3>⚙️ समायोजन</h3>
+                <div class="slider-container">
+                    <label>क्षैतिज स्थिति</label>
+                    <input type="range" id="xPosition" min="-100" max="100" value="0">
+                </div>
+                <div class="slider-container">
+                    <label>ऊर्ध्वाधर स्थिति</label>
+                    <input type="range" id="yPosition" min="-100" max="100" value="0">
+                </div>
+                <div class="slider-container">
+                    <label>ज़ूम स्तर</label>
+                    <input type="range" id="scale" min="50" max="150" value="100">
+                </div>
+            </div>
+
+            <!-- डाउनलोड बटन -->
+            <div class="controls-group">
+                <button onclick="downloadPhoto()" style="width: 100%;">
+                    📥 JPG डाउनलोड करें
+                </button>
+            </div>
+        </div>
+
+        <!-- पूर्वावलोकन क्षेत्र -->
+        <div class="preview-section">
+            <div class="preview-container">
+                <canvas id="previewCanvas"></canvas>
+            </div>
+        </div>
+    </div>
 
     <script>
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
         let uploadedImage = null;
-        let isGenerated = false;
 
-        // इमेज अपलोड हैंडलिंग
+        // इमेज अपलोड हैंडलर
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            document.querySelector('.loading').style.display = 'block';
             const reader = new FileReader();
-            
-            reader.onload = function(event) {
+            reader.onload = (event) => {
                 const img = new Image();
-                img.onload = function() {
+                img.onload = () => {
                     uploadedImage = img;
-                    document.getElementById('imagePreview').style.display = 'block';
-                    document.getElementById('imagePreview').src = event.target.result;
-                    document.querySelector('.loading').style.display = 'none';
-                    updateCanvas();  // सीधा कैनवास अपडेट
+                    updateCanvas();
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        // कैनवास अपडेट फंक्शन
+        // कैनवास अपडेट फ़ंक्शन
         function updateCanvas() {
-            // कैनवास साइज सेट करें
-            const size = document.getElementById('size').value;
-            let width = 600, height = 600;
-            
-            if (size === '2x2') { width = height = 2 * 300; }
-            else if (size === '2.5x3.5') { width = 2.5*300; height = 3.5*300; }
-            else if (size === '35x45') { width = 35; height = 45; }
-            else if (size === '51x51') { width = height = 51; }
-            
-            canvas.width = width;
-            canvas.height = height;
+            if (!uploadedImage) return;
+
+            // कैनवास आकार सेट करें
+            canvas.width = 600;
+            canvas.height = 600;
 
             // बैकग्राउंड भरें
             ctx.fillStyle = document.getElementById('colorPicker').value;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // बॉर्डर ड्रा करें
-            if (document.getElementById('borderCheckbox').checked) {
-                ctx.strokeStyle = document.getElementById('borderColor').value;
-                ctx.lineWidth = document.getElementById('borderThickness').value;
-                ctx.strokeRect(0, 0, canvas.width, canvas.height);
-            }
+            // इमेज पोजीशन और स्केल कैलकुलेट करें
+            const scale = document.getElementById('scale').value / 100;
+            const xOffset = parseInt(document.getElementById('xPosition').value);
+            const yOffset = parseInt(document.getElementById('yPosition').value);
+            
+            const imgWidth = uploadedImage.width * scale;
+            const imgHeight = uploadedImage.height * scale;
+            
+            // इमेज को केंद्र में रखें
+            const x = (canvas.width - imgWidth)/2 + xOffset;
+            const y = (canvas.height - imgHeight)/2 + yOffset;
 
-            // इमेज ड्रा करें (अगर जेनरेट की गई है)
-            if (uploadedImage && isGenerated) {
-                const scale = document.getElementById('scale').value / 100;
-                const xOffset = document.getElementById('xPosition').value;
-                const yOffset = document.getElementById('yPosition').value;
-                
-                const imgWidth = uploadedImage.width * scale;
-                const imgHeight = uploadedImage.height * scale;
-                
-                const x = (canvas.width - imgWidth) / 2 + xOffset;
-                const y = (canvas.height - imgHeight) / 2 + yOffset;
-
-                ctx.drawImage(uploadedImage, x, y, imgWidth, imgHeight);
-            }
+            // इमेज ड्रॉ करें
+            ctx.drawImage(uploadedImage, x, y, imgWidth, imgHeight);
         }
 
-        // जेनरेट बटन के लिए नया लॉजिक
-        function generatePhoto() {
+        // बैकग्राउंड रंग सेट करें
+        function setBackgroundColor(color) {
+            document.getElementById('colorPicker').value = color;
+            updateCanvas();
+        }
+
+        // डाउनलोड फ़ंक्शन
+        function downloadPhoto() {
             if (!uploadedImage) {
                 alert('कृपया पहले फोटो अपलोड करें');
                 return;
             }
-            isGenerated = true;
-            updateCanvas();
-        }
-
-        // इवेंट लिसनर्स को अपडेट करें
-        document.getElementById('colorPicker').addEventListener('input', updateCanvas);
-        document.getElementById('borderCheckbox').addEventListener('change', function() {
-            document.getElementById('borderOptions').style.display = this.checked ? 'block' : 'none';
-            updateCanvas();
-        });
-        
-        ['xPosition', 'yPosition', 'scale', 'borderThickness', 'borderColor', 'size'].forEach(id => {
-            document.getElementById(id).addEventListener('input', updateCanvas);
-        });
-
-        // डाउनलोड फंक्शन
-        function downloadPhoto() {
-            if (!isGenerated) {
-                alert('कृपया पहले फोटो जेनरेट करें');
-                return;
-            }
             const link = document.createElement('a');
-            link.download = `passport-photo-${Date.now()}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.9);
+            link.download = 'passport-photo.jpg';
+            link.href = canvas.toDataURL('image/jpeg');
             link.click();
         }
 
-        // इनिशियल सेटअप
-        updateCanvas();
+        // इवेंट लिसनर्स
+        document.querySelectorAll('input[type="range"], #colorPicker').forEach(element => {
+            element.addEventListener('input', updateCanvas);
+        });
+
+        // प्रारंभिक सेटअप
+        setBackgroundColor('#ffffff');
     </script>
 </body>
 </html>
