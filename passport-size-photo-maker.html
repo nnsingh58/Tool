@@ -14,6 +14,7 @@
     canvas {
       border: 1px solid #ccc;
       margin: 10px;
+      background: #f0f0f0;
     }
     input, label, button {
       margin: 10px;
@@ -39,12 +40,16 @@
 
   <canvas id="canvas" width="300" height="400"></canvas>
 
+  <p id="status"></p>
+
   <script>
     let img = new Image();
     let model;
 
     async function loadModel() {
+      document.getElementById('status').innerText = 'Loading model...';
       model = await bodyPix.load();
+      document.getElementById('status').innerText = 'Model loaded!';
     }
 
     loadModel();
@@ -55,7 +60,12 @@
         const reader = new FileReader();
         reader.onload = function(evt) {
           img.onload = function() {
-            processImage();
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 300;
+            canvas.height = 400;
+            ctx.drawImage(img, 0, 0, 300, 400);
+            document.getElementById('status').innerText = 'Image loaded. Now click "Make Photo".';
           }
           img.src = evt.target.result;
         }
@@ -64,7 +74,12 @@
     });
 
     async function processImage() {
-      if (!img.src || !model) return;
+      if (!img.src || !model) {
+        alert("Please upload image and wait for model to load.");
+        return;
+      }
+
+      document.getElementById('status').innerText = 'Processing... please wait';
 
       const canvas = document.getElementById('canvas');
       const ctx = canvas.getContext('2d');
@@ -74,17 +89,17 @@
       const bw = document.getElementById('bwMode').checked;
       const numCopies = parseInt(document.getElementById('copies').value);
 
-      // Resize image to canvas
       const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = img.width;
-      tempCanvas.height = img.height;
+      tempCanvas.width = 300;
+      tempCanvas.height = 400;
       const tempCtx = tempCanvas.getContext('2d');
-      tempCtx.drawImage(img, 0, 0);
+      tempCtx.drawImage(img, 0, 0, 300, 400);
 
       const segmentation = await model.segmentPerson(tempCanvas);
-
-      const imageData = tempCtx.getImageData(0, 0, img.width, img.height);
+      const imageData = tempCtx.getImageData(0, 0, 300, 400);
       const newImageData = tempCtx.createImageData(imageData);
+
+      const bg = hexToRgb(bgColor);
 
       for (let i = 0; i < imageData.data.length; i += 4) {
         const segIndex = i / 4;
@@ -94,7 +109,6 @@
           newImageData.data[i + 2] = imageData.data[i + 2];
           newImageData.data[i + 3] = 255;
         } else {
-          const bg = hexToRgb(bgColor);
           newImageData.data[i] = bg.r;
           newImageData.data[i + 1] = bg.g;
           newImageData.data[i + 2] = bg.b;
@@ -102,7 +116,6 @@
         }
       }
 
-      // Apply black & white filter if checked
       if (bw) {
         for (let i = 0; i < newImageData.data.length; i += 4) {
           const avg = (newImageData.data[i] + newImageData.data[i + 1] + newImageData.data[i + 2]) / 3;
@@ -110,7 +123,6 @@
         }
       }
 
-      // Set canvas size for multiple copies
       const photoWidth = 300;
       const photoHeight = 400;
       const cols = Math.ceil(Math.sqrt(numCopies));
@@ -126,9 +138,10 @@
         tempCopyCanvas.height = photoHeight;
         const tempCopyCtx = tempCopyCanvas.getContext('2d');
         tempCopyCtx.putImageData(newImageData, 0, 0);
-
         ctx.drawImage(tempCopyCanvas, col * photoWidth, row * photoHeight, photoWidth, photoHeight);
       }
+
+      document.getElementById('status').innerText = 'Done!';
     }
 
     function hexToRgb(hex) {
