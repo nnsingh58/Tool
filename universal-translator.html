@@ -60,13 +60,22 @@
     .notification.show {
       display: block;
     }
+    #copy-btn {
+      margin-top: 8px;
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>Universal Translator</h1>
-      <p>Translate up to 50,000 words between languages</p>
+      <p>Translate up to 2,000 characters between languages</p>
     </header>
     <div class="translator-box">
       <label for="source-language">From:</label>
@@ -112,83 +121,85 @@
 
       <label for="translated-text">Translated text:</label>
       <textarea id="translated-text" readonly></textarea>
+      <button id="copy-btn">📋 Copy</button>
     </div>
     <div class="translator-box history" id="history-box"></div>
   </div>
   <div class="notification" id="notification"></div>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const sourceText = document.getElementById('source-text');
-    const translateBtn = document.getElementById('translate-btn');
-    const charCount = document.getElementById('char-count');
-    const notification = document.getElementById('notification');
-    const translatedText = document.getElementById('translated-text');
-    const copyBtn = document.getElementById('copy-btn');
-    const MAX_CHAR_LIMIT = 2000; // ✅ ये लाइन change की गई है
 
-    sourceText.addEventListener('input', function () {
-      const text = sourceText.value.trim();
-      const wordCount = text.split(/\s+/).filter(Boolean).length;
-      const charLen = text.length;
-      charCount.textContent = `${wordCount} words | ${charLen} characters`;
-      if (charLen > MAX_CHAR_LIMIT) {
-        translateBtn.disabled = true;
-        showNotification("Character limit exceeded (Max 2000 characters).", "error");
-      } else {
-        translateBtn.disabled = false;
-      }
-    });
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const sourceText = document.getElementById('source-text');
+      const translateBtn = document.getElementById('translate-btn');
+      const charCount = document.getElementById('char-count');
+      const notification = document.getElementById('notification');
+      const translatedText = document.getElementById('translated-text');
+      const copyBtn = document.getElementById('copy-btn');
+      const MAX_CHAR_LIMIT = 2000;
 
-    translateBtn.addEventListener('click', async function () {
-      const text = sourceText.value.trim();
-      const fromLang = document.getElementById('source-language').value;
-      const toLang = document.getElementById('target-language').value;
-
-      if (!text) {
-        showNotification("Please enter some text to translate.", "error");
-        return;
-      }
-
-      translatedText.value = "Translating...";
-
-      try {
-        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`);
-        const data = await response.json();
-
-        if (data?.responseData?.translatedText) {
-          translatedText.value = data.responseData.translatedText;
-          showNotification("Translation complete");
+      sourceText.addEventListener('input', function () {
+        const text = sourceText.value.trim();
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        const charLen = text.length;
+        charCount.textContent = `${wordCount} words | ${charLen} characters`;
+        if (charLen > MAX_CHAR_LIMIT) {
+          translateBtn.disabled = true;
+          showNotification("Character limit exceeded (Max 2000 characters).", "error");
         } else {
-          translatedText.value = "";
-          showNotification("Translation failed.", "error");
+          translateBtn.disabled = false;
         }
-      } catch (error) {
-        translatedText.value = "";
-        showNotification("Failed to connect to translation server.", "error");
+      });
+
+      translateBtn.addEventListener('click', async function () {
+        const text = sourceText.value.trim();
+        const fromLang = document.getElementById('source-language').value;
+        const toLang = document.getElementById('target-language').value;
+
+        if (!text) {
+          showNotification("Please enter some text to translate.", "error");
+          return;
+        }
+
+        translatedText.value = "Translating...";
+
+        try {
+          const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`);
+          const data = await response.json();
+
+          if (data?.responseData?.translatedText) {
+            translatedText.value = data.responseData.translatedText;
+            showNotification("Translation complete");
+          } else {
+            translatedText.value = "";
+            showNotification("Translation failed.", "error");
+          }
+        } catch (error) {
+          translatedText.value = "";
+          showNotification("Failed to connect to translation server.", "error");
+        }
+      });
+
+      copyBtn.addEventListener('click', () => {
+        if (!translatedText.value.trim()) return;
+        navigator.clipboard.writeText(translatedText.value)
+          .then(() => {
+            copyBtn.textContent = '✅ Copied!';
+            setTimeout(() => {
+              copyBtn.textContent = '📋 Copy';
+            }, 2000);
+          })
+          .catch(() => {
+            showNotification("Failed to copy text.", "error");
+          });
+      });
+
+      function showNotification(message, type = "success") {
+        notification.textContent = message;
+        notification.style.backgroundColor = type === 'error' ? '#dc3545' : '#4bb543';
+        notification.classList.add('show');
+        setTimeout(() => notification.classList.remove('show'), 3000);
       }
     });
-
-    copyBtn.addEventListener('click', () => {
-      if (!translatedText.value.trim()) return;
-      navigator.clipboard.writeText(translatedText.value)
-        .then(() => {
-          copyBtn.textContent = '✅ Copied!';
-          setTimeout(() => {
-            copyBtn.textContent = '📋 Copy';
-          }, 2000);
-        })
-        .catch(() => {
-          showNotification("Failed to copy text.", "error");
-        });
-    });
-
-    function showNotification(message, type = "success") {
-      notification.textContent = message;
-      notification.style.backgroundColor = type === 'error' ? '#dc3545' : '#4bb543';
-      notification.classList.add('show');
-      setTimeout(() => notification.classList.remove('show'), 3000);
-    }
-  });
-</script>
+  </script>
 </body>
 </html>
