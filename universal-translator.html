@@ -106,7 +106,7 @@
 
       <label for="source-text">Enter text:</label>
       <textarea id="source-text"></textarea>
-      <div id="char-count">0 words</div>
+      <div id="char-count">0 words | 0 characters</div>
 
       <button id="translate-btn">Translate</button>
 
@@ -122,12 +122,19 @@
       const translateBtn = document.getElementById('translate-btn');
       const charCount = document.getElementById('char-count');
       const notification = document.getElementById('notification');
-      const MAX_WORD_LIMIT = 50000;
+      const MAX_CHAR_LIMIT = 500;
 
       sourceText.addEventListener('input', function () {
-        const wordCount = sourceText.value.trim().split(/\s+/).filter(Boolean).length;
-        charCount.textContent = `${wordCount} words`;
-        translateBtn.disabled = wordCount > MAX_WORD_LIMIT;
+        const text = sourceText.value.trim();
+        const wordCount = text.split(/\s+/).filter(Boolean).length;
+        const charLen = text.length;
+        charCount.textContent = `${wordCount} words | ${charLen} characters`;
+        if (charLen > MAX_CHAR_LIMIT) {
+          translateBtn.disabled = true;
+          showNotification("Character limit exceeded (Max 500 characters).", "error");
+        } else {
+          translateBtn.disabled = false;
+        }
       });
 
       translateBtn.addEventListener('click', async function () {
@@ -140,37 +147,23 @@
           return;
         }
 
-        const sentences = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
         const translatedText = document.getElementById('translated-text');
-        translatedText.value = "Translating...\n";
+        translatedText.value = "Translating...";
 
         try {
-          let finalTranslation = "";
-          for (let sentence of sentences) {
-            const res = await fetch('https://libretranslate.de/translate', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                q: sentence.trim(),
-                source: fromLang === 'auto' ? 'auto' : fromLang,
-                target: toLang,
-                format: 'text'
-              })
-            });
-            const data = await res.json();
-            if (data?.translatedText) {
-              finalTranslation += data.translatedText + " ";
-            } else {
-              finalTranslation += "[untranslated] ";
-            }
+          const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromLang}|${toLang}`);
+          const data = await response.json();
+
+          if (data?.responseData?.translatedText) {
+            translatedText.value = data.responseData.translatedText;
+            showNotification("Translation complete");
+          } else {
+            translatedText.value = "";
+            showNotification("Translation failed.", "error");
           }
-          translatedText.value = finalTranslation.trim();
-          showNotification("Translation complete");
         } catch (error) {
           translatedText.value = "";
-          showNotification("Error connecting to translation API.", "error");
+          showNotification("Failed to connect to translation server.", "error");
         }
       });
 
