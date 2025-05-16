@@ -3,636 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Passport Photo Maker</title>
+  <title>Passport Size Photo Maker</title>
   <style>
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      max-width: 100%;
-      overflow-x: hidden;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0; /* Added to ensure no default body margin */
-    }
-    
-    .container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 800px;
+    body {
+      font-family: Arial, sans-serif;
       text-align: center;
-      margin-top: 20px; 
-      margin-bottom: 20px;
+      margin: 2rem;
     }
-    
-    h2 {
-      color: #2c3e50;
-      margin-bottom: 25px;
-      font-size: 28px;
-      padding-bottom: 10px;
-      display: inline-block;
-      position: relative;
-    }
-    
-    h2:after {
-      content: '';
-      position: absolute;
-      width: 50%;
-      height: 3px;
-      background: linear-gradient(90deg, #3498db, #2c3e50);
-      bottom: 0;
-      left: 25%;
-    }
-    
-    canvas { 
-      border: 2px dashed #3498db; 
-      margin: 25px auto;
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      background-color: #f8f9fa; /* BG for the canvas element itself */
-    }
-    
-    .controls {
+    #preview {
+      margin: 1rem auto;
       display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    
-    label { 
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      color: #34495e;
-      font-weight: 500;
-      width: 100%;
-    }
-    
-    input[type="file"] {
-      margin-top: 5px;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      width: 100%;
-      box-sizing: border-box; /* Added for consistent sizing */
-    }
-    
-    input[type="color"] {
-      width: 100%;
-      height: 40px;
-      border: 2px solid #3498db;
-      border-radius: 5px;
-      cursor: pointer;
-      box-sizing: border-box; /* Added */
-      padding: 2px; /* Small padding so border doesn't clip color area */
-    }
-    
-    select {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      width: 100%;
-      margin-top: 5px;
-      box-sizing: border-box; /* Added */
-    }
-    
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 5px;
-    }
-    
-    button {
-      padding: 12px 24px;
-      margin-top: 20px;
-      background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      background: linear-gradient(135deg, #2980b9 0%, #1a252f 100%);
-    }
-    
-    button:disabled {
-      background: #95a5a6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-    
-    #loading {
-      display: none;
-      margin-top: 15px;
-      color: #3498db;
-      font-weight: bold;
-    }
-    
-    .info-section {
-      margin-top: 30px;
-      text-align: left;
-      border-top: 1px solid #eee;
-      padding-top: 20px;
-    }
-    
-    .info-section h3 {
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 5px;
-      display: inline-block;
-    }
-    
-    .photo-specs {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #e8f4fc;
-      border-radius: 8px;
-      color: #2c3e50;
-      font-size: 14px;
-      text-align: center;
-    }
-    
-    .photo-size-options {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Responsive columns */
+      flex-wrap: wrap;
       gap: 10px;
-      margin-top: 10px;
+      justify-content: center;
     }
-    
-    .photo-size-option {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-      transition: background-color 0.2s ease, color 0.2s ease; /* Smooth transition */
+    canvas {
+      border: 1px solid #ccc;
     }
-    
-    .photo-size-option.selected {
-      background-color: #3498db;
-      color: white;
-      border-color: #3498db;
-    }
-    
-    .tab-container {
-      display: flex;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #ddd; /* Add a base line for tabs */
-    }
-    
-    .tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      border-bottom: 3px solid transparent; /* Thicker indicator line */
-      margin-bottom: -1px; /* Align with container border */
-      transition: border-color 0.2s ease, color 0.2s ease;
-      color: #555;
-    }
-    
-    .tab.active {
-      border-bottom-color: #3498db;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    table {
-        width:100%; 
-        border-collapse: collapse;
-        margin-top: 15px;
-    }
-    th, td {
-        padding:10px; 
-        text-align:left;
-        border-bottom:1px solid #eee; 
-    }
-    th {
-        background-color: #3498db; 
-        color: white;
-        font-weight: 600; 
-    }
-    tr:nth-child(even) {
-        background-color: #f9f9f9; 
+    label, input, select, button {
+      margin: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>📷 Passport Photo Maker</h2>
-    
-    <div class="tab-container">
-      <div class="tab active" onclick="openTab(event, 'maker')">Photo Maker</div>
-      <div class="tab" onclick="openTab(event, 'how-to')">How to Use</div>
-      <div class="tab" onclick="openTab(event, 'about')">About</div>
-    </div>
-    
-    <div id="maker" class="tab-content active">
-      <div class="controls">
-        <label>
-          Upload Your Photo:
-          <input type="file" id="imageUpload" accept="image/*" />
-        </label>
-        
-        <label>
-          Background Color:
-          <input type="color" id="bgColor" value="#ffffff" />
-        </label>
-        
-        <label>
-          Photo Size:
-          <div class="photo-size-options">
-            <div class="photo-size-option selected" data-width="300" data-height="400" onclick="selectPhotoSize(this)">
-              Passport (35×45 mm)
-            </div>
-            <div class="photo-size-option" data-width="354" data-height="472" onclick="selectPhotoSize(this)">
-              Visa (35×45 mm)
-            </div>
-            <div class="photo-size-option" data-width="600" data-height="600" onclick="selectPhotoSize(this)">
-              US Visa (51x51 mm)
-            </div>
-            <div class="photo-size-option" data-width="413" data-height="531" onclick="selectPhotoSize(this)">
-              ID Card (35×45 mm)
-            </div>
-          </div>
-        </label>
-        
-        <label>
-          Number of Copies:
-          <select id="numCopies">
-            <option value="1">1 Photo</option>
-            <option value="2">2 Photos</option>
-            <option value="4" selected>4 Photos</option>
-            <option value="6">6 Photos</option>
-            <option value="8">8 Photos</option>
-            <option value="12">12 Photos</option>
-          </select>
-        </label>
-        
-        <label>
-          <div class="checkbox-container">
-            <input type="checkbox" id="addBorder" checked />
-            <span>Add Border to Photos</span>
-          </div>
-        </label>
-      </div>
-      
-      <button id="generateBtn" onclick="processImage()">Generate Passport Photos</button>
-      <div id="loading">⏳ Processing your photos... Please wait</div>
-      
-      <canvas id="canvas"></canvas>
-      
-      <div class="photo-specs">
-        <p id="sizeSpecs">Standard Passport Photo Size: 300 × 400 pixels (approx. 35 × 45 mm at 217 DPI)</p>
-        <p>Background should be automatically removed and replaced.</p>
-      </div>
-    </div>
-    
-    <div id="how-to" class="tab-content">
-      <div class="info-section">
-        <h3>How to Use This Tool</h3>
-        <ol>
-          <li><strong>Upload your photo</strong> - Click the "Upload Your Photo" button and select an image from your device. A preview will be shown.</li>
-          <li><strong>Choose background color</strong> - Select the desired background color for your passport photo.</li>
-          <li><strong>Select photo size</strong> - Choose from standard photo sizes for different document types.</li>
-          <li><strong>Set number of copies</strong> - Select how many copies you want on one sheet.</li>
-          <li><strong>Generate photos</strong> - Click the "Generate Passport Photos" button.</li>
-          <li><strong>Save your photo</strong> - Right-click on the result canvas and select "Save Image As...".</li>
-        </ol>
-        
-        <h3>Tips for Best Results</h3>
-        <ul>
-          <li>Use a clear, high-quality photo with good, even lighting on your face.</li>
-          <li>Ensure your face is clearly visible, centered, and looking directly at the camera.</li>
-          <li>A plain, contrasting background in your original photo helps with automatic background removal.</li>
-          <li>Follow official guidelines for passport/visa photos in your country regarding expression, head covering, glasses, etc.</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div id="about" class="tab-content">
-      <div class="info-section">
-        <h3>About Passport Photo Maker</h3>
-        <p>This free online tool helps you create passport-style photos. Our AI-powered technology attempts to automatically remove the background and formats your photo to the selected size and copy count.</p>
-        
-        <h3>Features</h3>
-        <ul>
-          <li>Attempted automatic background removal</li>
-          <li>Multiple photo size options</li>
-          <li>Custom background colors</li>
-          <li>Multiple copies on one sheet</li>
-          <li>Client-side processing: Your images are processed in your browser and not uploaded to a server.</li>
-          <li>Free to use</li>
-        </ul>
-        
-        <h3>Photo Size Standards (Examples)</h3>
-        <table>
-          <thead>
-            <tr style="background-color: #3498db; color: white;">
-              <th style="padding:8px; text-align:left;">Type</th>
-              <th style="padding:8px; text-align:left;">Pixels (example)</th>
-              <th style="padding:8px; text-align:left;">Millimeters (common)</th>
-              <th style="padding:8px; text-align:left;">Common Use</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid #ddd;">
-              <td style="padding:8px;">Passport</td>
-              <td style="padding:8px;">300×400</td>
-              <td style="padding:8px;">35×45</td>
-              <td style="padding:8px;">Many countries</td>
-            </tr>
-            <tr style="border-bottom:1px solid #ddd;">
-              <td style="padding:8px;">US Visa</td>
-              <td style="padding:8px;">600×600</td>
-              <td style="padding:8px;">51×51 (2x2 inches)</td>
-              <td style="padding:8px;">US Visa, Green Card</td>
-            </tr>
-             <tr style="border-bottom:1px solid #ddd;">
-              <td style="padding:8px;">ID Card</td>
-              <td style="padding:8px;">413×531</td>
-              <td style="padding:8px;">35×45</td>
-              <td style="padding:8px;">Various ID cards</td>
-            </tr>
-            <tr>
-              <td style="padding:8px;">Custom Square</td>
-              <td style="padding:8px;">User-defined</td>
-              <td style="padding:8px;">Varies</td>
-              <td style="padding:8px;">Online profiles, specific applications</td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="font-size:0.9em; margin-top:10px;"><i>Note: Pixel dimensions are approximate and depend on DPI. Always verify exact requirements for your specific application.</i></p>
-      </div>
-    </div>
-  </div>
+  <h2>Passport Size Photo Maker</h2>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
+  <input type="file" id="fileInput" accept="image/*"><br>
+
+  <label>Background Color:</label>
+  <input type="color" id="bgColor" value="#ffffff"><br>
+
+  <label>Photo Size:</label>
+  <select id="photoSize">
+    <option value="35x45">35x45 mm</option>
+    <option value="2x2">2x2 inch</option>
+  </select><br>
+
+  <label>Number of Copies:</label>
+  <input type="number" id="numCopies" value="4" min="1" max="30"><br>
+
+  <label>Black & White:</label>
+  <input type="checkbox" id="bwMode"><br>
+
+  <button onclick="generate()">Generate Photo Sheet</button>
+
+  <div id="preview"></div>
+
   <script>
-    let imgElement = new Image();
-    let model = null;
-    let isModelLoading = false;
-    let isProcessing = false;
-    let photoWidth = 300; // Default selected
-    let photoHeight = 400; // Default selected
-
-    function openTab(evt, tabName) {
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.getElementById(tabName).classList.add('active');
-      evt.currentTarget.classList.add('active');
+    function mmToPx(mm, dpi = 300) {
+      return Math.round((mm / 25.4) * dpi);
     }
 
-    function selectPhotoSize(element) {
-      document.querySelectorAll('.photo-size-option').forEach(option => {
-        option.classList.remove('selected');
-      });
-      element.classList.add('selected');
-      photoWidth = parseInt(element.dataset.width);
-      photoHeight = parseInt(element.dataset.height);
-      
-      const mmWidth = Math.round(photoWidth / 96 * 25.4); // Approximate mm for display
-      const mmHeight = Math.round(photoHeight / 96 * 25.4);
-      document.getElementById('sizeSpecs').textContent = 
-        `Selected Photo Size: ${photoWidth} × ${photoHeight} pixels (approx. ${mmWidth} × ${mmHeight} mm)`;
+    function inchToPx(inch, dpi = 300) {
+      return Math.round(inch * dpi);
     }
 
-    async function loadModel() {
-      if (model) return model;
-      if (isModelLoading) {
-        return new Promise(resolve => {
-          const checkModel = () => {
-            if (model) resolve(model);
-            else setTimeout(checkModel, 100);
-          };
-          checkModel();
-        });
+    function generate() {
+      const fileInput = document.getElementById("fileInput");
+      const bgColor = document.getElementById("bgColor").value;
+      const photoSize = document.getElementById("photoSize").value;
+      const numCopies = parseInt(document.getElementById("numCopies").value);
+      const bwMode = document.getElementById("bwMode").checked;
+      const preview = document.getElementById("preview");
+      preview.innerHTML = "";
+
+      if (!fileInput.files[0]) {
+        alert("Please select an image.");
+        return;
       }
-
-      isModelLoading = true;
-      const loadingElement = document.getElementById('loading');
-      loadingElement.textContent = '⏳ Loading AI Model... Please wait';
-      loadingElement.style.display = 'block';
-      try {
-        model = await bodyPix.load({
-          architecture: 'MobileNetV1',
-          outputStride: 16,
-          multiplier: 0.75, 
-          quantBytes: 2,
-        });
-        console.log("BodyPix model loaded successfully.");
-        isModelLoading = false;
-        loadingElement.style.display = 'none';
-        loadingElement.textContent = '⏳ Processing your photos... Please wait'; // Reset for processing
-        return model;
-      } catch (error) {
-        isModelLoading = false;
-        loadingElement.style.display = 'none';
-        console.error("Failed to load model:", error);
-        alert("Failed to load the AI model. Please refresh the page and try again. Check your internet connection.");
-        throw error;
-      }
-    }
-
-    document.getElementById('imageUpload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = function (event) {
-        imgElement.onload = function() {
-          console.log("Image loaded successfully into imgElement:", imgElement.naturalWidth, "x", imgElement.naturalHeight);
-          if (imgElement.naturalWidth === 0 || imgElement.naturalHeight === 0) {
-            alert("Uploaded image has invalid dimensions (0x0). Please try a different image.");
-            imgElement.src = ""; 
-            return;
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          let width, height;
+          if (photoSize === "35x45") {
+            width = mmToPx(35);
+            height = mmToPx(45);
+          } else if (photoSize === "2x2") {
+            width = inchToPx(2);
+            height = inchToPx(2);
           }
-          const canvas = document.getElementById('canvas');
-          const ctx = canvas.getContext('2d');
-          const previewMaxWidth = 400;
-          const scale = Math.min(1, previewMaxWidth / imgElement.naturalWidth);
-          canvas.width = imgElement.naturalWidth * scale;
-          canvas.height = imgElement.naturalHeight * scale;
-          ctx.drawImage(imgElement, 0, 0, canvas.width, canvas.height);
-          console.log("Preview drawn on canvas.");
+
+          const gap = 20;
+          const columns = Math.ceil(Math.sqrt(numCopies));
+          const rows = Math.ceil(numCopies / columns);
+
+          const canvas = document.createElement("canvas");
+          canvas.width = columns * (width + gap) - gap;
+          canvas.height = rows * (height + gap) - gap;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = bgColor;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          for (let i = 0; i < numCopies; i++) {
+            const x = (i % columns) * (width + gap);
+            const y = Math.floor(i / columns) * (height + gap);
+
+            const tempCanvas = document.createElement("canvas");
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            const tempCtx = tempCanvas.getContext("2d");
+
+            tempCtx.drawImage(img, 0, 0, width, height);
+
+            if (bwMode) {
+              const imageData = tempCtx.getImageData(0, 0, width, height);
+              const data = imageData.data;
+              for (let j = 0; j < data.length; j += 4) {
+                const avg = (data[j] + data[j + 1] + data[j + 2]) / 3;
+                data[j] = data[j + 1] = data[j + 2] = avg;
+              }
+              tempCtx.putImageData(imageData, 0, 0);
+            }
+
+            ctx.drawImage(tempCanvas, x, y);
+          }
+
+          preview.appendChild(canvas);
         };
-        imgElement.onerror = function() {
-          alert("Failed to load the image. It might be corrupted or an unsupported format. Please try another file.");
-          imgElement.src = ""; 
-        };
-        imgElement.src = event.target.result;
+        img.src = e.target.result;
       };
-      reader.onerror = function() {
-        alert("Failed to read the file. Please try again.");
-      };
-      reader.readAsDataURL(file);
-    });
-
-    async function processImage() {
-      if (isProcessing) return;
-      
-      const generateBtn = document.getElementById('generateBtn');
-      const loadingElement = document.getElementById('loading');
-      
-      try {
-        isProcessing = true;
-        generateBtn.disabled = true;
-        loadingElement.textContent = '⏳ Processing your photos... Please wait';
-        loadingElement.style.display = 'block';
-
-        if (!imgElement.src || imgElement.naturalWidth === 0 || imgElement.naturalHeight === 0) {
-          throw new Error("Please upload a valid image first.");
-        }
-
-        if (!model) {
-          console.log("Model not loaded yet, loading now...");
-          model = await loadModel(); 
-        }
-
-        const mainOutputCanvas = document.getElementById('canvas');
-        const mainOutputCtx = mainOutputCanvas.getContext('2d');
-        if (!mainOutputCtx) {
-          throw new Error("Main canvas context not available.");
-        }
-
-        const bgColor = document.getElementById('bgColor').value;
-        const numCopies = parseInt(document.getElementById('numCopies').value);
-        const addBorder = document.getElementById('addBorder').checked;
-
-        console.log("Starting image segmentation...");
-        const segmentation = await model.segmentPerson(imgElement, {
-          internalResolution: 'medium', 
-          segmentationThreshold: 0.7,
-        });
-        console.log("Segmentation completed.");
-
-        if (!segmentation || !segmentation.data || segmentation.width === 0 || segmentation.height === 0) {
-            throw new Error("Segmentation failed. The image might not be suitable, or the model couldn't detect a person.");
-        }
-        
-        // Mask: Person is white (opaque), background is transparent
-        const foregroundColor = { r: 255, g: 255, b: 255, a: 255 }; 
-        const transparentBgColor = { r: 0, g: 0, b: 0, a: 0 }; 
-        const personMaskImageData = bodyPix.toMask(segmentation, foregroundColor, transparentBgColor, false);
-        
-        // Canvas 1: Original-sized masked person (person on transparent background)
-        const sourceMaskedCanvas = document.createElement('canvas');
-        sourceMaskedCanvas.width = imgElement.naturalWidth;
-        sourceMaskedCanvas.height = imgElement.naturalHeight;
-        const sourceMaskedCtx = sourceMaskedCanvas.getContext('2d');
-
-        sourceMaskedCtx.drawImage(imgElement, 0, 0); // Draw original image
-        sourceMaskedCtx.globalCompositeOperation = 'destination-in'; // Keep original where mask is opaque
-        
-        // Put mask ImageData onto a temp canvas to draw it
-        const tempMaskCanvas = document.createElement('canvas');
-        tempMaskCanvas.width = personMaskImageData.width;
-        tempMaskCanvas.height = personMaskImageData.height;
-        tempMaskCanvas.getContext('2d').putImageData(personMaskImageData, 0, 0);
-        
-        sourceMaskedCtx.drawImage(tempMaskCanvas, 0, 0); // Apply mask
-        sourceMaskedCtx.globalCompositeOperation = 'source-over'; // Reset composite operation
-
-        // Canvas 2: Single processed photo (scaled person on chosen bgColor with border)
-        const singlePhotoCanvas = document.createElement('canvas');
-        singlePhotoCanvas.width = photoWidth;
-        singlePhotoCanvas.height = photoHeight;
-        const singlePhotoCtx = singlePhotoCanvas.getContext('2d');
-
-        singlePhotoCtx.fillStyle = bgColor; // Fill with chosen background color
-        singlePhotoCtx.fillRect(0, 0, photoWidth, photoHeight);
-
-        // Calculate drawing dimensions to fit/center sourceMaskedCanvas onto singlePhotoCanvas
-        const imgAspect = sourceMaskedCanvas.width / sourceMaskedCanvas.height; // Aspect of the (masked) person
-        const photoAspect = photoWidth / photoHeight; // Aspect of the target photo frame
-        let drawWidth, drawHeight, destX = 0, destY = 0;
-        
-        if (imgAspect > photoAspect) { // Masked person is wider than photo frame aspect
-          drawHeight = photoHeight;
-          drawWidth = photoHeight * imgAspect;
-          destX = (photoWidth - drawWidth) / 2;
-        } else { // Masked person is taller or same aspect as photo frame
-          drawWidth = photoWidth;
-          drawHeight = photoWidth / imgAspect;
-          destY = (photoHeight - drawHeight) / 2;
-        }
-        
-        // Draw the isolated person (sourceMaskedCanvas) onto the singlePhotoCanvas
-        singlePhotoCtx.drawImage(
-          sourceMaskedCanvas, // Source: isolated person
-          0, 0, sourceMaskedCanvas.width, sourceMaskedCanvas.height, // Source rect: full masked person
-          destX, destY, drawWidth, drawHeight // Destination rect: scaled and centered
-        );
-        
-        if (addBorder) {
-          singlePhotoCtx.strokeStyle = "#333333"; // Dark grey border
-          singlePhotoCtx.lineWidth = 1; 
-          singlePhotoCtx.strokeRect(0.5, 0.5, photoWidth - 1, photoHeight - 1); // Sharp 1px border
-        }
-
-        // Final Output Canvas Arrangement
-        const layoutCols = numCopies <= 2 ? numCopies : Math.ceil(Math.sqrt(numCopies));
-        const layoutRows = Math.ceil(numCopies / layoutCols);
-        const gap = 10;
-        
-        mainOutputCanvas.width = layoutCols * (photoWidth + gap) + gap;
-        mainOutputCanvas.height = layoutRows * (photoHeight + gap) + gap;
-        
-        mainOutputCtx.fillStyle = "#FFFFFF"; // White background for the sheet
-        mainOutputCtx.fillRect(0, 0, mainOutputCanvas.width, mainOutputCanvas.height);
-
-        for (let i = 0; i < numCopies; i++) {
-          const colIdx = i % layoutCols;
-          const rowIdx = Math.floor(i / layoutCols);
-          const x = gap + colIdx * (photoWidth + gap);
-          const y = gap + rowIdx * (photoHeight + gap);
-          mainOutputCtx.drawImage(singlePhotoCanvas, x, y);
-        }
-
-        console.log("Photo generation completed successfully.");
-
-      } catch (error) {
-        console.error("Error processing image:", error);
-        // Show more of the stack if available, for debugging
-        const stackDetails = error.stack ? "\nDebug stack (partial): " + error.stack.substring(0, 300) + "..." : "";
-        alert("Error: " + error.message + stackDetails);
-      } finally {
-        isProcessing = false;
-        generateBtn.disabled = false;
-        loadingElement.style.display = 'none';
-      }
+      reader.readAsDataURL(fileInput.files[0]);
     }
-    // Initial call to set default photo size text based on selected option
-    selectPhotoSize(document.querySelector('.photo-size-option.selected'));
-    // Proactive model load (optional, can be done on first processImage call too)
-    loadModel().catch(console.error);
   </script>
 </body>
 </html>
