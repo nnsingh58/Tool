@@ -127,8 +127,8 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://unpkg.com/pizzip@3.1.0/dist/pizzip.min.js"></script>
-    <script src="https://unpkg.com/docxtemplater@3.28.0/build/docxtemplater.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.7/dist/pizzip.min.js"></script>
+    <script src="https://unpkg.com/docxtemplater@3.31.1/build/docxtemplater.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
         const pdfUpload = document.getElementById('pdf-upload');
@@ -138,6 +138,7 @@
         function showError(message) {
             errorMessage.style.display = 'block';
             errorMessage.textContent = message;
+            console.error(message);
         }
 
         pdfUpload.addEventListener('dragover', (e) => {
@@ -178,6 +179,7 @@
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
+                    console.log('Processing PDF file...');
                     const typedArray = new Uint8Array(e.target.result);
                     const pdf = await pdfjsLib.getDocument(typedArray).promise;
                     pdfText = '';
@@ -188,17 +190,15 @@
                         // Filter out potential table-like data
                         const lines = pageText.split('\n');
                         const filteredLines = lines.filter(line => {
-                            // Heuristic: Skip lines with multiple columns (e.g., multiple spaces or tabs)
-                            // or short, structured data (e.g., numbers or lists that might indicate a table)
                             const trimmed = line.trim();
-                            if (!trimmed) return false; // Skip empty lines
-                            // Skip lines with multiple spaces/tabs or number-heavy patterns
+                            if (!trimmed) return false;
                             const spaceCount = (trimmed.match(/\s+/g) || []).length;
                             const isNumberHeavy = trimmed.match(/\d+/g) && trimmed.match(/\d+/g).length > 2;
                             return spaceCount < 3 && !isNumberHeavy;
                         });
                         pdfText += filteredLines.join(' ') + '\n\n';
                     }
+                    console.log('PDF text extracted:', pdfText.substring(0, 100) + '...');
                     errorMessage.style.display = 'none';
                 } catch (err) {
                     showError('PDF प्रोसेसिंग में त्रुटि: ' + err.message);
@@ -214,35 +214,56 @@
                 return;
             }
             try {
-                if (typeof PizZip === 'undefined' || typeof docxtemplater === 'undefined') {
-                    throw new Error('आवश्यक लाइब्रेरीज़ लोड नहीं हुईं।');
+                console.log('Starting DOCX conversion...');
+                if (typeof PizZip === 'undefined') {
+                    throw new Error('PizZip लाइब्रेरी लोड नहीं हुई। कृपया पेज रिफ्रेश करें या AdBlock अक्षम करें।');
                 }
+                if (typeof docxtemplater === 'undefined') {
+                    throw new Error('docxtemplater लाइब्रेरी लोड नहीं हुई। कृपया पेज रिफ्रेश करें या AdBlock अक्षम करें।');
+                }
+
+                // Create a minimal valid DOCX structure
                 const zip = new PizZip();
-                const doc = new docxtemplater();
                 const escapedText = pdfText
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;');
-                const content = `
+                    .replace(/'/g, '&apos;')
+                    .replace(/[^\x00-\x7F]/g, char => `&#${char.charCodeAt(0)};`); // Encode non-ASCII characters
+
+                const content = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                     <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
                         <w:body>
                             <w:p>
                                 <w:r>
                                     <w:rPr>
-                                        <w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="none"/>
+                                        <w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="Noto Sans Devanagari"/>
                                         <w:sz w:val="24"/>
                                     </w:rPr>
-                                    <w:t xml:space="preserve">${escapedText.replace(/\n\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
+                                    <w:t xml:space="preserve">${escapedText.replace(/\n\n/g, '</w:t></w:r></w:p><w:p><w:r><w:rPr><w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="Noto Sans Devanagari"/><w:sz w:val="24"/></w:rPr><w:t>')}</w:t>
                                 </w:r>
                             </w:p>
                         </w:body>
-                    </w:document>
-                `;
+                    </w:document>`;
+
                 zip.file('word/document.xml', content);
-                doc.loadZip(zip);
-                const output = doc.getZip().generate({ type: 'blob' });
+
+                // Add minimal required files for a valid DOCX
+                zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8"?>
+                    <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+                        <Default Extension="xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+                    </Types>`);
+                zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8"?>
+                    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+                        <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+                    </Relationships>`);
+
+                console.log('ZIP structure created, loading into docxtemplater...');
+                const doc = new docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+                console.log('Generating DOCX...');
+                const output = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                console.log('DOCX generated, initiating download...');
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(output);
                 link.download = 'converted-document.docx';
@@ -250,6 +271,7 @@
                 errorMessage.style.display = 'none';
             } catch (err) {
                 showError('Word दस्तावेज़ बनाने में त्रुटि: ' + err.message);
+                console.error('Detailed error:', err);
             }
         }
     </script>
