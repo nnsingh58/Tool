@@ -3,84 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF to Word Converter - ToolHub</title>
+    <meta name="google-adsense-account" content="ca-pub-9239182778221521">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
+    <title>PDF से Word कन्वर्टर - ToolHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background: #f0f2f5; margin: 0; }
-        .container { max-width: 800px; margin: 20px auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-        h1 { color: #1e3c72; font-size: clamp(20px, 5vw, 28px); }
-        input, button { padding: 8px; margin: 5px; font-size: clamp(12px, 3vw, 16px); width: 90%; max-width: 300px; border-radius: 5px; }
-        button { background: #00d4ff; color: white; border: none; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; line-height: 1.6; background: #f0f2f5; color: #333; }
+        .header { background: linear-gradient(120deg, #ff6b6b, #4ecdc4); padding: 1.5rem 2rem; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 2rem; font-weight: 700; color: #fff; letter-spacing: 1px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .nav-links a { color: #fff; text-decoration: none; margin-left: 2.5rem; font-weight: 500; transition: color 0.3s ease; }
+        .nav-links a:hover { color: #ffe66d; }
+        .tool-section { max-width: 1300px; margin: 100px auto; padding: 2rem; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        .tool-section h2 { color: #1e3c72; font-size: 2rem; margin-bottom: 1.5rem; }
+        .tool-section p, .tool-section ul, .tool-section ol { margin-bottom: 1rem; }
+        #pdf-upload { border: 2px dashed #ccc; padding: 2rem; text-align: center; margin-bottom: 1rem; }
+        #pdf-upload.dragover { background: #e1f5fe; }
+        button { padding: 1rem 2rem; background: #00d4ff; color: white; border: none; border-radius: 50px; cursor: pointer; margin: 0.5rem; }
         button:hover { background: #00b7d9; }
-        #status, #result { margin-top: 10px; font-size: clamp(12px, 3vw, 16px); }
-        #status { color: #2a5298; }
-        @media (min-width: 768px) { 
-            .container { padding: 20px; }
-            input, button { width: auto; display: inline-block; }
+        .ad-container { margin: 2rem auto; max-width: 100%; text-align: center; }
+        #cookie-consent { position: fixed; bottom: 0; background: #333; color: #fff; padding: 10px; width: 100%; text-align: center; z-index: 1000; }
+        #cookie-consent a { color: #ffe66d; }
+        #cookie-consent button { background: #00d4ff; border-radius: 5px; padding: 0.5rem 1rem; }
+        .footer { background: linear-gradient(120deg, #ff6b6b, #4ecdc4); color: white; padding: 3rem 2rem; margin-top: 4rem; }
+        .footer-content { max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; }
+        .footer h4 { margin-bottom: 1.5rem; font-size: 1.3rem; }
+        .footer p { opacity: 0.9; transition: opacity 0.3s ease; }
+        .footer p:hover { opacity: 1; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .tool-section { margin: 80px 1rem; padding: 1rem; }
+            .footer-content { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>PDF to Word Converter</h1>
-        <input type="file" id="pdfFile" accept=".pdf">
-        <button onclick="convertToWord()">Convert to Word</button>
-        <div id="status"></div>
-        <div id="result"></div>
-    </div>
-    <div style="margin: 20px auto; text-align: center;">
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-9239182778221521"
-             data-ad-slot="7274852761"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">ToolHub</div>
+            <div class="nav-links">
+                <a href="index.html">होम</a>
+                <a href="index.html#tools">टूल्स</a>
+                <a href="index.html#about">अबाउट</a>
+                <a href="index.html#contact">कॉन्टैक्ट</a>
+                <a href="privacy-policy.html">प्राइवेसी पॉलिसी</a>
+                <a href="terms-of-service.html">टर्म्स ऑफ सर्विस</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="tool-section">
+            <h2>PDF से Word कन्वर्टर टूल</h2>
+            <p>ToolHub का PDF से Word कन्वर्टर टूल आपको PDF फाइलों को Microsoft Word (.docx) दस्तावेज़ में आसानी से बदलने की सुविधा देता है। यह टूल स्टूडेंट्स, प्रोफेशनल्स, और व्यवसायों के लिए आदर्श है जो PDF दस्तावेज़ों को संपादन योग्य फॉर्मेट में बदलना चाहते हैं। चाहे आपको प्रोजेक्ट रिपोर्ट, रिज्यूमे, या अनुबंध संपादित करना हो, हमारा टूल तेज़ और मुफ्त समाधान प्रदान करता है।</p>
+            <p>हमारी तकनीक PDF से टेक्स्ट और बुनियादी स्वरूपण को निकालती है, जिससे Word दस्तावेज़ में सामग्री को संपादित करना आसान हो जाता है। यह टूल सुरक्षित है और आपकी फाइलें सर्वर पर स्टोर नहीं की जातीं। आप बिना सॉफ्टवेयर इंस्टॉल किए ब्राउज़र में ही रूपांतरण कर सकते हैं।</p>
+            <h3>कैसे उपयोग करें?</h3>
+            <ol>
+                <li>नीचे दिए गए क्षेत्र में अपनी PDF फाइल ड्रैग करें या "फाइल चुनें" पर क्लिक करें (अधिकतम 10MB)।</li>
+                <li>"कन्वर्ट" बटन पर क्लिक करें।</li>
+                <li>रूपांतरित Word फाइल (.docx) डाउनलोड करें।</li>
+            </ol>
+            <h3>फायदे</h3>
+            <ul>
+                <li>तेज़ और सटीक PDF से Word रूपांतरण।</li>
+                <li>कोई सॉफ्टवेयर इंस्टॉलेशन की आवश्यकता नहीं।</li>
+                <li>सुरक्षित और मुफ्त उपयोग।</li>
+                <li>मोबाइल और डेस्कटॉप पर उपयोग में आसान।</li>
+            </ul>
+            <h3>उदाहरण</h3>
+            <p>मान लीजिए आपके पास एक 5-पेज की PDF लेक्चर नोट्स है। हमारे टूल से आप इसे Word में बदल सकते हैं और Microsoft Word में टेक्स्ट को संपादित, हाइलाइट, या नोट्स जोड़ सकते हैं। यह टूल शिक्षकों, स्टूडेंट्स, और प्रोफेशनल्स के लिए समय बचाने वाला है।</p>
+            <div id="pdf-upload">
+                <p>PDF फाइल यहाँ ड्रैग करें या अपलोड करें</p>
+                <input type="file" id="pdfInput" accept="application/pdf">
+            </div>
+            <button onclick="convertToWord()">कन्वर्ट करें</button>
+        </section>
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-9239182778221521"
+                 data-ad-slot="7274852761"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <h4>ToolHub</h4>
+                <p>आपका अंतिम डिजिटल टूलकिट</p>
+            </div>
+            <div>
+                <h4>टूल्स</h4>
+                <p><a href="img-compress.html" style="color: white; text-decoration: none;">इमेज टूल्स</a></p>
+                <p><a href="pdf-to-word.html" style="color: white; text-decoration: none;">PDF टूल्स</a></p>
+                <p><a href="video-converter.html" style="color: white; text-decoration: none;">वीडियो टूल्स</a></p>
+                <p><a href="voice-translator.html" style="color: white; text-decoration: none;">वॉयस टूल्स</a></p>
+                <p><a href="doc-format-converter.html" style="color: white; text-decoration: none;">डॉक्यूमेंट टूल्स</a></p>
+                <p><a href="multifunction-calculator.html" style="color: white; text-decoration: none;">कैलकुलेटर टूल्स</a></p>
+                <p><a href="passport-size-photo-maker.html" style="color: white; text-decoration: none;">पासपोर्ट फोटो टूल्स</a></p>
+            </div>
+            <div>
+                <h4>सपोर्ट</h4>
+                <p><a href="index.html#contact" style="color: white; text-decoration: none;">कॉन्टैक्ट अस</a></p>
+                <p><a href="#faq" style="color: white; text-decoration: none;">FAQ</a></p>
+                <p><a href="#docs" style="color: white; text-decoration: none;">डॉक्यूमेंटेशन</a></p>
+            </div>
+            <div>
+                <h4>कानूनी</h4>
+                <p><a href="privacy-policy.html" style="color: white; text-decoration: none;">प्राइवेसी पॉलिसी</a></p>
+                <p><a href="terms-of-service.html" style="color: white; text-decoration: none;">टर्म्स ऑफ सर्विस</a></p>
+            </div>
+        </div>
+    </footer>
+    <div id="cookie-consent">
+        <p>हम कुकीज़ का उपयोग विज्ञापन और एनालिटिक्स के लिए करते हैं। <a href="privacy-policy.html">और जानें</a></p>
+        <button onclick="document.getElementById('cookie-consent').style.display='none';">सहमत</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.28.0/docxtemplater.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.0.6/pizzip.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
-        const statusDiv = document.getElementById('status');
-        const resultDiv = document.getElementById('result');
+        const pdfUpload = document.getElementById('pdf-upload');
+        const pdfInput = document.getElementById('pdfInput');
 
-        async function convertToWord() {
-            const fileInput = document.getElementById('pdfFile');
+        pdfUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            pdfUpload.classList.add('dragover');
+        });
+        pdfUpload.addEventListener('dragleave', () => {
+            pdfUpload.classList.remove('dragover');
+        });
+        pdfUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            pdfUpload.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            pdfInput.files = [file];
+            handleFile(file);
+        });
 
-            if (!fileInput.files[0]) {
-                statusDiv.innerHTML = "Please select a PDF file.";
-                return;
-            }
+        pdfInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-            const file = fileInput.files[0];
-            if (file.size > 5 * 1024 * 1024) {
-                statusDiv.innerHTML = "File too large (max 5MB).";
-                return;
-            }
+        let pdfText = '';
 
-            statusDiv.innerHTML = "Processing...";
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                let text = '';
-
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const typedArray = new Uint8Array(e.target.result);
+                const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                pdfText = '';
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    text += content.items.map(item => item.str).join(' ') + '\n';
+                    const textContent = await page.getTextContent();
+                    pdfText += textContent.items.map(item => item.str).join(' ') + '\n';
                 }
+            };
+            reader.readAsArrayBuffer(file);
+        }
 
-                const blob = new Blob([text], { type: 'application/msword' });
-                const url = URL.createObjectURL(blob);
-                resultDiv.innerHTML = `<a href="${url}" download="converted.doc">Download Word File</a>`;
-                statusDiv.innerHTML = "Conversion complete!";
-            } catch (error) {
-                statusDiv.innerHTML = "Error: " + error.message;
-                resultDiv.innerHTML = "";
+        function convertToWord() {
+            if (!pdfText) {
+                alert('कृपया पहले PDF फाइल अपलोड करें।');
+                return;
             }
+            const doc = new docxtemplater(new PizZip());
+            const content = `<!DOCTYPE html><html><body><p>${pdfText.replace(/\n/g, '</p><p>')}</p></body></html>`;
+            const zip = new PizZip();
+            zip.file('word/document.xml', content);
+            const output = zip.generate({ type: 'blob' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(output);
+            link.download = 'converted-document.docx';
+            link.click();
         }
     </script>
-    <script src="chatbot.js"></script>
 </body>
 </html>
