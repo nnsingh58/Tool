@@ -31,6 +31,7 @@
         .footer h4 { margin-bottom: 1.5rem; font-size: 1.3rem; }
         .footer p { opacity: 0.9; transition: opacity 0.3s ease; }
         .footer p:hover { opacity: 1; }
+        #error-message { color: red; display: none; margin-top: 1rem; }
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .tool-section { margin: 80px 1rem; padding: 1rem; }
@@ -77,6 +78,7 @@
                 <input type="file" id="pdfInput" accept="application/pdf">
             </div>
             <button onclick="convertToWord()">कन्वर्ट करें</button>
+            <p id="error-message"></p>
         </section>
         <div class="ad-container">
             <ins class="adsbygoogle"
@@ -124,13 +126,19 @@
         <button onclick="document.getElementById('cookie-consent').style.display='none';">सहमत</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.28.0/docxtemplater.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.0.6/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/pizzip@3.1.0/dist/pizzip.min.js"></script>
+    <script src="https://unpkg.com/docxtemplater@3.28.0/build/docxtemplater.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
         const pdfUpload = document.getElementById('pdf-upload');
         const pdfInput = document.getElementById('pdfInput');
+        const errorMessage = document.getElementById('error-message');
+
+        function showError(message) {
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = message;
+        }
 
         pdfUpload.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -143,43 +151,83 @@
             e.preventDefault();
             pdfUpload.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
-            pdfInput.files = [file];
-            handleFile(file);
+            if (file && file.type === 'application/pdf') {
+                pdfInput.files = [file];
+                handleFile(file);
+            } else {
+                showError('कृपया केवल PDF फाइल अपलोड करें।');
+            }
         });
 
-        pdfInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        pdfInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                handleFile(file);
+            } else {
+                showError('कृपया केवल PDF फाइल अपलोड करें।');
+            }
+        });
 
         let pdfText = '';
 
         function handleFile(file) {
+            if (file.size > 10 * 1024 * 1024) {
+                showError('फाइल का आकार 10MB से कम होना चाहिए।');
+                return;
+            }
             const reader = new FileReader();
             reader.onload = async function(e) {
-                const typedArray = new Uint8Array(e.target.result);
-                const pdf = await pdfjsLib.getDocument(typedArray).promise;
-                pdfText = '';
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    pdfText += textContent.items.map(item => item.str).join(' ') + '\n';
+                try {
+                    const typedArray = new Uint8Array(e.target.result);
+                    const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                    pdfText = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        pdfText += textContent.items.map(item => item.str).join(' ') + '\n';
+                    }
+                    errorMessage.style.display = 'none';
+                } catch (err) {
+                    showError('PDF प्रोसेसिंग में त्रुटि: ' + err.message);
                 }
             };
+            reader.onerror = () => showError('फाइल पढ़ने में त्रुटि।');
             reader.readAsArrayBuffer(file);
         }
 
         function convertToWord() {
             if (!pdfText) {
-                alert('कृपया पहले PDF फाइल अपलोड करें।');
+                showError('कृपया पहले PDF फाइल अपलोड करें।');
                 return;
             }
-            const doc = new docxtemplater(new PizZip());
-            const content = `<!DOCTYPE html><html><body><p>${pdfText.replace(/\n/g, '</p><p>')}</p></body></html>`;
-            const zip = new PizZip();
-            zip.file('word/document.xml', content);
-            const output = zip.generate({ type: 'blob' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(output);
-            link.download = 'converted-document.docx';
-            link.click();
+            try {
+                if (typeof PizZip === 'undefined' || typeof docxtemplater === 'undefined') {
+                    throw new Error('आवश्यक लाइब्रेरीज़ लोड नहीं हुईं।');
+                }
+                const zip = new PizZip();
+                const doc = new docxtemplater();
+                const content = `
+                    <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+                        <w:body>
+                            <w:p>
+                                <w:r>
+                                    <w:t>${pdfText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
+                                </w:r>
+                            </w:p>
+                        </w:body>
+                    </w:document>
+                `;
+                zip.file('word/document.xml', content);
+                doc.loadZip(zip);
+                const output = doc.getZip().generate({ type: 'blob' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(output);
+                link.download = 'converted-document.docx';
+                link.click();
+                errorMessage.style.display = 'none';
+            } catch (err) {
+                showError('Word फाइल बनाने में त्रुटि: ' + err.message);
+            }
         }
     </script>
 </body>
