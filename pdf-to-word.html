@@ -57,7 +57,7 @@
         <section class="tool-section">
             <h2>PDF से Word कन्वर्टर टूल</h2>
             <p>ToolHub का PDF से Word कन्वर्टर टूल आपको PDF फाइलों को Microsoft Word (.docx) दस्तावेज़ में बदलने की सुविधा देता है। यह टूल हिंदी टेक्स्ट, पैराग्राफ, और बुनियादी स्वरूपण को संरक्षित करता है, जिससे आप Word में आसानी से संपादन कर सकते हैं। यह स्टूडेंट्स, प्रोफेशनल्स, और व्यवसायों के लिए आदर्श है।</p>
-            <p>हमारा टूल PDF से टेक्स्ट निकालता है और उसे संपादन योग्य Word फाइल में बदलता है। यह सुरक्षित है और आपकी फाइलें सर्वर पर स्टोर नहीं की जातीं।</p>
+            <p>हमारा टूल PDF से टेक्स्ट निकालता है और उसे संपादन योग्य Word फाइल में बदलता है। यह सुरक्षित है और आपकी फाइलें सर्वर पर स्टोर नहीं की जातीं। <strong>नोट:</strong> केवल टेक्स्ट-आधारित PDF समर्थित हैं। स्कैन की गई PDF काम नहीं करेंगी।</p>
             <h3>कैसे उपयोग करें?</h3>
             <ol>
                 <li>नीचे दिए गए क्षेत्र में अपनी PDF फाइल ड्रैग करें या "फाइल चुनें" पर क्लिक करें (अधिकतम 10MB)।</li>
@@ -125,20 +125,33 @@
         <p>हम कुकीज़ का उपयोग विज्ञापन और एनालिटिक्स के लिए करते हैं। <a href="privacy-policy.html">और जानें</a></p>
         <button onclick="document.getElementById('cookie-consent').style.display='none';">सहमत</button>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.0/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/pizzip@3.1.7/dist/pizzip.min.js"></script>
     <script src="https://unpkg.com/docxtemplater@3.31.1/build/docxtemplater.js"></script>
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.14.0/pdf.worker.min.js';
         const pdfUpload = document.getElementById('pdf-upload');
         const pdfInput = document.getElementById('pdfInput');
         const errorMessage = document.getElementById('error-message');
+        let isProcessing = false;
 
         function showError(message) {
             errorMessage.style.display = 'block';
             errorMessage.textContent = message;
             console.error(message);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
         }
 
         pdfUpload.addEventListener('dragover', (e) => {
@@ -148,69 +161,88 @@
         pdfUpload.addEventListener('dragleave', () => {
             pdfUpload.classList.remove('dragover');
         });
-        pdfUpload.addEventListener('drop', (e) => {
+        pdfUpload.addEventListener('drop', debounce((e) => {
             e.preventDefault();
             pdfUpload.classList.remove('dragover');
             const file = e.dataTransfer.files[0];
-            if (file && file.type === 'application/pdf') {
+            if (file && file.type === 'application/pdf' && file.name.endsWith('.pdf')) {
                 pdfInput.files = [file];
                 handleFile(file);
             } else {
-                showError('कृपया केवल PDF फाइल अपलोड करें।');
+                showError('कृपया केवल वैध PDF फाइल अपलोड करें।');
             }
-        });
+        }, 300));
 
         pdfInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            if (file && file.type === 'application/pdf') {
+            if (file && file.type === 'application/pdf' && file.name.endsWith('.pdf')) {
                 handleFile(file);
             } else {
-                showError('कृपया केवल PDF फाइल अपलोड करें।');
+                showError('कृपया केवल वैध PDF फाइल अपलोड करें।');
+                e.target.value = '';
             }
         });
 
         let pdfText = '';
 
         function handleFile(file) {
+            if (isProcessing) return;
+            isProcessing = true;
             if (file.size > 10 * 1024 * 1024) {
                 showError('फाइल का आकार 10MB से कम होना चाहिए।');
+                isProcessing = false;
                 return;
             }
             const reader = new FileReader();
             reader.onload = async function(e) {
                 try {
-                    console.log('Processing PDF file...');
+                    console.log('Processing PDF file:', file.name);
                     const typedArray = new Uint8Array(e.target.result);
-                    const pdf = await pdfjsLib.getDocument(typedArray).promise;
+                    const pdf = await pdfjsLib.getDocument({ data: typedArray, disableFontFace: true }).promise;
                     pdfText = '';
                     for (let i = 1; i <= pdf.numPages; i++) {
                         const page = await pdf.getPage(i);
                         const textContent = await page.getTextContent();
-                        let pageText = textContent.items.map(item => item.str).join(' ');
-                        // Filter out potential table-like data
-                        const lines = pageText.split('\n');
+                        let pageText = textContent.items
+                            .filter(item => item.str && item.str.trim())
+                            .map(item => item.str)
+                            .join(' ');
+                        const lines = pageText.split('\n').filter(line => line.trim());
                         const filteredLines = lines.filter(line => {
                             const trimmed = line.trim();
-                            if (!trimmed) return false;
                             const spaceCount = (trimmed.match(/\s+/g) || []).length;
-                            const isNumberHeavy = trimmed.match(/\d+/g) && trimmed.match(/\d+/g).length > 2;
-                            return spaceCount < 3 && !isNumberHeavy;
+                            const isNumberHeavy = trimmed.match(/\d+/g) && trimmed.match(/\d+/g).length > 3;
+                            return spaceCount < 5 || !isNumberHeavy;
                         });
                         pdfText += filteredLines.join(' ') + '\n\n';
                     }
+                    pdfText = pdfText.trim();
                     console.log('PDF text extracted:', pdfText.substring(0, 100) + '...');
+                    if (!pdfText) {
+                        pdfText = 'PDF में टेक्स्ट नहीं मिला। कृपया टेक्स्ट-आधारित PDF अपलोड करें।';
+                        console.warn('No text extracted. Generating minimal DOCX.');
+                    }
                     errorMessage.style.display = 'none';
                 } catch (err) {
-                    showError('PDF प्रोसेसिंग में त्रुटि: ' + err.message);
+                    showError('PDF प्रोसेसिंग में त्रुटि: ' + err.message + '। कृपया टेक्स्ट-आधारित PDF अपलोड करें।');
+                    console.error('PDF processing error:', err);
+                    pdfText = 'PDF में टेक्स्ट नहीं मिला।';
+                } finally {
+                    isProcessing = false;
+                    pdfInput.value = '';
                 }
             };
-            reader.onerror = () => showError('फाइल पढ़ने में त्रुटि।');
+            reader.onerror = () => {
+                showError('फाइल पढ़ने में त्रुटि।');
+                isProcessing = false;
+                pdfInput.value = '';
+            };
             reader.readAsArrayBuffer(file);
         }
 
         function convertToWord() {
             if (!pdfText) {
-                showError('कृपया पहले PDF फाइल अपलोड करें।');
+                showError('कृपया पहले वैध PDF फाइल अपलोड करें।');
                 return;
             }
             try {
@@ -222,47 +254,69 @@
                     throw new Error('docxtemplater लाइब्रेरी लोड नहीं हुई। कृपया पेज रिफ्रेश करें या AdBlock अक्षम करें।');
                 }
 
-                // Create a minimal valid DOCX structure
                 const zip = new PizZip();
-                const escapedText = pdfText
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;')
-                    .replace(/[^\x00-\x7F]/g, char => `&#${char.charCodeAt(0)};`); // Encode non-ASCII characters
+                const paragraphs = pdfText.split('\n\n').filter(p => p.trim());
+                let xmlContent = '';
+                paragraphs.forEach(paragraph => {
+                    const escapedText = paragraph.replace(/[<>&"'"]/g, char => ({
+                        '<': '<',
+                        '>': '>',
+                        '&': '&',
+                        '"': '"',
+                        "'": '''
+                    })[char]);
+                    xmlContent += `
+                        <w:p>
+                            <w:r>
+                                <w:rPr>
+                                    <w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="Noto Sans Devanagari"/>
+                                    <w:sz w:val="24"/>
+                                </w:rPr>
+                                <w:t xml:space="preserve"><![CDATA[${escapedText}]]></w:t>
+                            </w:r>
+                        </w:p>`;
+                });
+
+                if (!xmlContent) {
+                    xmlContent = `
+                        <w:p>
+                            <w:r>
+                                <w:rPr>
+                                    <w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="Noto Sans Devanagari"/>
+                                    <w:sz w:val="24"/>
+                                </w:rPr>
+                                <w:t xml:space="preserve"><![CDATA[${pdfText}]]></w:t>
+                            </w:r>
+                        </w:p>`;
+                }
 
                 const content = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                     <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
                         <w:body>
-                            <w:p>
-                                <w:r>
-                                    <w:rPr>
-                                        <w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="Noto Sans Devanagari"/>
-                                        <w:sz w:val="24"/>
-                                    </w:rPr>
-                                    <w:t xml:space="preserve">${escapedText.replace(/\n\n/g, '</w:t></w:r></w:p><w:p><w:r><w:rPr><w:rFonts w:ascii="Noto Sans Devanagari" w:hAnsi="Noto Sans Devanagari" w:cs="Noto Sans Devanagari"/><w:sz w:val="24"/></w:rPr><w:t>')}</w:t>
-                                </w:r>
-                            </w:p>
+                            ${xmlContent}
                         </w:body>
                     </w:document>`;
 
                 zip.file('word/document.xml', content);
-
-                // Add minimal required files for a valid DOCX
-                zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8"?>
+                zip.file('[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                     <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
                         <Default Extension="xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+                        <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
                     </Types>`);
-                zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8"?>
+                zip.file('_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                     <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
                         <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
                     </Relationships>`);
+                zip.file('word/_rels/document.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                    <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`);
 
                 console.log('ZIP structure created, loading into docxtemplater...');
                 const doc = new docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
                 console.log('Generating DOCX...');
-                const output = doc.getZip().generate({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                const output = doc.getZip().generate({
+                    type: 'blob',
+                    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                });
                 console.log('DOCX generated, initiating download...');
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(output);
