@@ -56,23 +56,23 @@
     <main>
         <section class="tool-section">
             <h2>PDF से Word कन्वर्टर टूल</h2>
-            <p>ToolHub का PDF से Word कन्वर्टर टूल आपको PDF फाइलों को Microsoft Word (.docx) दस्तावेज़ में आसानी से बदलने की सुविधा देता है। यह टूल स्टूडेंट्स, प्रोफेशनल्स, और व्यवसायों के लिए आदर्श है जो PDF दस्तावेज़ों को संपादन योग्य फॉर्मेट में बदलना चाहते हैं। चाहे आपको प्रोजेक्ट रिपोर्ट, रिज्यूमे, या अनुबंध संपादित करना हो, हमारा टूल तेज़ और मुफ्त समाधान प्रदान करता है।</p>
-            <p>हमारी तकनीक PDF से टेक्स्ट और बुनियादी स्वरूपण को निकालती है, जिससे Word दस्तावेज़ में सामग्री को संपादित करना आसान हो जाता है। यह टूल सुरक्षित है और आपकी फाइलें सर्वर पर स्टोर नहीं की जातीं। आप बिना सॉफ्टवेयर इंस्टॉल किए ब्राउज़र में ही रूपांतरण कर सकते हैं।</p>
+            <p>ToolHub का PDF से Word कन्वर्टर टूल आपको PDF फाइलों से टेक्स्ट निकालने की सुविधा देता है, जिसे आप Microsoft Word में उपयोग कर सकते हैं। यह टूल स्टूडेंट्स, प्रोफेशनल्स, और व्यवसायों के लिए आदर्श है जो PDF दस्तावेज़ों को संपादन योग्य फॉर्मेट में बदलना चाहते हैं। चाहे आपको प्रोजेक्ट रिपोर्ट, रिज्यूमे, या अनुबंध संपादित करना हो, हमारा टूल तेज़ और मुफ्त समाधान प्रदान करता है।</p>
+            <p>हमारा टूल PDF से टेक्स्ट निकालता है और उसे एक टेक्स्ट फाइल (.txt) में डाउनलोड करता है, जिसे आप Word में पेस्ट कर सकते हैं। यह सुरक्षित है और आपकी फाइलें सर्वर पर स्टोर नहीं की जातीं। कोई सॉफ्टवेयर इंस्टॉलेशन की आवश्यकता नहीं है।</p>
             <h3>कैसे उपयोग करें?</h3>
             <ol>
                 <li>नीचे दिए गए क्षेत्र में अपनी PDF फाइल ड्रैग करें या "फाइल चुनें" पर क्लिक करें (अधिकतम 10MB)।</li>
                 <li>"कन्वर्ट" बटन पर क्लिक करें।</li>
-                <li>रूपांतरित Word फाइल (.docx) डाउनलोड करें।</li>
+                <li>टेक्स्ट फाइल (.txt) डाउनलोड करें और इसे Microsoft Word में पेस्ट करें।</li>
             </ol>
             <h3>फायदे</h3>
             <ul>
-                <li>तेज़ और सटीक PDF से Word रूपांतरण।</li>
+                <li>तेज़ और सटीक टेक्स्ट निकालना।</li>
                 <li>कोई सॉफ्टवेयर इंस्टॉलेशन की आवश्यकता नहीं।</li>
                 <li>सुरक्षित और मुफ्त उपयोग।</li>
                 <li>मोबाइल और डेस्कटॉप पर उपयोग में आसान।</li>
             </ul>
             <h3>उदाहरण</h3>
-            <p>मान लीजिए आपके पास एक 5-पेज की PDF लेक्चर नोट्स है। हमारे टूल से आप इसे Word में बदल सकते हैं और Microsoft Word में टेक्स्ट को संपादित, हाइलाइट, या नोट्स जोड़ सकते हैं। यह टूल शिक्षकों, स्टूडेंट्स, और प्रोफेशनल्स के लिए समय बचाने वाला है।</p>
+            <p>मान लीजिए आपके पास एक 5-पेज की PDF लेक्चर नोट्स है। हमारे टूल से आप इसका टेक्स्ट निकाल सकते हैं और Microsoft Word में संपादित, हाइलाइट, या नोट्स जोड़ सकते हैं। यह टूल शिक्षकों, स्टूडेंट्स, और प्रोफेशनल्स के लिए समय बचाने वाला है।</p>
             <div id="pdf-upload">
                 <p>PDF फाइल यहाँ ड्रैग करें या अपलोड करें</p>
                 <input type="file" id="pdfInput" accept="application/pdf">
@@ -126,9 +126,6 @@
         <button onclick="document.getElementById('cookie-consent').style.display='none';">सहमत</button>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://unpkg.com/pizzip@3.1.0/dist/pizzip.min.js"></script>
-    <script src="https://unpkg.com/docxtemplater@3.28.0/build/docxtemplater.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
         const pdfUpload = document.getElementById('pdf-upload');
@@ -201,32 +198,14 @@
                 return;
             }
             try {
-                if (typeof PizZip === 'undefined' || typeof docxtemplater === 'undefined') {
-                    throw new Error('आवश्यक लाइब्रेरीज़ लोड नहीं हुईं।');
-                }
-                const zip = new PizZip();
-                const doc = new docxtemplater();
-                const content = `
-                    <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-                        <w:body>
-                            <w:p>
-                                <w:r>
-                                    <w:t>${pdfText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
-                                </w:r>
-                            </w:p>
-                        </w:body>
-                    </w:document>
-                `;
-                zip.file('word/document.xml', content);
-                doc.loadZip(zip);
-                const output = doc.getZip().generate({ type: 'blob' });
+                const blob = new Blob([pdfText], { type: 'text/plain' });
                 const link = document.createElement('a');
-                link.href = URL.createObjectURL(output);
-                link.download = 'converted-document.docx';
+                link.href = URL.createObjectURL(blob);
+                link.download = 'converted-text.txt';
                 link.click();
                 errorMessage.style.display = 'none';
             } catch (err) {
-                showError('Word फाइल बनाने में त्रुटि: ' + err.message);
+                showError('टेक्स्ट फाइल बनाने में त्रुटि: ' + err.message);
             }
         }
     </script>
