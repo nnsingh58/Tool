@@ -3,304 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com;">
-    <title>Image Compressor - Colorful UI</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- AdSense Script -->
+    <meta name="google-adsense-account" content="ca-pub-9239182778221521">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
+    <title>इमेज कंप्रेसर - ToolHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
-            width: 90%;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            margin: 30px 0;
-        }
-        h1 {
-            text-align: center;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-            font-size: 2.5em;
-            margin-bottom: 20px;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        .section h2 {
-            background: linear-gradient(45deg, #2c3e50, #6e8efb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 600;
-            font-size: 1.8em;
-            margin-bottom: 15px;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        input[type="file"], input[type="number"], select {
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1.1em;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        input[type="file"]:focus, input[type="number"]:focus, select:focus {
-            border-color: #ff6b6b;
-            box-shadow: 0 0 8px rgba(255, 107, 107, 0.3);
-            outline: none;
-        }
-        button {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        }
-        #compressBtn {
-            background: linear-gradient(45deg, #28a745, #34c759);
-            color: white;
-        }
-        #downloadBtn {
-            background: linear-gradient(45deg, #007bff, #00d4ff);
-            color: white;
-            display: none;
-        }
-        #preview, #compressedImage {
-            max-width: 100%;
-            margin-top: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-        }
-        .how-it-works {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
-        }
-        .how-it-works ul {
-            list-style: none;
-            padding: 0;
-        }
-        .how-it-works li {
-            margin-bottom: 20px;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #2c3e50;
-        }
-        .how-it-works li::before {
-            content: "✔";
-            color: #ff6b6b;
-            font-size: 1.5em;
-        }
-        .how-it-works li strong {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .ad-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-        footer {
-            text-align: center;
-            margin: 30px 0;
-            color: white;
-            font-size: 1.1em;
-        }
-        footer a {
-            color: #ffeb3b;
-            text-decoration: none;
-            margin: 0 15px;
-            transition: color 0.3s;
-        }
-        footer a:hover {
-            color: #fff;
-            text-decoration: underline;
-        }
-        @media (max-width: 600px) {
-            .container {
-                padding: 25px;
-            }
-            h1 {
-                font-size: 2em;
-            }
-            .section h2 {
-                font-size: 1.5em;
-            }
-            button {
-                padding: 12px 20px;
-            }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; line-height: 1.6; background: #f0f2f5; color: #333; }
+        .header { background: linear-gradient(120deg, #ff6b6b, #4ecdc4); padding: 1.5rem 2rem; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav { max-width: 1300px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 2rem; font-weight: 700; color: #fff; letter-spacing: 1px; text-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        .nav-links a { color: #fff; text-decoration: none; margin-left: 2.5rem; font-weight: 500; transition: color 0.3s ease; }
+        .nav-links a:hover { color: #ffe66d; }
+        .tool-section { max-width: 1300px; margin: 100px auto; padding: 2rem; background: #fff; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        .tool-section h2 { color: #1e3c72; font-size: 2rem; margin-bottom: 1.5rem; }
+        .tool-section p, .tool-section ul, .tool-section ol { margin-bottom: 1rem; }
+        #image-upload { border: 2px dashed #ccc; padding: 2rem; text-align: center; margin-bottom: 1rem; }
+        #image-upload.dragover { background: #e1f5fe; }
+        #canvas { display: none; }
+        button { padding: 1rem 2rem; background: #00d4ff; color: white; border: none; border-radius: 50px; cursor: pointer; margin: 0.5rem; }
+        button:hover { background: #00b7d9; }
+        .ad-container { margin: 2rem auto; max-width: 100%; text-align: center; }
+        #cookie-consent { position: fixed; bottom: 0; background: #333; color: #fff; padding: 10px; width: 100%; text-align: center; z-index: 1000; }
+        #cookie-consent a { color: #ffe66d; }
+        #cookie-consent button { background: #00d4ff; border-radius: 5px; padding: 0.5rem 1rem; }
+        .footer { background: linear-gradient(120deg, #ff6b6b, #4ecdc4); color: white; padding: 3rem 2rem; margin-top: 4rem; }
+        .footer-content { max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2.5rem; }
+        .footer h4 { margin-bottom: 1.5rem; font-size: 1.3rem; }
+        .footer p { opacity: 0.9; transition: opacity 0.3s ease; }
+        .footer p:hover { opacity: 1; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .tool-section { margin: 80px 1rem; padding: 1rem; }
+            .footer-content { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Image Compressor Tool</h1>
-
-        <!-- AdSense Ad Unit -->
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">ToolHub</div>
+            <div class="nav-links">
+                <a href="index.html">होम</a>
+                <a href="index.html#tools">टूल्स</a>
+                <a href="index.html#about">अबाउट</a>
+                <a href="index.html#contact">कॉन्टैक्ट</a>
+                <a href="privacy-policy.html">प्राइवेसी पॉलिसी</a>
+                <a href="terms-of-service.html">टर्म्स ऑफ सर्विस</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <section class="tool-section">
+            <h2>इमेज कंप्रेसर टूल</h2>
+            <p>ToolHub का इमेज कंप्रेसर टूल आपको JPEG, PNG, और WebP इमेज को बिना गुणवत्ता खोए छोटा करने में मदद करता है। यह टूल वेबसाइट ऑप्टिमाइज़ेशन, ईमेल शेयरिंग, और स्टोरेज बचाने के लिए आदर्श है। चाहे आप ब्लॉगर हों, डेवलपर हों, या स्टूडेंट, यह टूल आपके डिजिटल कार्यों को आसान बनाता है।</p>
+            <p>हमारी उन्नत तकनीक यह सुनिश्चित करती है कि इमेज की गुणवत्ता बनी रहे, जबकि फाइल साइज़ को 80% तक कम किया जा सकता है। यह टूल तेज़, सुरक्षित, और पूरी तरह मुफ्त है। इसका उपयोग वेबसाइट लोडिंग समय को कम करने, डेटा उपयोग को बचाने, और डिजिटल सामग्री को प्रबंधित करने के लिए करें।</p>
+            <h3>कैसे उपयोग करें?</h3>
+            <ol>
+                <li>नीचे दिए गए क्षेत्र में अपनी इमेज ड्रैग करें या "फाइल चुनें" पर क्लिक करें (अधिकतम 10MB)।</li>
+                <li>कंप्रेशन लेवल चुनें: कम, मध्यम, या उच्च।</li>
+                <li>"कंप्रेस" बटन पर क्लिक करें और कंप्रेस्ड इमेज डाउनलोड करें।</li>
+            </ol>
+            <h3>फायदे</h3>
+            <ul>
+                <li>तेज़ और सुरक्षित कंप्रेशन प्रक्रिया।</li>
+                <li>वेबसाइट लोडिंग स्पीड बढ़ाएँ।</li>
+                <li>मोबाइल और डेस्कटॉप पर उपयोग में आसान।</li>
+                <li>मुफ्त और बिना रजिस्ट्रेशन के।</li>
+            </ul>
+            <h3>उदाहरण</h3>
+            <p>मान लीजिए आपके पास 5MB की JPEG इमेज है। हमारे टूल से आप इसे 1MB तक कंप्रेस कर सकते हैं, जो वेबसाइट अपलोड या ईमेल शेयरिंग के लिए उपयुक्त है। यह टूल ब्लॉगर्स, डिज़ाइनरों, और स्टूडेंट्स के लिए विशेष रूप से उपयोगी है जो अपनी प्रोजेक्ट फाइल्स को ऑप्टिमाइज़ करना चाहते हैं।</p>
+            <div id="image-upload">
+                <p>इमेज यहाँ ड्रैग करें या अपलोड करें</p>
+                <input type="file" id="imageInput" accept="image/*">
+            </div>
+            <select id="compressionLevel">
+                <option value="0.8">कम (उच्च गुणवत्ता)</option>
+                <option value="0.5">मध्यम</option>
+                <option value="0.2">उच्च (कम गुणवत्ता)</option>
+            </select>
+            <button onclick="compressImage()">कंप्रेस करें</button>
+            <canvas id="canvas"></canvas>
+        </section>
         <div class="ad-container">
             <ins class="adsbygoogle"
                  style="display:block"
                  data-ad-client="ca-pub-9239182778221521"
-                 data-ad-slot="YOUR_AD_SLOT_ID"
+                 data-ad-slot="7274852761"
                  data-ad-format="auto"
                  data-full-width-responsive="true"></ins>
             <script>
                 (adsbygoogle = window.adsbygoogle || []).push({});
             </script>
         </div>
-
-        <!-- Input Section -->
-        <div class="section">
-            <h2>Upload Image</h2>
-            <div class="input-group">
-                <input type="file" id="imageInput" accept="image/*" required>
-                <img id="preview" alt="Image Preview" style="display: none;">
+    </main>
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <h4>ToolHub</h4>
+                <p>आपका अंतिम डिजिटल टूलकिट</p>
+            </div>
+            <div>
+                <h4>टूल्स</h4>
+                <p><a href="img-compress.html" style="color: white; text-decoration: none;">इमेज टूल्स</a></p>
+                <p><a href="pdf-to-word.html" style="color: white; text-decoration: none;">PDF टूल्स</a></p>
+                <p><a href="video-converter.html" style="color: white; text-decoration: none;">वीडियो टूल्स</a></p>
+                <p><a href="voice-translator.html" style="color: white; text-decoration: none;">वॉयस टूल्स</a></p>
+                <p><a href="doc-format-converter.html" style="color: white; text-decoration: none;">डॉक्यूमेंट टूल्स</a></p>
+                <p><a href="multifunction-calculator.html" style="color: white; text-decoration: none;">कैलकुलेटर टूल्स</a></p>
+                <p><a href="passport-size-photo-maker.html" style="color: white; text-decoration: none;">पासपोर्ट फोटो टूल्स</a></p>
+            </div>
+            <div>
+                <h4>सपोर्ट</h4>
+                <p><a href="index.html#contact" style="color: white; text-decoration: none;">कॉन्टैक्ट अस</a></p>
+                <p><a href="#faq" style="color: white; text-decoration: none;">FAQ</a></p>
+                <p><a href="#docs" style="color: white; text-decoration: none;">डॉक्यूमेंटेशन</a></p>
+            </div>
+            <div>
+                <h4>कानूनी</h4>
+                <p><a href="privacy-policy.html" style="color: white; text-decoration: none;">प्राइवेसी पॉलिसी</a></p>
+                <p><a href="terms-of-service.html" style="color: white; text-decoration: none;">टर्म्स ऑफ सर्विस</a></p>
             </div>
         </div>
-
-        <!-- Settings Section -->
-        <div class="section">
-            <h2>Compression Settings</h2>
-            <div class="input-group">
-                <input type="number" id="targetSize" placeholder="Target Size (KB)" min="1" required>
-                <select id="sizeUnit">
-                    <option value="KB">KB</option>
-                    <option value="MB">MB</option>
-                </select>
-                <button id="compressBtn">Compress Image</button>
-            </div>
-        </div>
-
-        <!-- Output Section -->
-        <div class="section">
-            <h2>Compressed Image</h2>
-            <img id="compressedImage" alt="Compressed Image" style="display: none;">
-            <button id="downloadBtn">Download Compressed Image</button>
-        </div>
-
-        <!-- How It Works Section -->
-        <div class="section how-it-works">
-            <h2>Kaise Kaam Karta Hai?</h2>
-            <ul>
-                <li><strong>Step 1: Photo Upload</strong> - Apni image select karen ya drag-and-drop karen.</li>
-                <li><strong>Step 2: Size Set Karen</strong> - Desired output size (KB ya MB mein) enter karen.</li>
-                <li><strong>Step 3: Compress Karen</strong> - "Compress Image" button par click karen.</li>
-                <li><strong>Step 4: Download Karen</strong> - Compressed image ko download karen.</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- Footer with Links -->
-    <footer>
-        <a href="about.html">About</a> | <a href="contact.html">Contact</a> | <a href="privacy.html">Privacy Policy</a>
     </footer>
-
+    <div id="cookie-consent">
+        <p>हम कुकीज़ का उपयोग विज्ञापन और एनालिटिक्स के लिए करते हैं। <a href="privacy-policy.html">और जानें</a></p>
+        <button onclick="document.getElementById('cookie-consent').style.display='none';">सहमत</button>
+    </div>
     <script>
+        const imageUpload = document.getElementById('image-upload');
         const imageInput = document.getElementById('imageInput');
-        const preview = document.getElementById('preview');
-        const targetSizeInput = document.getElementById('targetSize');
-        const sizeUnit = document.getElementById('sizeUnit');
-        const compressBtn = document.getElementById('compressBtn');
-        const compressedImage = document.getElementById('compressedImage');
-        const downloadBtn = document.getElementById('downloadBtn');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const compressionLevel = document.getElementById('compressionLevel');
 
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            if (file) {
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-            }
+        imageUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageUpload.classList.add('dragover');
+        });
+        imageUpload.addEventListener('dragleave', () => {
+            imageUpload.classList.remove('dragover');
+        });
+        imageUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageUpload.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            imageInput.files = [file];
+            handleFile(file);
         });
 
-        compressBtn.addEventListener('click', async () => {
-            const file = imageInput.files[0];
-            if (!file || !targetSizeInput.value) {
-                alert('Please select an image and enter a target size.');
-                return;
-            }
+        imageInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-            const targetSizeKB = sizeUnit.value === 'MB' ? parseFloat(targetSizeInput.value) * 1024 : parseFloat(targetSizeInput.value);
-            const compressedDataUrl = await compressImage(file, targetSizeKB);
-
-            if (compressedDataUrl) {
-                compressedImage.src = compressedDataUrl;
-                compressedImage.style.display = 'block';
-                downloadBtn.style.display = 'block';
-                downloadBtn.onclick = () => {
-                    const link = document.createElement('a');
-                    link.href = compressedDataUrl;
-                    link.download = 'compressed_image.jpg';
-                    link.click();
-                };
-            } else {
-                alert('Could not compress to desired size without significant quality loss.');
-            }
-        });
-
-        async function compressImage(file, targetSizeKB) {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+        function handleFile(file) {
             const img = new Image();
             img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+            };
+        }
 
-            await new Promise(resolve => img.onload = resolve);
-
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-
-            let quality = 0.9;
-            let low = 0.1;
-            let high = 0.9;
-            let dataUrl;
-
-            for (let i = 0; i < 10; i++) {
-                dataUrl = canvas.toDataURL('image/jpeg', quality);
-                const sizeKB = Math.round(((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4) / 1024);
-
-                if (Math.abs(sizeKB - targetSizeKB) < 10 || low >= high) break;
-
-                if (sizeKB > targetSizeKB) {
-                    high = quality;
-                    quality = (quality + low) / 2;
-                } else {
-                    low = quality;
-                    quality = (quality + high) / 2;
-                }
-            }
-
-            const finalSizeKB = Math.round(((dataUrl.length - 'data:image/jpeg;base64,'.length) * 3 / 4) / 1024);
-            if (finalSizeKB > targetSizeKB * 1.1 || finalSizeKB < targetSizeKB * 0.9) {
-                return null;
-            }
-
-            return dataUrl;
+        function compressImage() {
+            const quality = parseFloat(compressionLevel.value);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            const link = document.createElement('a');
+            link.download = 'compressed-image.jpg';
+            link.href = dataUrl;
+            link.click();
         }
     </script>
 </body>
