@@ -1,147 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>ToolHub – Free Online Digital Tools</title>
+<title>ToolHub – Free Online Digital Tools</title>
+<meta name="description" content="Free online tools for PDF, Image, Text, Audio and Utility tasks. Fast, secure and easy to use.">
 
-  <meta name="description" content="Free online digital tools including image compression, PDF tools, QR generator, text to speech and more.">
-  <meta name="robots" content="index, follow">
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/711/711887.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/711/711887.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,Arial;background:#f0f2f5;color:#333}
+a{text-decoration:none;color:inherit}
 
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+header{position:fixed;top:0;width:100%;z-index:1000;
+background:linear-gradient(120deg,#ff6b6b,#4ecdc4);
+box-shadow:0 4px 15px rgba(0,0,0,.2)}
+nav{max-width:1300px;margin:auto;padding:1.2rem 1.5rem;
+display:flex;justify-content:space-between;align-items:center}
+.logo{color:#fff;font-size:1.8rem;font-weight:700}
+.nav-links a{color:#fff;margin-left:1.5rem;font-weight:500}
 
-  <!-- ===== INLINE CSS (SAFE VERSION) ===== -->
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:system-ui,Arial;background:#f0f2f5;color:#333}
-    a{text-decoration:none;color:inherit}
+.hero{margin-top:80px;padding:5rem 1.5rem;text-align:center;
+background:linear-gradient(135deg,#ff6b6b,#4ecdc4,#45b7d1);color:#fff}
+.hero h1{font-size:2.6rem;margin-bottom:1rem}
+.hero p{max-width:600px;margin:auto}
+.cta{display:inline-block;margin-top:1.5rem;
+background:#ffe66d;color:#333;padding:.9rem 2.5rem;
+border-radius:30px;font-weight:600}
 
-    header{
-      position:fixed;top:0;width:100%;z-index:1000;
-      background:linear-gradient(120deg,#ff6b6b,#4ecdc4);
-      box-shadow:0 4px 15px rgba(0,0,0,.2)
-    }
-    nav{
-      max-width:1200px;margin:auto;
-      padding:1.2rem 1.5rem;
-      display:flex;justify-content:space-between;align-items:center
-    }
-    .logo{color:#fff;font-size:1.8rem;font-weight:700}
-    .nav-links a{color:#fff;margin-left:1.5rem;font-weight:500}
+.tools{max-width:1300px;margin:3rem auto;padding:0 1.5rem;
+display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:1.8rem}
+.tool{background:#fff;border-radius:14px;padding:2rem;
+text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.1);
+transition:.3s}
+.tool:hover{transform:translateY(-6px)}
+.tool i{font-size:2.5rem;color:#ff6b6b;margin-bottom:1rem}
 
-    .hero{
-      margin-top:80px;
-      padding:5rem 1.5rem;
-      text-align:center;
-      color:#fff;
-      background:linear-gradient(135deg,#ff6b6b,#4ecdc4,#45b7d1)
-    }
-    .hero h1{font-size:2.5rem;margin-bottom:1rem}
-    .hero p{max-width:600px;margin:auto}
+section{max-width:1300px;margin:3rem auto;padding:0 1.5rem}
+footer{margin-top:3rem;background:linear-gradient(120deg,#ff6b6b,#4ecdc4);
+color:#fff;padding:2rem 1.5rem;text-align:center}
 
-    .cta{
-      display:inline-block;margin-top:1.5rem;
-      background:#ffe66d;color:#333;
-      padding:.9rem 2.2rem;
-      border-radius:30px;font-weight:600
-    }
-
-    .tools{
-      max-width:1200px;margin:3rem auto;
-      padding:0 1.5rem;
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-      gap:1.5rem
-    }
-    .tool{
-      background:#fff;
-      border-radius:14px;
-      padding:2rem;
-      text-align:center;
-      box-shadow:0 6px 20px rgba(0,0,0,.1)
-    }
-    .tool i{font-size:2.5rem;color:#ff6b6b;margin-bottom:1rem}
-
-    section{margin:3rem auto;max-width:1200px;padding:0 1.5rem}
-    h2{margin-bottom:1rem}
-
-    footer{
-      margin-top:3rem;
-      background:linear-gradient(120deg,#ff6b6b,#4ecdc4);
-      color:#fff;
-      padding:2rem 1.5rem
-    }
-
-    @media(max-width:768px){
-      .nav-links{display:none}
-      .hero h1{font-size:2rem}
-    }
-  </style>
+@media(max-width:768px){
+.nav-links{display:none}
+.hero h1{font-size:2rem}
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <nav>
-    <div class="logo">ToolHub</div>
-    <div class="nav-links">
-      <a href="#tools">Tools</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </div>
-  </nav>
+<nav>
+<div class="logo">ToolHub</div>
+<div class="nav-links">
+<a href="#tools">Tools</a>
+<a href="#about">About</a>
+<a href="#contact">Contact</a>
+</div>
+</nav>
 </header>
 
 <section class="hero">
-  <h1>Free Online Digital Tools</h1>
-  <p>Fast, secure and easy-to-use tools for PDF, Image and Text processing.</p>
-  <a href="#tools" class="cta">Explore Free Tools</a>
+<h1>Free Online Digital Tools</h1>
+<p>Fast, secure and easy-to-use tools for PDF, Image, Audio and Text processing.</p>
+<a href="#tools" class="cta">Explore Free Tools</a>
 </section>
 
 <section id="tools" class="tools">
-  <div class="tool">
-    <i class="fas fa-file-image"></i>
-    <h3>Image Compression</h3>
-    <p>Reduce image size without losing quality</p>
-  </div>
-  <div class="tool">
-    <i class="fas fa-file-pdf"></i>
-    <h3>PDF to Word</h3>
-    <p>Convert PDFs to editable documents</p>
-  </div>
-  <div class="tool">
-    <i class="fas fa-qrcode"></i>
-    <h3>QR Generator</h3>
-    <p>Create QR codes instantly</p>
-  </div>
-  <div class="tool">
-    <i class="fas fa-volume-up"></i>
-    <h3>Text to Speech</h3>
-    <p>Convert text into natural audio</p>
-  </div>
+
+<div class="tool"><i class="fas fa-file-image"></i><h3>Image Compression</h3></div>
+<div class="tool"><i class="fas fa-file-pdf"></i><h3>PDF to Word</h3></div>
+<div class="tool"><i class="fas fa-file-video"></i><h3>Video Converter</h3></div>
+<div class="tool"><i class="fas fa-file-audio"></i><h3>Audio Converter</h3></div>
+<div class="tool"><i class="fas fa-compress"></i><h3>File Compressor</h3></div>
+<div class="tool"><i class="fas fa-qrcode"></i><h3>QR Code Generator</h3></div>
+<div class="tool"><i class="fas fa-images"></i><h3>Image to PDF</h3></div>
+<div class="tool"><i class="fas fa-volume-up"></i><h3>Text to Speech</h3></div>
+<div class="tool"><i class="fas fa-microphone"></i><h3>Voice Translator</h3></div>
+<div class="tool"><i class="fas fa-image"></i><h3>Image Format Converter</h3></div>
+<div class="tool"><i class="fas fa-file-alt"></i><h3>Document Format Converter</h3></div>
+<div class="tool"><i class="fas fa-users"></i><h3>Group Photo Maker</h3></div>
+<div class="tool"><i class="fas fa-calculator"></i><h3>Multifunction Calculator</h3></div>
+<div class="tool"><i class="fas fa-id-card"></i><h3>Passport Size Photo Maker</h3></div>
+<div class="tool"><i class="fas fa-language"></i><h3>Universal Translator</h3></div>
+
 </section>
 
 <section id="about">
-  <h2>About ToolHub</h2>
-  <p>ToolHub is your all-in-one destination for free and reliable online utilities.</p>
+<h2>About ToolHub</h2>
+<p>ToolHub is your all-in-one destination for free and reliable online utilities.</p>
 </section>
 
 <section id="contact">
-  <h2>Contact Us</h2>
-  <form>
-    <input type="text" placeholder="Your Name"><br><br>
-    <input type="email" placeholder="Your Email"><br><br>
-    <textarea placeholder="Your Message"></textarea><br><br>
-    <button type="submit">Send Message</button>
-  </form>
+<h2>Contact Us</h2>
+<form>
+<input type="text" placeholder="Your Name"><br><br>
+<input type="email" placeholder="Your Email"><br><br>
+<textarea placeholder="Your Message"></textarea><br><br>
+<button type="submit">Send Message</button>
+</form>
 </section>
 
 <footer>
-  <p><strong>ToolHub</strong> – Your ultimate digital toolkit</p>
+<p>ToolHub – Your ultimate digital toolkit</p>
 </footer>
 
 </body>
