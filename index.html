@@ -1,166 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>ToolHub – Free Online Digital Tools</title>
 
-  <meta name="description" content="Free online digital tools including image compressor, PDF tools, QR generator, text to speech and more. Fast, secure and easy to use." />
-  <meta name="keywords" content="free online tools, image compressor, pdf tools, qr generator, text to speech" />
-  <meta name="robots" content="index, follow" />
-  <meta name="author" content="ToolHub" />
+  <meta name="description" content="Free online digital tools including image compression, PDF tools, QR generator, text to speech and more.">
+  <meta name="robots" content="index, follow">
 
-  <!-- Canonical -->
-  <link rel="canonical" href="https://n-dizi.in/" />
-
-  <!-- Favicon -->
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/711/711887.png" />
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/711/711887.png">
 
   <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-  <!-- ✅ EXTERNAL CSS (FIXED) -->
-  <link rel="stylesheet" href="/assets/css/style.css" />
+  <!-- ===== INLINE CSS (SAFE VERSION) ===== -->
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:system-ui,Arial;background:#f0f2f5;color:#333}
+    a{text-decoration:none;color:inherit}
 
-  <!-- Google AdSense -->
-  <meta name="google-adsense-account" content="ca-pub-9239182778221521" />
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9239182778221521" crossorigin="anonymous"></script>
+    header{
+      position:fixed;top:0;width:100%;z-index:1000;
+      background:linear-gradient(120deg,#ff6b6b,#4ecdc4);
+      box-shadow:0 4px 15px rgba(0,0,0,.2)
+    }
+    nav{
+      max-width:1200px;margin:auto;
+      padding:1.2rem 1.5rem;
+      display:flex;justify-content:space-between;align-items:center
+    }
+    .logo{color:#fff;font-size:1.8rem;font-weight:700}
+    .nav-links a{color:#fff;margin-left:1.5rem;font-weight:500}
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VBJFDCH3MH"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-VBJFDCH3MH');
-  </script>
+    .hero{
+      margin-top:80px;
+      padding:5rem 1.5rem;
+      text-align:center;
+      color:#fff;
+      background:linear-gradient(135deg,#ff6b6b,#4ecdc4,#45b7d1)
+    }
+    .hero h1{font-size:2.5rem;margin-bottom:1rem}
+    .hero p{max-width:600px;margin:auto}
+
+    .cta{
+      display:inline-block;margin-top:1.5rem;
+      background:#ffe66d;color:#333;
+      padding:.9rem 2.2rem;
+      border-radius:30px;font-weight:600
+    }
+
+    .tools{
+      max-width:1200px;margin:3rem auto;
+      padding:0 1.5rem;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:1.5rem
+    }
+    .tool{
+      background:#fff;
+      border-radius:14px;
+      padding:2rem;
+      text-align:center;
+      box-shadow:0 6px 20px rgba(0,0,0,.1)
+    }
+    .tool i{font-size:2.5rem;color:#ff6b6b;margin-bottom:1rem}
+
+    section{margin:3rem auto;max-width:1200px;padding:0 1.5rem}
+    h2{margin-bottom:1rem}
+
+    footer{
+      margin-top:3rem;
+      background:linear-gradient(120deg,#ff6b6b,#4ecdc4);
+      color:#fff;
+      padding:2rem 1.5rem
+    }
+
+    @media(max-width:768px){
+      .nav-links{display:none}
+      .hero h1{font-size:2rem}
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<header class="header">
-  <nav class="nav">
+<header>
+  <nav>
     <div class="logo">ToolHub</div>
     <div class="nav-links">
       <a href="#tools">Tools</a>
-      <a href="#features">Features</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
     </div>
   </nav>
 </header>
 
-<!-- ================= HERO ================= -->
 <section class="hero">
   <h1>Free Online Digital Tools</h1>
   <p>Fast, secure and easy-to-use tools for PDF, Image and Text processing.</p>
-  <a href="#tools" class="cta-button">Explore Free Tools</a>
+  <a href="#tools" class="cta">Explore Free Tools</a>
 </section>
 
-<!-- ================= TOOLS ================= -->
-<section id="tools" class="tools-grid">
-
-  <div class="tool-card">
-    <a href="/image/image-compressor.html" class="tool-link">
-      <i class="fas fa-file-image tool-icon"></i>
-      <h3>Image Compression</h3>
-      <p>Reduce image size without losing quality</p>
-    </a>
+<section id="tools" class="tools">
+  <div class="tool">
+    <i class="fas fa-file-image"></i>
+    <h3>Image Compression</h3>
+    <p>Reduce image size without losing quality</p>
   </div>
-
-  <div class="tool-card">
-    <a href="/pdf/pdf-to-word.html" class="tool-link">
-      <i class="fas fa-file-pdf tool-icon"></i>
-      <h3>PDF to Word</h3>
-      <p>Convert PDFs to editable documents</p>
-    </a>
+  <div class="tool">
+    <i class="fas fa-file-pdf"></i>
+    <h3>PDF to Word</h3>
+    <p>Convert PDFs to editable documents</p>
   </div>
-
-  <div class="tool-card">
-    <a href="/utility/qr-generator.html" class="tool-link">
-      <i class="fas fa-qrcode tool-icon"></i>
-      <h3>QR Code Generator</h3>
-      <p>Create QR codes instantly</p>
-    </a>
+  <div class="tool">
+    <i class="fas fa-qrcode"></i>
+    <h3>QR Generator</h3>
+    <p>Create QR codes instantly</p>
   </div>
-
-  <div class="tool-card">
-    <a href="/text/text-to-speech.html" class="tool-link">
-      <i class="fas fa-volume-up tool-icon"></i>
-      <h3>Text to Speech</h3>
-      <p>Convert text to natural audio</p>
-    </a>
-  </div>
-
-</section>
-
-<!-- ================= FEATURES ================= -->
-<section id="features" class="features">
-  <h2>Why Choose ToolHub?</h2>
-  <div class="features-grid">
-    <div class="feature-card">
-      <h3>Fast</h3>
-      <p>Optimized tools for instant results</p>
-    </div>
-    <div class="feature-card">
-      <h3>Secure</h3>
-      <p>Your files never leave your device</p>
-    </div>
-    <div class="feature-card">
-      <h3>Free</h3>
-      <p>No signup. No hidden charges</p>
-    </div>
+  <div class="tool">
+    <i class="fas fa-volume-up"></i>
+    <h3>Text to Speech</h3>
+    <p>Convert text into natural audio</p>
   </div>
 </section>
 
-<!-- ================= ABOUT ================= -->
-<section id="about" class="about">
+<section id="about">
   <h2>About ToolHub</h2>
-  <p>
-    ToolHub is your all-in-one destination for free, reliable and user-friendly
-    online tools designed to make digital tasks easier.
-  </p>
+  <p>ToolHub is your all-in-one destination for free and reliable online utilities.</p>
 </section>
 
-<!-- ================= CONTACT ================= -->
-<section id="contact" class="contact">
+<section id="contact">
   <h2>Contact Us</h2>
-  <form action="https://formspree.io/f/xpwpjwrz" method="POST">
-    <input type="text" name="name" placeholder="Your Name" required />
-    <input type="email" name="email" placeholder="Your Email" required />
-    <textarea name="message" placeholder="Your Message" required></textarea>
+  <form>
+    <input type="text" placeholder="Your Name"><br><br>
+    <input type="email" placeholder="Your Email"><br><br>
+    <textarea placeholder="Your Message"></textarea><br><br>
     <button type="submit">Send Message</button>
   </form>
 </section>
 
-<!-- ================= FOOTER ================= -->
-<footer class="footer">
-  <div class="footer-content">
-    <div>
-      <h4>ToolHub</h4>
-      <p>Your ultimate digital toolkit</p>
-    </div>
-    <div>
-      <h4>Categories</h4>
-      <p>PDF Tools</p>
-      <p>Image Tools</p>
-      <p>Text Tools</p>
-    </div>
-  </div>
+<footer>
+  <p><strong>ToolHub</strong> – Your ultimate digital toolkit</p>
 </footer>
-
-<!-- ================= JS ================= -->
-<script>
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', e => {
-      e.preventDefault();
-      document.querySelector(link.getAttribute('href'))
-        .scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-</script>
 
 </body>
 </html>
