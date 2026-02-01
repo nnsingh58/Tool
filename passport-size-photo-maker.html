@@ -1,736 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Passport Photo Maker</title>
-  <style>
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      padding: 20px;
-      max-width: 100%;
-      overflow-x: hidden;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-    
-    .container {
-      background-color: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      width: 90%;
-      max-width: 800px;
-      text-align: center;
-    }
-    
-    h2 {
-      color: #2c3e50;
-      margin-bottom: 25px;
-      font-size: 28px;
-      padding-bottom: 10px;
-      display: inline-block;
-      position: relative;
-    }
-    
-    h2:after {
-      content: '';
-      position: absolute;
-      width: 50%;
-      height: 3px;
-      background: linear-gradient(90deg, #3498db, #2c3e50);
-      bottom: 0;
-      left: 25%;
-    }
-    
-    canvas { 
-      border: 2px dashed #3498db; 
-      margin: 25px auto;
-      max-width: 100%;
-      height: auto;
-      border-radius: 8px;
-      background-color: #f8f9fa;
-    }
-    
-    .controls {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-    }
-    
-    label { 
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      color: #34495e;
-      font-weight: 500;
-      width: 100%;
-    }
-    
-    input[type="file"] {
-      margin-top: 5px;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      width: 100%;
-    }
-    
-    input[type="color"] {
-      width: 100%;
-      height: 40px;
-      border: 2px solid #3498db;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    
-    select {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      width: 100%;
-      margin-top: 5px;
-    }
-    
-    .checkbox-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 5px;
-    }
-    
-    button {
-      padding: 12px 24px;
-      margin-top: 20px;
-      background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-      background: linear-gradient(135deg, #2980b9 0%, #1a252f 100%);
-    }
-    
-    button:disabled {
-      background: #95a5a6;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-    
-    #loading {
-      display: none;
-      margin-top: 15px;
-      color: #3498db;
-      font-weight: bold;
-    }
-    
-    .info-section {
-      margin-top: 30px;
-      text-align: left;
-      border-top: 1px solid #eee;
-      padding-top: 20px;
-    }
-    
-    .info-section h3 {
-      color: #2c3e50;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 5px;
-      display: inline-block;
-    }
-    
-    .photo-specs {
-      margin-top: 20px;
-      padding: 15px;
-      background-color: #e8f4fc;
-      border-radius: 8px;
-      color: #2c3e50;
-      font-size: 14px;
-      text-align: center;
-    }
-    
-    .photo-size-options {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .photo-size-option {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      cursor: pointer;
-      text-align: center;
-    }
-    
-    .photo-size-option.selected {
-      background-color: #3498db;
-      color: white;
-      border-color: #3498db;
-    }
-    
-    .tab-container {
-      display: flex;
-      margin-bottom: 15px;
-    }
-    
-    .tab {
-      padding: 10px 20px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-    }
-    
-    .tab.active {
-      border-bottom: 2px solid #3498db;
-      font-weight: bold;
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passport Photo Maker – Free Online Tool | n-dizi.in</title>
+
+<meta name="description" content="Create passport size photos online. Auto crop, resize, background color, multiple copies. 100% free and fast.">
+<meta name="robots" content="index, follow">
+
+<style>
+body{
+  margin:0;
+  font-family:system-ui,Segoe UI;
+  background:#eef2f7;
+  display:flex;
+  justify-content:center;
+  padding:20px
+}
+.container{
+  background:#fff;
+  max-width:820px;
+  width:100%;
+  padding:25px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12)
+}
+h1{text-align:center;margin-bottom:20px}
+label{display:block;margin-top:15px;font-weight:600}
+input,select{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  border-radius:6px;
+  border:1px solid #ccc
+}
+button{
+  margin-top:20px;
+  padding:12px;
+  width:100%;
+  font-size:16px;
+  border:none;
+  border-radius:30px;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer
+}
+button:hover{background:#1e40af}
+canvas{
+  margin-top:20px;
+  max-width:100%;
+  border:2px dashed #2563eb;
+  border-radius:10px
+}
+.note{
+  margin-top:15px;
+  font-size:14px;
+  color:#555;
+  text-align:center
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h2>📷 Passport Photo Maker</h2>
-    
-    <div class="tab-container">
-      <div class="tab active" onclick="openTab('maker')">Photo Maker</div>
-      <div class="tab" onclick="openTab('how-to')">How to Use</div>
-      <div class="tab" onclick="openTab('about')">About</div>
-    </div>
-    
-    <div id="maker" class="tab-content active">
-      <div class="controls">
-        <label>
-          Upload Your Photo:
-          <input type="file" id="imageUpload" accept="image/*" />
-        </label>
-        
-        <label>
-          Background Color:
-          <input type="color" id="bgColor" value="#ffffff" />
-        </label>
-        
-        <label>
-          Photo Size:
-          <div class="photo-size-options">
-            <div class="photo-size-option selected" data-width="300" data-height="400" onclick="selectPhotoSize(this)">
-              Passport (35×45 mm)
-            </div>
-            <div class="photo-size-option" data-width="354" data-height="472" onclick="selectPhotoSize(this)">
-              Visa (35×45 mm)
-            </div>
-            <div class="photo-size-option" data-width="600" data-height="600" onclick="selectPhotoSize(this)">
-              Square (60×60 mm)
-            </div>
-            <div class="photo-size-option" data-width="413" data-height="531" onclick="selectPhotoSize(this)">
-              ID Card (35×45 mm)
-            </div>
-          </div>
-        </label>
-        
-        <label>
-          Number of Copies:
-          <select id="numCopies">
-            <option value="1">1 Photo</option>
-            <option value="2">2 Photos</option>
-            <option value="4" selected>4 Photos</option>
-            <option value="6">6 Photos</option>
-            <option value="8">8 Photos</option>
-            <option value="12">12 Photos</option>
-          </select>
-        </label>
-        
-        <label>
-          <div class="checkbox-container">
-            <input type="checkbox" id="addBorder" checked />
-            <span>Add Border to Photos</span>
-          </div>
-        </label>
-      </div>
-      
-      <button id="generateBtn" onclick="processImage()">Generate Passport Photos</button>
-      <div id="loading">⏳ Processing your photos... Please wait</div>
-      
-      <canvas id="canvas"></canvas>
-      
-      <div class="photo-specs">
-        <p id="sizeSpecs">Standard Passport Photo Size: 300 × 400 pixels (35 × 45 mm)</p>
-        <p>Background will be automatically removed and replaced</p>
-      </div>
-    </div>
-    
-    <div id="how-to" class="tab-content">
-      <div class="info-section">
-        <h3>How to Use This Tool</h3>
-        <ol>
-          <li><strong>Upload your photo</strong> - Click the "Upload Your Photo" button and select an image from your device</li>
-          <li><strong>Choose background color</strong> - Select the desired background color for your passport photo</li>
-          <li><strong>Select photo size</strong> - Choose from standard photo sizes for different document types</li>
-          <li><strong>Set number of copies</strong> - Select how many copies you want on one sheet</li>
-          <li><strong>Generate photos</strong> - Click the "Generate Passport Photos" button</li>
-          <li><strong>Save your photo</strong> - Right-click on the result and select "Save Image As"</li>
-        </ol>
-        
-        <h3>Tips for Best Results</h3>
-        <ul>
-          <li>Use a high-quality photo with good lighting</li>
-          <li>Make sure your face is clearly visible and centered</li>
-          <li>Use a plain background for best background removal</li>
-          <li>Follow official guidelines for passport photos in your country</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div id="about" class="tab-content">
-      <div class="info-section">
-        <h3>About Passport Photo Maker</h3>
-        <p>This free online tool helps you create professional passport photos that meet official requirements. Our AI technology automatically removes the background and formats your photo to the correct size.</p>
-        
-        <h3>Features</h3>
-        <ul>
-          <li>Automatic background removal</li>
-          <li>Multiple standard photo sizes</li>
-          <li>Custom background colors</li>
-          <li>Multiple copies on one sheet</li>
-          <li>No registration required</li>
-          <li>100% free to use</li>
-        </ul>
-        
-        <h3>Photo Size Standards</h3>
-        <table style="width:100%; border-collapse: collapse;">
-          <tr style="background-color: #3498db; color: white;">
-            <th style="padding:8px; text-align:left;">Type</th>
-            <th style="padding:8px; text-align:left;">Pixels</th>
-            <th style="padding:8px; text-align:left;">Millimeters</th>
-            <th style="padding:8px; text-align:left;">Use</th>
-          </tr>
-          <tr style="border-bottom:1px solid #ddd;">
-            <td style="padding:8px;">Passport</td>
-            <td style="padding:8px;">300×400</td>
-            <td style="padding:8px;">35×45</td>
-            <td style="padding:8px;">Indian Passport</td>
-          </tr>
-          <tr style="border-bottom:1px solid #ddd;">
-            <td style="padding:8px;">Visa</td>
-            <td style="padding:8px;">354×472</td>
-            <td style="padding:8px;">35×45</td>
-            <td style="padding:8px;">US Visa, Schengen Visa</td>
-          </tr>
-          <tr style="border-bottom:1px solid #ddd;">
-            <td style="padding:8px;">ID Card</td>
-            <td style="padding:8px;">413×531</td>
-            <td style="padding:8px;">35×45</td>
-            <td style="padding:8px;">Aadhaar, PAN Card</td>
-          </tr>
-          <tr>
-            <td style="padding:8px;">Square</td>
-            <td style="padding:8px;">600×600</td>
-            <td style="padding:8px;">60×60</td>
-            <td style="padding:8px;">Student ID, Driving License</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  </div>
+<div class="container">
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
-  <script>
-    let imgElement = new Image();
-    let model = null;
-    let isModelLoading = false;
-    let isProcessing = false;
-    let photoWidth = 300;
-    let photoHeight = 400;
+<h1>📸 Passport Photo Maker</h1>
 
-    function openTab(tabName) { // Note: Original might have missed `event` if `event.currentTarget` was intended later
-      // Hide all tab contents
-      document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      // Remove active class from all tabs
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      
-      // Show the selected tab content
-      document.getElementById(tabName).classList.add('active');
-      
-      // Add active class to the clicked tab
-      // This line would cause an error if 'event' is not passed from HTML:
-      // event.currentTarget.classList.add('active'); 
-      // To make it work as in the original HTML, if event was passed:
-      if (typeof event !== 'undefined' && event.currentTarget) {
-          event.currentTarget.classList.add('active');
-      } else {
-          // Fallback if event is not passed - find the tab by tabName (less robust)
-          document.querySelectorAll('.tab').forEach(tab => {
-              if (tab.getAttribute('onclick').includes(`openTab('${tabName}')`)) {
-                  tab.classList.add('active');
-              }
-          });
-      }
+<label>Upload Photo</label>
+<input type="file" id="upload" accept="image/*">
+
+<label>Background Color</label>
+<input type="color" id="bg" value="#ffffff">
+
+<label>Photo Size</label>
+<select id="size">
+  <option value="300x400">Passport (35×45 mm)</option>
+  <option value="354x472">Visa</option>
+  <option value="413x531">ID Card</option>
+  <option value="600x600">Square</option>
+</select>
+
+<label>Number of Copies</label>
+<select id="copies">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="4" selected>4</option>
+  <option value="6">6</option>
+  <option value="8">8</option>
+</select>
+
+<button onclick="generate()">Generate Photo</button>
+
+<canvas id="canvas"></canvas>
+
+<p class="note">
+✔ Auto crop & resize &nbsp;|&nbsp;
+✔ No AI download &nbsp;|&nbsp;
+✔ Fast & SEO-safe
+</p>
+
+</div>
+
+<script>
+let img = new Image();
+
+document.getElementById('upload').onchange = e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+function generate(){
+  if(!img.src){ alert("Upload image first"); return; }
+
+  const [w,h] = document.getElementById('size').value.split('x').map(Number);
+  const copies = parseInt(document.getElementById('copies').value);
+  const bg = document.getElementById('bg').value;
+
+  const cols = Math.ceil(Math.sqrt(copies));
+  const rows = Math.ceil(copies / cols);
+
+  const canvas = document.getElementById('canvas');
+  canvas.width = cols * w;
+  canvas.height = rows * h;
+
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // auto-center crop logic
+  const ratio = w/h;
+  let sx,sy,sw,sh;
+  if(img.width/img.height > ratio){
+    sh = img.height;
+    sw = sh*ratio;
+    sx = (img.width - sw)/2;
+    sy = 0;
+  }else{
+    sw = img.width;
+    sh = sw/ratio;
+    sx = 0;
+    sy = (img.height - sh)/2;
+  }
+
+  let count = 0;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      if(count>=copies) break;
+      ctx.drawImage(img,sx,sy,sw,sh,c*w,r*h,w,h);
+      count++;
     }
+  }
+}
+</script>
 
-    function selectPhotoSize(element) {
-      // Remove selected class from all options
-      document.querySelectorAll('.photo-size-option').forEach(option => {
-        option.classList.remove('selected');
-      });
-      
-      // Add selected class to clicked option
-      element.classList.add('selected');
-      
-      // Update photo dimensions
-      photoWidth = parseInt(element.dataset.width);
-      photoHeight = parseInt(element.dataset.height);
-      
-      // Update size specs display (Original calculation)
-      const mmWidth = Math.round(photoWidth * 0.264583);
-      const mmHeight = Math.round(photoHeight * 0.264583);
-      document.getElementById('sizeSpecs').textContent = 
-        `Selected Photo Size: ${photoWidth} × ${photoHeight} pixels (${mmWidth} × ${mmHeight} mm)`;
-    }
-
-    async function loadModel() {
-      if (model) return model;
-      if (isModelLoading) {
-        return new Promise(resolve => {
-          const checkModel = () => {
-            if (model) resolve(model);
-            else setTimeout(checkModel, 100);
-          };
-          checkModel();
-        });
-      }
-
-      isModelLoading = true;
-      try {
-        model = await bodyPix.load({
-          architecture: 'MobileNetV1',
-          outputStride: 16,
-          multiplier: 0.75,
-          quantBytes: 2,
-        });
-        isModelLoading = false;
-        console.log("BodyPix model loaded."); // Added for clarity
-        return model;
-      } catch (error) {
-        isModelLoading = false;
-        console.error("Failed to load model:", error);
-        alert("Failed to load the AI model. Please refresh the page and try again.");
-        throw error;
-      }
-    }
-
-    // Load model when page loads (as in original)
-    loadModel().catch(console.error);
-
-    document.getElementById('imageUpload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        imgElement.onload = function() {
-          console.log("Image loaded successfully");
-          // Preview the uploaded image (original simpler preview)
-          const canvas = document.getElementById('canvas');
-          const ctx = canvas.getContext('2d');
-          // Set canvas to image's natural dimensions for preview
-          canvas.width = imgElement.naturalWidth;
-          canvas.height = imgElement.naturalHeight;
-          ctx.drawImage(imgElement, 0, 0);
-        };
-        imgElement.onerror = function() {
-          alert("Failed to load the image. Please try another file.");
-        };
-        imgElement.src = event.target.result;
-      };
-      reader.onerror = function() {
-        alert("Failed to read the file. Please try again.");
-      };
-      reader.readAsDataURL(file);
-    });
-
-    async function processImage() {
-      if (isProcessing) return;
-      
-      const generateBtn = document.getElementById('generateBtn');
-      const loadingElement = document.getElementById('loading');
-      
-      try {
-        isProcessing = true;
-        generateBtn.disabled = true;
-        loadingElement.style.display = 'block';
-
-        if (!imgElement.src || !imgElement.complete || imgElement.naturalWidth === 0) { // Added naturalWidth check
-          throw new Error("Please upload an image first.");
-        }
-
-        if (!model) {
-          console.log("Model not loaded yet, waiting...");
-          model = await loadModel();
-        }
-
-        const canvas = document.getElementById('canvas'); // This is the main output canvas
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          throw new Error("Canvas context not available.");
-        }
-
-        const bgColor = document.getElementById('bgColor').value;
-        const numCopies = parseInt(document.getElementById('numCopies').value);
-        const addBorder = document.getElementById('addBorder').checked;
-
-        console.log("Starting image segmentation...");
-        const segmentation = await model.segmentPerson(imgElement, {
-          internalResolution: 'medium', // Original might have been 'low' or 'medium'
-          segmentationThreshold: 0.7,   // Original might have been different
-        });
-        console.log("Segmentation completed");
-
-        // Create foreground mask (Original logic had mask in {data: Uint8Array(W*H), width: W, height: H} format)
-        const foregroundColor = { r: 255, g: 255, b: 255, a: 255 }; // Opaque white for person
-        const backgroundColor = { r: 0, g: 0, b: 0, a: 0 };     // Transparent for background
-        const mask = bodyPix.toMask(segmentation, foregroundColor, backgroundColor);
-        // mask is an ImageData object here.
-
-        // Create temporary canvas for processing ONE photo
-        const offCanvas = document.createElement('canvas');
-        offCanvas.width = photoWidth;
-        offCanvas.height = photoHeight;
-        const offCtx = offCanvas.getContext('2d');
-        
-        if (!offCtx) {
-          throw new Error("Could not create temporary canvas.");
-        }
-
-        // 1. Fill background with selected color
-        offCtx.fillStyle = bgColor;
-        offCtx.fillRect(0, 0, photoWidth, photoHeight);
-
-        // 2. Apply the mask to isolate the person (THIS IS THE PROBLEMATIC PART in original)
-        // The 'mask' from bodyPix.toMask is an ImageData object. Its dimensions are
-        // segmentation.width and segmentation.height, NOT necessarily photoWidth/photoHeight.
-        // Drawing it directly at (0,0) on offCanvas is likely incorrect if dimensions differ.
-        
-        // Create a temporary canvas for the mask ImageData to be able to draw it scaled
-        const tempMaskCanvas = document.createElement('canvas');
-        tempMaskCanvas.width = mask.width;
-        tempMaskCanvas.height = mask.height;
-        tempMaskCanvas.getContext('2d').putImageData(mask, 0, 0);
-
-        // Draw the mask onto the offCanvas, scaled to fit photoWidth, photoHeight
-        // This part was missing or done differently, leading to the issue.
-        // For the *original problematic* behavior, we might have just done offCtx.putImageData(mask, 0,0)
-        // which would be wrong if mask dimensions !== offCanvas dimensions.
-        // Or, if we drew it, the scaling might have been off.
-        // Let's try to replicate the "source-in" logic that was likely used with a full background.
-        
-        // The original likely intent was something like this:
-        // offCtx.putImageData(mask, 0, 0); // This line is problematic if mask.width/height != photoWidth/height
-        // offCtx.globalCompositeOperation = 'source-in';
-        // ... draw image ...
-        
-        // Let's try to make it "work" in the flawed way:
-        // We need to draw the image, then use the mask to clip it.
-        // To do this "incorrectly" (leading to bleeding), we first fill bg, then draw image, then try to mask.
-
-        // Draw the original image scaled into the offCanvas *first*
-        const imgAspect = imgElement.naturalWidth / imgElement.naturalHeight;
-        const photoAspect = photoWidth / photoHeight;
-        let drawWidth, drawHeight, offsetX = 0, offsetY = 0;
-        
-        if (imgAspect > photoAspect) {
-          drawHeight = photoHeight;
-          drawWidth = imgElement.naturalWidth * (photoHeight / imgElement.naturalHeight);
-          offsetX = (photoWidth - drawWidth) / 2;
-        } else {
-          drawWidth = photoWidth;
-          drawHeight = imgElement.naturalHeight * (photoWidth / imgElement.naturalWidth);
-          offsetY = (photoHeight - drawHeight) / 2;
-        }
-        
-        offCtx.drawImage( // Draw the original image onto the bgColor filled canvas
-          imgElement,
-          0, 0, imgElement.naturalWidth, imgElement.naturalHeight,
-          offsetX, offsetY, drawWidth, drawHeight
-        );
-        
-        // Now, apply the mask.
-        // The 'mask' (from bodyPix.toMask) makes the person white and background transparent.
-        // To use it to *keep* the person and *remove* the background (which is already part of offCtx now)
-        // we'd use 'destination-in' by drawing the mask (scaled correctly).
-        
-        // The original error was likely a misapplication of globalCompositeOperation
-        // or mis-scaling of the mask.
-        // If 'source-in' was used after drawing the mask itself:
-        // Create another canvas to hold the person only
-        const personOnlyCanvas = document.createElement('canvas');
-        personOnlyCanvas.width = photoWidth;
-        personOnlyCanvas.height = photoHeight;
-        const personOnlyCtx = personOnlyCanvas.getContext('2d');
-
-        // Draw the original image scaled into this canvas
-        personOnlyCtx.drawImage(
-            imgElement,
-            0, 0, imgElement.naturalWidth, imgElement.naturalHeight,
-            offsetX, offsetY, drawWidth, drawHeight
-        );
-        // Apply the mask to this
-        personOnlyCtx.globalCompositeOperation = 'destination-in';
-        // Draw the mask (scaled to fit photoWidth/photoHeight)
-        personOnlyCtx.drawImage(tempMaskCanvas, 0, 0, photoWidth, photoHeight);
-        personOnlyCtx.globalCompositeOperation = 'source-over'; // reset
-
-        // Now draw this person (on transparent bg) onto the offCanvas (which has bgColor)
-        offCtx.clearRect(0,0, photoWidth, photoHeight); // Clear previous draw of image
-        offCtx.fillStyle = bgColor;
-        offCtx.fillRect(0,0,photoWidth, photoHeight); // Re-apply background
-        offCtx.drawImage(personOnlyCanvas, 0,0); // Draw masked person on top
-
-        // This above sequence is a more *correct* way to do it.
-        // The *original flawed* way was likely simpler and directly problematic.
-        // Let's revert to the structure from the first code block I looked at in my thought process:
-
-        // Reset offCanvas for the truly original problematic approach
-        offCtx.clearRect(0,0, photoWidth, photoHeight);
-        offCtx.fillStyle = bgColor;
-        offCtx.fillRect(0, 0, photoWidth, photoHeight);
-
-        // This was the core of the original issue as I recall it from the prompt:
-        // "code img aur background color ko mix kar raha hai"
-        // This implies the mask was drawn, then source-in was used with the image.
-
-        // 1. Draw the mask (scaled to fit the photo dimensions)
-        //    The mask makes person opaque white, background transparent.
-        const scaledMaskCanvas = document.createElement('canvas');
-        scaledMaskCanvas.width = photoWidth;
-        scaledMaskCanvas.height = photoHeight;
-        const scaledMaskCtx = scaledMaskCanvas.getContext('2d');
-        scaledMaskCtx.drawImage(tempMaskCanvas, 0, 0, photoWidth, photoHeight); // Draw the mask scaled
-
-
-        // Apply this scaled mask to the offCtx (which is currently just bgColor)
-        // This is not what we want. We want the image to take the shape of the mask.
-
-        // Original likely faulty logic:
-        // offCtx is already filled with bgColor
-        // We want to draw the image, but only where the mask is.
-
-        // Fill offCanvas with bgColor (done)
-        // Draw scaled original image onto offCanvas.
-        offCtx.drawImage(
-          imgElement,
-          0, 0, imgElement.naturalWidth, imgElement.naturalHeight,
-          offsetX, offsetY, drawWidth, drawHeight
-        );
-        // At this point, offCanvas has bgColor with the image on top.
-
-        // Now, use the mask to "cut out" the person.
-        // 'destination-in': Existing content (image on bg) is kept where new shape (mask) is opaque.
-        offCtx.globalCompositeOperation = 'destination-in';
-        offCtx.drawImage(tempMaskCanvas, 0, 0, photoWidth, photoHeight); // Draw the mask scaled
-        offCtx.globalCompositeOperation = 'source-over'; // Reset
-
-        // The above should work better. The initial prompt implies something even more direct.
-        // "canvas white hai, koi background color apply nahi ho raha hai aur nahi koi img show ho rahi hai" - this was the initial user problem.
-        // The code I first *provided* (before fixes) had a different problem: "img aur background color ko mix kar raha hai".
-        // The *user's* original code had the white canvas problem. My *first version* had the mixing problem.
-        // The request is for "sabse pehle jo aapne diya tha".
-
-        // My first version's processImage:
-        // (Reconstructing from memory of what would cause the mixing)
-        offCtx.clearRect(0,0, photoWidth, photoHeight); // Clean slate
-        offCtx.fillStyle = bgColor;
-        offCtx.fillRect(0, 0, photoWidth, photoHeight); // 1. Fill with background
-
-        // 2. Draw the mask (ImageData) directly. This would be scaled to mask.width, mask.height.
-        // If mask.width/height != photoWidth/height, this is problematic.
-        // Let's assume for the original flaw, it *was* scaled or putImageData was used directly.
-        // If putImageData(mask, 0, 0) was used, and mask dimensions are small, it would only affect top-left.
-
-        // Let's assume the mask was drawn scaled to fill the offCanvas
-        offCtx.drawImage(tempMaskCanvas, 0, 0, photoWidth, photoHeight);
-        // Now offCanvas has the mask (person white, bg transparent) on top of bgColor.
-        // So, person area is white, bg area is bgColor.
-
-        offCtx.globalCompositeOperation = 'source-in'; // Keep source where destination is opaque.
-                                                    // Source will be imgElement. Dest is current offCtx.
-                                                    // Current offCtx has person area white (opaque), bg area (bgColor) also opaque if not #00000000.
-
-        // Draw the image
-        offCtx.drawImage(
-          imgElement,
-          0, 0, imgElement.naturalWidth, imgElement.naturalHeight,
-          offsetX, offsetY, drawWidth, drawHeight
-        );
-        // Result: Image is drawn, but only where offCtx was opaque.
-        // If bgColor was #FFFFFF, then the whole offCtx was opaque.
-        // So image is drawn over the (mask + bgColor). This is the mixing.
-
-        offCtx.globalCompositeOperation = 'source-over'; // Reset
-
-
-        // Add border if checked
-        if (addBorder) {
-          offCtx.strokeStyle = "#000000"; // Original border color
-          offCtx.lineWidth = 3; // Original border width
-          offCtx.strokeRect(0, 0, photoWidth, photoHeight);
-        }
-
-        // Arrange copies on main canvas (this part was generally okay)
-        const cols = numCopies <= 2 ? numCopies : Math.ceil(Math.sqrt(numCopies));
-        const rows = Math.ceil(numCopies / cols);
-        const gap = 10;
-        
-        canvas.width = cols * (photoWidth + gap) + gap;
-        canvas.height = rows * (photoHeight + gap) + gap;
-        
-        ctx.fillStyle = "#ffffff"; // Sheet background
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        for (let i = 0; i < numCopies; i++) {
-          const x = gap + (i % cols) * (photoWidth + gap);
-          const y = gap + Math.floor(i / cols) * (photoHeight + gap);
-          ctx.drawImage(offCanvas, x, y);
-        }
-
-        console.log("Photo generation attempted (original logic).");
-
-      } catch (error) {
-        console.error("Error processing image:", error);
-        alert("Error: " + error.message);
-      } finally {
-        isProcessing = false;
-        generateBtn.disabled = false;
-        loadingElement.style.display = 'none';
-      }
-    }
-     // Initial call to set default photo size text
-    selectPhotoSize(document.querySelector('.photo-size-option.selected'));
-  </script>
 </body>
 </html>
