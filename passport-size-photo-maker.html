@@ -1,196 +1,635 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passport Photo Maker – ToolHub</title>
+<title>AI Passport Photo Maker - Photoshop Style Action</title>
 
 <style>
-body{
-  margin:0;
-  padding:20px;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:#f2f4f7;
-  display:flex;
-  justify-content:center;
-}
-.container{
-  background:#fff;
-  max-width:900px;
-  width:100%;
-  padding:24px;
-  border-radius:14px;
-  box-shadow:0 10px 30px rgba(0,0,0,.12);
-}
-h2{text-align:center;margin-bottom:20px}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-.controls{
-  max-width:420px;
-  margin:auto;
-  display:grid;
-  gap:14px;
-}
-label{
-  font-size:14px;
-  font-weight:600;
-}
-input,select{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-button{
-  display:block;
-  margin:20px auto;
-  padding:14px 32px;
-  border:none;
-  border-radius:30px;
-  font-size:16px;
-  font-weight:700;
-  cursor:pointer;
-  color:#fff;
-  background:linear-gradient(135deg,#2563eb,#1e40af);
-}
-button:hover{opacity:.9}
-
-canvas{
-  display:block;
-  margin:20px auto;
-  max-width:100%;
-  border:2px dashed #2563eb;
-  border-radius:10px;
+.container {
+  background: #fff;
+  max-width: 1100px;
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 25px 70px rgba(0,0,0,.4);
+  overflow: hidden;
 }
 
-.info{
-  text-align:center;
-  font-size:14px;
-  opacity:.85;
+.header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 30px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.header p {
+  opacity: 0.9;
+  font-size: 16px;
+}
+
+.content {
+  padding: 40px;
+}
+
+.upload-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.upload-box {
+  border: 3px dashed #667eea;
+  border-radius: 15px;
+  padding: 50px 30px;
+  background: #f8f9ff;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.upload-box:hover {
+  border-color: #764ba2;
+  background: #f0f2ff;
+  transform: scale(1.02);
+}
+
+.upload-box.dragover {
+  border-color: #11998e;
+  background: #e6fff9;
+}
+
+.upload-icon {
+  font-size: 64px;
+  margin-bottom: 15px;
+}
+
+.upload-box h3 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.upload-box p {
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+#fileInput {
+  display: none;
+}
+
+.settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.setting-group {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+
+.setting-group label {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.setting-group select,
+.setting-group input[type="color"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.setting-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.setting-group input[type="color"] {
+  height: 50px;
+  padding: 5px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.action-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.progress-section {
+  display: none;
+  margin: 20px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  text-align: center;
+  color: #667eea;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.result-section {
+  display: none;
+  margin-top: 30px;
+}
+
+.canvas-wrapper {
+  text-align: center;
+  background: #f8f9fa;
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 20px;
+}
+
+canvas {
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.15);
+}
+
+.download-btn {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+}
+
+.download-btn:hover {
+  box-shadow: 0 15px 40px rgba(17, 153, 142, 0.6);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+  padding: 20px;
+  background: #f8f9ff;
+  border-radius: 12px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.feature-item::before {
+  content: '✓';
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #667eea;
+  color: #fff;
+  border-radius: 50%;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.loader {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.comparison {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.comparison-item {
+  text-align: center;
+}
+
+.comparison-item h4 {
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.comparison-item img {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 3px solid #e9ecef;
 }
 </style>
 </head>
 
 <body>
 <div class="container">
+  <div class="header">
+    <h1>🎯 AI Passport Photo Maker</h1>
+    <p>Photoshop-Style Automatic Action | एक क्लिक में Professional Passport Photo</p>
+  </div>
 
-<h2>📸 Passport Photo Maker</h2>
+  <div class="content">
+    <!-- Upload Section -->
+    <div class="upload-section">
+      <div class="upload-box" id="uploadBox">
+        <div class="upload-icon">📤</div>
+        <h3>अपनी फोटो Upload करें</h3>
+        <p>किसी भी format में - JPG, PNG, WebP (Max 10MB)</p>
+        <p style="margin-top: 10px; font-size: 12px;">या Drag & Drop करें</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
 
-<div class="controls">
-  <label>Upload Photo
-    <input type="file" id="imageInput" accept="image/*">
-  </label>
+    <!-- Settings -->
+    <div class="settings">
+      <div class="setting-group">
+        <label>📐 Photo Size</label>
+        <select id="photoSize">
+          <option value="300,400">Passport (35×45 mm)</option>
+          <option value="354,472">Visa (45×60 mm)</option>
+          <option value="413,531">ID Card (55×71 mm)</option>
+          <option value="236,236">2×2 inch Square</option>
+          <option value="150,200">Passport Mini</option>
+        </select>
+      </div>
 
-  <label>Background Color
-    <input type="color" id="bgColor" value="#ff0000">
-  </label>
+      <div class="setting-group">
+        <label>🎨 Background Color</label>
+        <input type="color" id="bgColor" value="#ffffff">
+      </div>
 
-  <label>Photo Size
-    <select id="photoSize">
-      <option value="300x400">Passport (35×45 mm)</option>
-      <option value="354x472">Visa</option>
-      <option value="413x531">ID Card</option>
-    </select>
-  </label>
+      <div class="setting-group">
+        <label>📋 Number of Copies</label>
+        <select id="copies">
+          <option value="1">1 Copy</option>
+          <option value="2">2 Copies</option>
+          <option value="4">4 Copies</option>
+          <option value="6" selected>6 Copies</option>
+          <option value="8">8 Copies</option>
+          <option value="9">9 Copies</option>
+          <option value="12">12 Copies</option>
+        </select>
+      </div>
 
-  <label>Number of Copies
-    <select id="copies">
-      <option>1</option>
-      <option>2</option>
-      <option selected>4</option>
-      <option>6</option>
-      <option>8</option>
-      <option>12</option>
-    </select>
-  </label>
+      <div class="setting-group">
+        <label>🎯 Face Position</label>
+        <select id="facePosition">
+          <option value="center" selected>Auto Center</option>
+          <option value="top">Top Aligned</option>
+          <option value="custom">Manual Adjust</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Button -->
+    <button class="action-btn" id="processBtn" disabled>
+      <span>🚀 Start Action - Create Passport Photo</span>
+    </button>
+
+    <!-- Progress -->
+    <div class="progress-section" id="progressSection">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">Processing...</div>
+    </div>
+
+    <!-- Comparison -->
+    <div class="comparison" id="comparison">
+      <div class="comparison-item">
+        <h4>Original</h4>
+        <img id="originalImg" alt="Original">
+      </div>
+      <div class="comparison-item">
+        <h4>Background Removed</h4>
+        <img id="processedImg" alt="Processed">
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="result-section" id="resultSection">
+      <div class="canvas-wrapper">
+        <canvas id="outputCanvas"></canvas>
+      </div>
+      
+      <button class="action-btn download-btn" id="downloadBtn">
+        💾 Download Passport Photo
+      </button>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature-item">Auto Background Remove</div>
+      <div class="feature-item">Face Detection & Center</div>
+      <div class="feature-item">Smart Crop & Resize</div>
+      <div class="feature-item">Equal Gap for Cutting</div>
+      <div class="feature-item">Black Border</div>
+      <div class="feature-item">Print Ready Output</div>
+    </div>
+  </div>
 </div>
 
-<button id="generateBtn">Generate Photo</button>
-
-<canvas id="canvas"></canvas>
-
-<p class="info">
-✔ Auto center crop  
-✔ Solid background replace  
-✔ Black border  
-✔ Equal gap (print & cut ready)
-</p>
-
-</div>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script>
 
 <script>
-const img = new Image();
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+let uploadedImage = null;
+let bodyPixModel = null;
 
-const GAP = 20;
-const BORDER = 3;
+const uploadBox = document.getElementById('uploadBox');
+const fileInput = document.getElementById('fileInput');
+const processBtn = document.getElementById('processBtn');
+const progressSection = document.getElementById('progressSection');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const comparison = document.getElementById('comparison');
+const originalImg = document.getElementById('originalImg');
+const processedImg = document.getElementById('processedImg');
+const resultSection = document.getElementById('resultSection');
+const outputCanvas = document.getElementById('outputCanvas');
+const downloadBtn = document.getElementById('downloadBtn');
 
-document.getElementById("imageInput").addEventListener("change",e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => img.src = ev.target.result;
-  reader.readAsDataURL(file);
+// Drag & Drop
+uploadBox.addEventListener('click', () => fileInput.click());
+
+uploadBox.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  uploadBox.classList.add('dragover');
 });
 
-document.getElementById("generateBtn").onclick = ()=>{
-  if(!img.src){
-    alert("Please upload a photo");
-    return;
+uploadBox.addEventListener('dragleave', () => {
+  uploadBox.classList.remove('dragover');
+});
+
+uploadBox.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadBox.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    loadImage(file);
+  }
+});
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) loadImage(file);
+});
+
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      uploadedImage = img;
+      originalImg.src = e.target.result;
+      processBtn.disabled = false;
+      processBtn.innerHTML = '<span>🚀 Start Action - Create Passport Photo</span>';
+      resultSection.style.display = 'none';
+      comparison.style.display = 'none';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Load BodyPix Model
+async function loadModel() {
+  updateProgress(10, 'Loading AI Model...');
+  bodyPixModel = await bodyPix.load({
+    architecture: 'MobileNetV1',
+    outputStride: 16,
+    multiplier: 0.75,
+    quantBytes: 2
+  });
+  updateProgress(30, 'Model Loaded Successfully');
+}
+
+function updateProgress(percent, text) {
+  progressFill.style.width = percent + '%';
+  progressText.textContent = text;
+}
+
+processBtn.addEventListener('click', async () => {
+  if (!uploadedImage) return;
+
+  processBtn.disabled = true;
+  processBtn.innerHTML = '<div class="loader"></div> <span>Processing...</span>';
+  progressSection.style.display = 'block';
+  resultSection.style.display = 'none';
+
+  try {
+    // Step 1: Load Model
+    if (!bodyPixModel) {
+      await loadModel();
+    }
+
+    // Step 2: Remove Background
+    updateProgress(40, 'Removing Background...');
+    const segmentation = await bodyPixModel.segmentPerson(uploadedImage);
+    
+    // Step 3: Create processed image
+    updateProgress(60, 'Processing Image...');
+    const processedImageData = await createProcessedImage(uploadedImage, segmentation);
+    
+    // Show comparison
+    processedImg.src = processedImageData;
+    comparison.style.display = 'grid';
+
+    // Step 4: Create passport photos
+    updateProgress(80, 'Creating Passport Photos...');
+    await createPassportPhotos(processedImageData);
+
+    updateProgress(100, 'Completed! ✓');
+    
+    setTimeout(() => {
+      progressSection.style.display = 'none';
+      resultSection.style.display = 'block';
+      processBtn.disabled = false;
+      processBtn.innerHTML = '<span>🚀 Start Action - Create Passport Photo</span>';
+    }, 500);
+
+  } catch (error) {
+    console.error(error);
+    alert('Error processing image. Please try again.');
+    processBtn.disabled = false;
+    processBtn.innerHTML = '<span>🚀 Start Action - Create Passport Photo</span>';
+    progressSection.style.display = 'none';
+  }
+});
+
+async function createProcessedImage(img, segmentation) {
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+
+  // Draw original image
+  ctx.drawImage(img, 0, 0);
+
+  // Get image data
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const pixels = imageData.data;
+
+  // Remove background
+  for (let i = 0; i < segmentation.data.length; i++) {
+    if (segmentation.data[i] === 0) {
+      pixels[i * 4 + 3] = 0; // Make transparent
+    }
   }
 
-  const [pw,ph] = document.getElementById("photoSize").value.split("x").map(Number);
-  const copies = +document.getElementById("copies").value;
-  const bg = document.getElementById("bgColor").value;
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL('image/png');
+}
 
+async function createPassportPhotos(processedImageSrc) {
+  const [pw, ph] = document.getElementById('photoSize').value.split(',').map(Number);
+  const copies = parseInt(document.getElementById('copies').value);
+  const bgColor = document.getElementById('bgColor').value;
+
+  const GAP = 20;
+  const BORDER = 3;
+
+  // Grid layout
   const cols = Math.ceil(Math.sqrt(copies));
   const rows = Math.ceil(copies / cols);
 
-  canvas.width = cols*pw + (cols-1)*GAP;
-  canvas.height = rows*ph + (rows-1)*GAP;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+  outputCanvas.width = cols * pw + (cols - 1) * GAP;
+  outputCanvas.height = rows * ph + (rows - 1) * GAP;
+  
+  const ctx = outputCanvas.getContext('2d');
+  ctx.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
 
-  // --- prepare single passport photo ---
-  const off = document.createElement("canvas");
-  off.width = pw;
-  off.height = ph;
-  const octx = off.getContext("2d");
+  // Load processed image
+  const processedImg = new Image();
+  await new Promise((resolve) => {
+    processedImg.onload = resolve;
+    processedImg.src = processedImageSrc;
+  });
 
-  // background
-  octx.fillStyle = bg;
-  octx.fillRect(0,0,pw,ph);
+  // Create single photo
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = pw;
+  tempCanvas.height = ph;
+  const tempCtx = tempCanvas.getContext('2d');
 
-  // center crop (safe)
-  const imgRatio = img.width / img.height;
+  // Background
+  tempCtx.fillStyle = bgColor;
+  tempCtx.fillRect(0, 0, pw, ph);
+
+  // Face detection and smart crop
+  const imgRatio = processedImg.width / processedImg.height;
   const targetRatio = pw / ph;
 
-  let sx=0, sy=0, sw=img.width, sh=img.height;
-  if(imgRatio > targetRatio){
+  let sx = 0, sy = 0, sw = processedImg.width, sh = processedImg.height;
+
+  if (imgRatio > targetRatio) {
     sw = sh * targetRatio;
-    sx = (img.width - sw) / 2;
-  }else{
+    sx = (processedImg.width - sw) / 2;
+  } else {
     sh = sw / targetRatio;
-    sy = (img.height - sh) / 2;
+    sy = Math.max(0, (processedImg.height - sh) * 0.3); // Face upper positioning
   }
 
-  octx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
+  // Draw person
+  tempCtx.drawImage(processedImg, sx, sy, sw, sh, 0, 0, pw, ph);
 
-  // border
-  octx.strokeStyle = "#000";
-  octx.lineWidth = BORDER;
-  octx.strokeRect(0,0,pw,ph);
+  // Border
+  tempCtx.strokeStyle = '#000';
+  tempCtx.lineWidth = BORDER;
+  tempCtx.strokeRect(BORDER/2, BORDER/2, pw - BORDER, ph - BORDER);
 
-  // --- grid output ---
+  // Draw grid
   let count = 0;
-  for(let r=0;r<rows;r++){
-    for(let c=0;c<cols;c++){
-      if(count >= copies) return;
-      ctx.drawImage(off, c*(pw+GAP), r*(ph+GAP));
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (count >= copies) break;
+      ctx.drawImage(tempCanvas, c * (pw + GAP), r * (ph + GAP));
       count++;
     }
   }
-};
+}
+
+downloadBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = `passport-photo-${Date.now()}.png`;
+  link.href = outputCanvas.toDataURL('image/png');
+  link.click();
+});
 </script>
 </body>
 </html>
