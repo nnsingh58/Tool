@@ -7,10 +7,10 @@
 
 <style>
 body{
-  font-family: system-ui, -apple-system, Segoe UI, Roboto;
-  background:#f4f6f8;
   margin:0;
   padding:20px;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  background:#f2f4f7;
   display:flex;
   justify-content:center;
 }
@@ -18,20 +18,22 @@ body{
   background:#fff;
   max-width:900px;
   width:100%;
+  padding:24px;
   border-radius:14px;
-  padding:25px;
-  box-shadow:0 10px 30px rgba(0,0,0,.1);
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
 }
 h2{text-align:center;margin-bottom:20px}
 
 .controls{
-  display:grid;
-  gap:14px;
   max-width:420px;
   margin:auto;
+  display:grid;
+  gap:14px;
 }
-
-label{font-weight:600;font-size:14px}
+label{
+  font-size:14px;
+  font-weight:600;
+}
 input,select{
   width:100%;
   padding:10px;
@@ -40,18 +42,18 @@ input,select{
 }
 
 button{
-  margin:20px auto;
   display:block;
-  padding:14px 28px;
+  margin:20px auto;
+  padding:14px 32px;
   border:none;
   border-radius:30px;
   font-size:16px;
   font-weight:700;
   cursor:pointer;
-  background:linear-gradient(135deg,#2563eb,#1e40af);
   color:#fff;
+  background:linear-gradient(135deg,#2563eb,#1e40af);
 }
-button:disabled{opacity:.6}
+button:hover{opacity:.9}
 
 canvas{
   display:block;
@@ -76,7 +78,7 @@ canvas{
 
 <div class="controls">
   <label>Upload Photo
-    <input type="file" id="imageUpload" accept="image/*">
+    <input type="file" id="imageInput" accept="image/*">
   </label>
 
   <label>Background Color
@@ -86,8 +88,8 @@ canvas{
   <label>Photo Size
     <select id="photoSize">
       <option value="300x400">Passport (35×45 mm)</option>
-      <option value="413x531">ID Card</option>
       <option value="354x472">Visa</option>
+      <option value="413x531">ID Card</option>
     </select>
   </label>
 
@@ -95,8 +97,9 @@ canvas{
     <select id="copies">
       <option>1</option>
       <option>2</option>
-      <option>4</option>
-      <option selected>8</option>
+      <option selected>4</option>
+      <option>6</option>
+      <option>8</option>
       <option>12</option>
     </select>
   </label>
@@ -107,96 +110,84 @@ canvas{
 <canvas id="canvas"></canvas>
 
 <p class="info">
-✔ Auto crop & center  
-✔ Background replace  
+✔ Auto center crop  
+✔ Solid background replace  
 ✔ Black border  
 ✔ Equal gap (print & cut ready)
 </p>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0/dist/body-pix.min.js"></script>
-
 <script>
+const img = new Image();
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-const img = new Image();
-let model;
 
 const GAP = 20;
 const BORDER = 3;
 
-(async()=>{
-  model = await bodyPix.load({
-    architecture:"MobileNetV1",
-    outputStride:16,
-    multiplier:0.75,
-    quantBytes:2
-  });
-})();
-
-document.getElementById("imageUpload").addEventListener("change",e=>{
-  const f = e.target.files[0];
-  if(!f) return;
-  const r = new FileReader();
-  r.onload = ev => img.src = ev.target.result;
-  r.readAsDataURL(f);
+document.getElementById("imageInput").addEventListener("change",e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => img.src = ev.target.result;
+  reader.readAsDataURL(file);
 });
 
-document.getElementById("generateBtn").onclick = async ()=>{
-  if(!img.src){alert("Upload photo first");return;}
-  if(!model){alert("AI loading… try again");return;}
+document.getElementById("generateBtn").onclick = ()=>{
+  if(!img.src){
+    alert("Please upload a photo");
+    return;
+  }
 
   const [pw,ph] = document.getElementById("photoSize").value.split("x").map(Number);
   const copies = +document.getElementById("copies").value;
   const bg = document.getElementById("bgColor").value;
 
   const cols = Math.ceil(Math.sqrt(copies));
-  const rows = Math.ceil(copies/cols);
+  const rows = Math.ceil(copies / cols);
 
   canvas.width = cols*pw + (cols-1)*GAP;
   canvas.height = rows*ph + (rows-1)*GAP;
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  const seg = await model.segmentPerson(img,{segmentationThreshold:0.7});
-  const mask = bodyPix.toMask(seg);
-
+  // --- prepare single passport photo ---
   const off = document.createElement("canvas");
   off.width = pw;
   off.height = ph;
   const octx = off.getContext("2d");
 
+  // background
   octx.fillStyle = bg;
   octx.fillRect(0,0,pw,ph);
 
-  const ir = img.width/img.height;
-  const tr = pw/ph;
-  let sx=0,sy=0,sw=img.width,sh=img.height;
-  if(ir>tr){sw=sh*tr;sx=(img.width-sw)/2;}
-  else{sh=sw/tr;sy=(img.height-sh)/2;}
+  // center crop (safe)
+  const imgRatio = img.width / img.height;
+  const targetRatio = pw / ph;
 
-  octx.drawImage(img,sx,sy,sw,sh,0,0,pw,ph);
+  let sx=0, sy=0, sw=img.width, sh=img.height;
+  if(imgRatio > targetRatio){
+    sw = sh * targetRatio;
+    sx = (img.width - sw) / 2;
+  }else{
+    sh = sw / targetRatio;
+    sy = (img.height - sh) / 2;
+  }
 
-  const mcan = document.createElement("canvas");
-  mcan.width = mask.width;
-  mcan.height = mask.height;
-  mcan.getContext("2d").putImageData(mask,0,0);
+  octx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
 
-  octx.globalCompositeOperation="destination-in";
-  octx.drawImage(mcan,0,0,pw,ph);
-  octx.globalCompositeOperation="source-over";
-
-  octx.strokeStyle="#000";
-  octx.lineWidth=BORDER;
+  // border
+  octx.strokeStyle = "#000";
+  octx.lineWidth = BORDER;
   octx.strokeRect(0,0,pw,ph);
 
-  let i=0;
+  // --- grid output ---
+  let count = 0;
   for(let r=0;r<rows;r++){
     for(let c=0;c<cols;c++){
-      if(i>=copies) return;
-      ctx.drawImage(off,c*(pw+GAP),r*(ph+GAP));
-      i++;
+      if(count >= copies) return;
+      ctx.drawImage(off, c*(pw+GAP), r*(ph+GAP));
+      count++;
     }
   }
 };
