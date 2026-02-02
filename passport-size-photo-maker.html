@@ -3,364 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Passport Photo Maker</title>
+<title>AI Passport Photo Maker</title>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  min-height:100vh;
+  padding:10px;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  overflow:hidden;
+}
+.header{
+  background:linear-gradient(135deg,#1e3c72,#2a5298);
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+.header h1{font-size:22px}
+.header p{font-size:13px;opacity:.9}
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  min-height: 100vh;
-  padding: 10px;
+.content{padding:20px}
+
+.upload-section{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-bottom:15px;
+}
+.upload-btn,.camera-btn{
+  border:2px dashed #667eea;
+  border-radius:12px;
+  padding:28px 15px;
+  text-align:center;
+  cursor:pointer;
+  background:#f6f7ff;
+  transition:.25s;
+}
+.upload-btn:hover,.camera-btn:hover{
+  background:#eef0ff;
+  transform:scale(1.02);
+}
+.upload-btn .icon,.camera-btn .icon{font-size:38px}
+.upload-btn h3,.camera-btn h3{font-size:15px;margin:6px 0}
+.upload-btn p,.camera-btn p{font-size:12px;color:#555}
+
+input[type=file]{display:none}
+
+.settings{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-bottom:15px;
+}
+.setting{
+  background:#f8f9fa;
+  border:2px solid #e5e7eb;
+  border-radius:10px;
+  padding:10px;
+}
+.setting label{
+  display:block;
+  font-weight:600;
+  font-size:12px;
+  margin-bottom:5px;
+}
+.setting select,
+.setting input[type=color],
+.setting input[type=range]{
+  width:100%;
+}
+.value{text-align:center;font-size:12px;font-weight:600;color:#667eea}
+
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:25px;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  box-shadow:0 8px 25px rgba(102,126,234,.45);
+}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.result{display:none;text-align:center;margin-top:20px}
+.result canvas{
+  max-width:100%;
+  border-radius:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.2);
 }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.3);
-  overflow: hidden;
+.features{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+.features div{
+  font-size:12px;
+  font-weight:600;
+  color:#2c3e50;
+}
+.features div::before{
+  content:"✓ ";
+  color:#fff;
+  background:#667eea;
+  border-radius:50%;
+  padding:2px 6px;
+  margin-right:6px;
 }
 
-.header {
-  background: linear-gradient(135deg, #1e3c72, #2a5298);
-  color: #fff;
-  padding: 20px;
-  text-align: center;
+.camera-modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:999;
 }
-
-.header h1 {
-  font-size: 22px;
-  margin-bottom: 5px;
+.camera-box{
+  background:#fff;
+  max-width:420px;
+  margin:40px auto;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
 }
-
-.header p {
-  opacity: .9;
-  font-size: 13px;
+.camera-box video{width:100%;border-radius:10px}
+.camera-box button{
+  margin:10px 5px;
+  padding:10px 18px;
+  border:none;
+  border-radius:20px;
+  font-weight:700;
+  cursor:pointer;
 }
+.capture{background:#16a085;color:#fff}
+.close{background:#e74c3c;color:#fff}
 
-.content {
-  padding: 20px;
-}
-
-.upload-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.upload-btn, .camera-btn {
-  padding: 30px 15px;
-  border: 2px dashed #667eea;
-  border-radius: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: .3s;
-  background: #f8f9ff;
-}
-
-.upload-btn:hover, .camera-btn:hover {
-  border-color: #764ba2;
-  transform: scale(1.02);
-  background: #f0f2ff;
-}
-
-.upload-btn .icon, .camera-btn .icon {
-  font-size: 40px;
-  margin-bottom: 8px;
-}
-
-.upload-btn h3, .camera-btn h3 {
-  font-size: 15px;
-  color: #2c3e50;
-  margin-bottom: 5px;
-}
-
-.upload-btn p, .camera-btn p {
-  font-size: 12px;
-  color: #666;
-}
-
-#fileInput { display: none; }
-
-/* Camera Modal */
-.camera-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,.9);
-  z-index: 1000;
-  padding: 20px;
-}
-
-.camera-container {
-  max-width: 500px;
-  margin: 20px auto;
-  background: #fff;
-  border-radius: 15px;
-  padding: 20px;
-  text-align: center;
-}
-
-.camera-container h3 {
-  margin-bottom: 15px;
-  color: #2c3e50;
-}
-
-#video {
-  width: 100%;
-  max-width: 400px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
-
-.camera-controls {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.camera-controls button {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 25px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: .3s;
-}
-
-.capture-btn {
-  background: linear-gradient(135deg, #11998e, #38ef7d);
-  color: #fff;
-}
-
-.close-camera-btn {
-  background: #dc3545;
-  color: #fff;
-}
-
-.settings {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.setting-item {
-  background: #f8f9fa;
-  padding: 12px;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
-}
-
-.setting-item label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #2c3e50;
-  font-size: 12px;
-}
-
-.setting-item select,
-.setting-item input[type="range"] {
-  width: 100%;
-  padding: 8px;
-  border: 2px solid #dee2e6;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.setting-item input[type="color"] {
-  width: 100%;
-  height: 40px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.value-display {
-  text-align: center;
-  margin-top: 4px;
-  font-weight: 600;
-  color: #667eea;
-  font-size: 12px;
-}
-
-.btn {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 25px;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: .3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.btn-process {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, .4);
-}
-
-.btn-process:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(102, 126, 234, .6);
-}
-
-.btn-download {
-  background: linear-gradient(135deg, #11998e, #38ef7d);
-  color: #fff;
-  box-shadow: 0 8px 25px rgba(17, 153, 142, .4);
-}
-
-.btn:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 3px solid rgba(255,255,255,.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin .6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.progress-section {
-  display: none;
-  margin: 15px 0;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 10px;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background: #e9ecef;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
-  width: 0%;
-  transition: width .3s;
-}
-
-.progress-text {
-  text-align: center;
-  font-weight: 600;
-  color: #667eea;
-  font-size: 13px;
-}
-
-.preview {
-  display: none;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin: 15px 0;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 12px;
-}
-
-.preview-box h4 {
-  margin-bottom: 10px;
-  color: #2c3e50;
-  text-align: center;
-  font-size: 14px;
-}
-
-.preview-box img {
-  width: 100%;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
-  box-shadow: 0 4px 15px rgba(0,0,0,.1);
-}
-
-.result {
-  display: none;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.result h3 {
-  margin-bottom: 12px;
-  color: #2c3e50;
-  font-size: 18px;
-}
-
-.result canvas {
-  max-width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0,0,0,.15);
-  margin: 15px 0;
-}
-
-.features {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 15px;
-  padding: 15px;
-  background: #f8f9ff;
-  border-radius: 12px;
-}
-
-.feature {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #2c3e50;
-  font-weight: 500;
-}
-
-.feature::before {
-  content: '✓';
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  flex-shrink: 0;
-  font-size: 12px;
-}
-
-@media (max-width: 600px) {
-  .preview, .settings {
-    grid-template-columns: 1fr;
-  }
-  
-  .features {
-    grid-template-columns: 1fr;
-  }
+@media(max-width:600px){
+  .upload-section,.settings{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -368,90 +160,177 @@ body {
 <body>
 <div class="container">
   <div class="header">
-    <h1>🎯 AI Passport Photo Maker</h1>
-    <p>100% Frontend | No API | Camera + Upload</p>
+    <h1>🎯 Passport Photo Maker</h1>
+    <p>Upload / Camera • Auto Crop • Background Replace • Print Ready</p>
   </div>
 
   <div class="content">
+
     <div class="upload-section">
       <div class="upload-btn" id="uploadBtn">
         <div class="icon">📁</div>
         <h3>Upload Photo</h3>
-        <p>Gallery से चुनें</p>
+        <p>PNG / JPG</p>
       </div>
-      
       <div class="camera-btn" id="cameraBtn">
         <div class="icon">📸</div>
         <h3>Take Photo</h3>
-        <p>Camera से लें</p>
+        <p>Mobile Camera</p>
       </div>
     </div>
-    
+
     <input type="file" id="fileInput" accept="image/*">
 
     <div class="settings">
-      <div class="setting-item">
-        <label>📐 Size</label>
-        <select id="photoSize">
+      <div class="setting">
+        <label>📐 Photo Size</label>
+        <select id="size">
           <option value="300,400">Passport (35×45mm)</option>
-          <option value="354,472">Visa (45×60mm)</option>
-          <option value="413,531">ID Card</option>
-          <option value="236,236">2×2 inch</option>
+          <option value="354,472">Visa</option>
         </select>
       </div>
 
-      <div class="setting-item">
+      <div class="setting">
         <label>🎨 Background</label>
-        <input type="color" id="bgColor" value="#ff0000">
+        <input type="color" id="bg" value="#ff0000">
       </div>
 
-      <div class="setting-item">
+      <div class="setting">
         <label>📋 Copies</label>
         <select id="copies">
-          <option value="4">4</option>
-          <option value="6" selected>6</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
+          <option>4</option>
+          <option selected>6</option>
+          <option>8</option>
         </select>
       </div>
 
-      <div class="setting-item">
-        <label>📏 Gap</label>
-        <input type="range" id="gap" min="10" max="40" value="20" step="5">
-        <div class="value-display"><span id="gapValue">20</span>px</div>
-      </div>
-
-      <div class="setting-item">
-        <label>🎯 Face Position</label>
-        <input type="range" id="facePos" min="15" max="35" value="25" step="5">
-        <div class="value-display"><span id="facePosValue">25</span>%</div>
-      </div>
-
-      <div class="setting-item">
-        <label>🖼️ Border</label>
+      <div class="setting">
+        <label>🖼 Border</label>
         <input type="range" id="border" min="0" max="8" value="3">
-        <div class="value-display"><span id="borderValue">3</span>px</div>
+        <div class="value"><span id="bVal">3</span>px</div>
       </div>
     </div>
 
-    <button class="btn btn-process" id="processBtn" disabled>
-      <span>🚀 Create Passport Photos</span>
-    </button>
+    <button class="btn" id="generate" disabled>🚀 Generate Photos</button>
 
-    <div class="progress-section" id="progressSection">
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
+    <div class="result" id="result">
+      <canvas id="canvas"></canvas>
+      <div class="features">
+        <div>Auto center crop</div>
+        <div>Solid background</div>
+        <div>Black border</div>
+        <div>Equal gap (print ready)</div>
       </div>
-      <div class="progress-text" id="progressText">Loading...</div>
     </div>
+  </div>
+</div>
 
-    <div class="preview" id="preview">
-      <div class="preview-box">
-        <h4>📷 Original</h4>
-        <img id="originalImg" alt="Original">
-      </div>
-      <div class="preview-box">
-        <h4>✨ Processed</h4>
-        <img id="processedImg" alt="Processed">
-      </div>
-          </div>
+<!-- Camera -->
+<div class="camera-modal" id="cameraModal">
+  <div class="camera-box">
+    <video id="video" autoplay playsinline></video>
+    <div>
+      <button class="capture" id="capture">Capture</button>
+      <button class="close" id="closeCam">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const uploadBtn=document.getElementById("uploadBtn");
+const fileInput=document.getElementById("fileInput");
+const cameraBtn=document.getElementById("cameraBtn");
+const modal=document.getElementById("cameraModal");
+const video=document.getElementById("video");
+const capture=document.getElementById("capture");
+const closeCam=document.getElementById("closeCam");
+const generate=document.getElementById("generate");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+const result=document.getElementById("result");
+
+let img=new Image(),stream;
+
+uploadBtn.onclick=()=>fileInput.click();
+fileInput.onchange=e=>loadImage(e.target.files[0]);
+
+cameraBtn.onclick=async()=>{
+  modal.style.display="block";
+  stream=await navigator.mediaDevices.getUserMedia({video:true});
+  video.srcObject=stream;
+};
+closeCam.onclick=()=>{
+  modal.style.display="none";
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+};
+capture.onclick=()=>{
+  const c=document.createElement("canvas");
+  c.width=video.videoWidth;
+  c.height=video.videoHeight;
+  c.getContext("2d").drawImage(video,0,0);
+  img.src=c.toDataURL("image/png");
+  modal.style.display="none";
+  stream.getTracks().forEach(t=>t.stop());
+  generate.disabled=false;
+};
+
+function loadImage(file){
+  const r=new FileReader();
+  r.onload=()=>{img.src=r.result;generate.disabled=false;}
+  r.readAsDataURL(file);
+}
+
+generate.onclick=()=>{
+  const [pw,ph]=document.getElementById("size").value.split(",").map(Number);
+  const copies=parseInt(document.getElementById("copies").value);
+  const bg=document.getElementById("bg").value;
+  const border=parseInt(document.getElementById("border").value);
+  const gap=20;
+
+  const cols=Math.ceil(Math.sqrt(copies));
+  const rows=Math.ceil(copies/cols);
+
+  canvas.width=cols*(pw+2*border)+(cols+1)*gap;
+  canvas.height=rows*(ph+2*border)+(rows+1)*gap;
+
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  let i=0;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      if(i>=copies)break;
+      const x=gap+c*(pw+2*border+gap);
+      const y=gap+r*(ph+2*border+gap);
+
+      ctx.fillStyle=bg;
+      ctx.fillRect(x,y,pw+2*border,ph+2*border);
+
+      ctx.globalCompositeOperation="source-over";
+
+      // auto center crop
+      const ar=img.width/img.height;
+      let sx=0,sy=0,sw=img.width,sh=img.height;
+      if(ar>pw/ph){
+        sw=img.height*(pw/ph);
+        sx=(img.width-sw)/2;
+      }else{
+        sh=img.width*(ph/pw);
+        sy=(img.height-sh)/2;
+      }
+
+      ctx.drawImage(img,sx,sy,sw,sh,x+border,y+border,pw,ph);
+
+      ctx.strokeStyle="#000";
+      ctx.lineWidth=border;
+      ctx.strokeRect(x+border/2,y+border/2,pw+border,ph+border);
+
+      i++;
+    }
+  }
+
+  result.style.display="block";
+};
+</script>
+</body>
+  </html>
