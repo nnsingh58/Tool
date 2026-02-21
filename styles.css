@@ -308,6 +308,47 @@ button:active {
     }
 }
 
+/* Tools Grid */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tool-card {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border: 2px solid transparent;
+}
+
+.tool-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: #00d4ff;
+}
+
+.tool-card h3 {
+    color: #1e3c72;
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+}
+
+.tool-card p {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
 /* Utility Classes */
 .text-center {
     text-align: center;
