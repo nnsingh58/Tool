@@ -8,41 +8,41 @@
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
 
 <style>
+  /* CSS Section */
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f0f2f5; padding:10px; color:#333}
-  .container{max-width:850px; margin:auto; background:#fff; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden}
+  body{font-family:'Segoe UI',Roboto,sans-serif; background:linear-gradient(135deg,#667eea,#764ba2); min-height:100vh; padding:10px}
+  .container{max-width:850px; margin:auto; background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,0.3); overflow:hidden}
   
-  .header{background:linear-gradient(135deg,#1e3c72,#2a5298); color:#fff; padding:25px; text-align:center}
-  .header h1{font-size:24px; margin-bottom:5px}
+  .header{background:linear-gradient(135deg,#1e3c72,#2a5298); color:#fff; padding:20px; text-align:center}
+  .header h1{font-size:22px; margin-bottom:5px}
   
-  .instructions{background:#fff9db; padding:15px; margin:15px; border-radius:10px; border-left:5px solid #fcc419; font-size:13px}
-  .instructions b{display:block; margin-bottom:5px; color:#947600}
+  .instructions{background:#fff9db; padding:12px; margin:15px; border-radius:8px; border-left:5px solid #fcc419; font-size:13px; color:#856404}
 
   .content{padding:20px}
   .upload-section{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px}
-  .box-btn{border:2px dashed #4facfe; border-radius:12px; padding:20px; text-align:center; cursor:pointer; background:#f0f8ff; transition:0.3s}
-  .box-btn:hover{background:#e1f0ff; transform:translateY(-2px)}
+  .box-btn{border:2px dashed #667eea; border-radius:12px; padding:25px; text-align:center; cursor:pointer; background:#f6f7ff; transition:0.3s}
+  .box-btn:hover{background:#eef0ff; transform:translateY(-2px)}
   input[type=file]{display:none}
 
-  .settings{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px; margin-bottom:20px}
-  .setting-item{background:#f8f9fa; padding:12px; border-radius:8px; border:1px solid #dee2e6}
-  .setting-item label{display:block; font-size:12px; font-weight:bold; margin-bottom:5px; color:#555}
-  .setting-item select, .setting-item input{width:100%; padding:8px; border-radius:5px; border:1px solid #ccc}
+  .settings{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:20px}
+  .setting-item{background:#f8f9fa; padding:10px; border-radius:10px; border:1px solid #e5e7eb}
+  .setting-item label{display:block; font-size:11px; font-weight:bold; margin-bottom:5px; color:#444}
+  .setting-item select, .setting-item input{width:100%; padding:8px; border-radius:6px; border:1px solid #ccc}
 
-  .main-btn{width:100%; padding:15px; border:none; border-radius:30px; font-weight:bold; font-size:16px; cursor:pointer; background:linear-gradient(to right, #4facfe 0%, #00f2fe 100%); color:#fff; box-shadow:0 5px 15px rgba(79,172,254,0.4)}
-  .main-btn:disabled{background:#ccc; cursor:not-allowed; box-shadow:none}
+  .main-btn{width:100%; padding:15px; border:none; border-radius:30px; font-weight:bold; font-size:16px; cursor:pointer; background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; box-shadow:0 8px 20px rgba(102,126,234,0.4)}
+  .main-btn:disabled{opacity:0.6; cursor:not-allowed}
 
-  #loading{display:none; text-align:center; margin:15px 0; color:#1e3c72; font-weight:bold}
+  #loadingStatus{display:none; text-align:center; margin:15px 0; color:#764ba2; font-weight:bold}
 
   .result-area{display:none; text-align:center; margin-top:25px; padding-top:20px; border-top:2px solid #eee}
-  canvas{max-width:100%; border-radius:5px; margin-bottom:15px; box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+  canvas{max-width:100%; border-radius:8px; margin-bottom:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1)}
   
-  .action-btns{display:flex; gap:10px; justify-content:center; margin-top:10px}
-  .download-btn{background:#27ae60; color:#fff; padding:12px 25px; border-radius:25px; text-decoration:none; font-weight:bold}
-  .print-btn{background:#2980b9; color:#fff; padding:12px 25px; border-radius:25px; border:none; font-weight:bold; cursor:pointer}
+  .action-btns{display:flex; gap:10px; justify-content:center}
+  .download-btn{background:#27ae60; color:#fff; padding:12px 20px; border-radius:25px; text-decoration:none; font-weight:bold}
+  .print-btn{background:#2980b9; color:#fff; padding:12px 20px; border-radius:25px; border:none; font-weight:bold; cursor:pointer}
 
   /* Camera Modal */
-  .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center}
+  .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center}
   .modal-content{background:#fff; padding:20px; border-radius:15px; width:90%; max-width:400px; text-align:center}
   video{width:100%; border-radius:10px; background:#000; transform:scaleX(-1)}
   .cam-btns{margin-top:15px; display:flex; gap:10px; justify-content:center}
@@ -55,14 +55,12 @@
 <div class="container">
   <div class="header">
     <h1>🎯 AI Passport Photo Maker</h1>
-    <p>Professional Prints in Seconds</p>
+    <p>Auto Background Removal • No Data Save • 100% Private</p>
   </div>
 
   <div class="instructions">
-    <b>💡 कैसे उपयोग करें (Instructions):</b>
-    1. 'Upload' बटन से अपनी फोटो चुनें या 'Take Photo' से तुरंत फोटो खींचें।<br>
-    2. अपना पसंदीदा 'Size' और 'Background Color' चुनें।<br>
-    3. 'Generate' पर क्लिक करें। डाउनलोड या प्रिंट बटन का उपयोग करके अपनी फाइल सेव करें।
+    <b>💡 Instructions:</b>
+    1. Upload a clear photo. 2. AI will automatically <b>Zoom & Remove Background</b>. 3. Download or Print your sheet.
   </div>
 
   <div class="content">
@@ -74,12 +72,11 @@
 
     <div class="settings">
       <div class="setting-item">
-        <label>Photo Size</label>
+        <label>Size</label>
         <select id="size">
           <option value="350,450">Passport (3.5x4.5 cm)</option>
-          <option value="413,531">Visa (USA/India 2x2 inch)</option>
+          <option value="413,531">Visa (2x2 inch)</option>
           <option value="236,354">Stamp Size</option>
-          <option value="350,450,A4">Full A4 Page Sheet</option>
         </select>
       </div>
       <div class="setting-item">
@@ -92,23 +89,22 @@
           <option value="4">4 Photos</option>
           <option value="8" selected>8 Photos</option>
           <option value="12">12 Photos</option>
-          <option value="24">24 Photos</option>
         </select>
       </div>
       <div class="setting-item">
         <label>Border</label>
-        <input type="range" id="border" min="0" max="10" value="2">
+        <input type="range" id="border" min="0" max="8" value="2">
       </div>
     </div>
 
-    <div id="loading">⏳ AI Processing... please wait</div>
-    <button class="main-btn" id="generate" disabled>🚀 Generate Print Ready Sheet</button>
+    <div id="loadingStatus">⏳ AI is Fixing Edges & Removing Background...</div>
+    <button class="main-btn" id="generate" disabled>🚀 Generate Print Sheet</button>
 
     <div class="result-area" id="resultArea">
       <canvas id="outputCanvas"></canvas>
       <div class="action-btns">
-        <a href="#" class="download-btn" id="download">📥 Download Image</a>
-        <button class="print-btn" onclick="window.print()">🖨️ Print Sheet</button>
+        <a href="#" class="download-btn" id="downloadLink">📥 Download JPG</a>
+        <button class="print-btn" onclick="window.print()">🖨️ Print Now</button>
       </div>
     </div>
   </div>
@@ -125,14 +121,15 @@
 </div>
 
 <script>
+  /* JavaScript Section */
   const fileInput = document.getElementById('fileInput');
   const generateBtn = document.getElementById('generate');
   const canvas = document.getElementById('outputCanvas');
   const ctx = canvas.getContext('2d');
-  const loading = document.getElementById('loading');
+  const loadingStatus = document.getElementById('loadingStatus');
   let userImg = new Image();
 
-  // Initialize AI
+  // 1. Setup AI Model
   const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
   selfieSegmentation.setOptions({ modelSelection: 1 });
 
@@ -142,16 +139,18 @@
     reader.readAsDataURL(e.target.files[0]);
   };
 
-  // Camera Logic
+  // 2. Camera Functions
   const video = document.getElementById('video');
   document.getElementById('startCam').onclick = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({video: true});
-    video.srcObject = stream;
-    document.getElementById('camModal').style.display = 'flex';
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({video: true});
+      video.srcObject = stream;
+      document.getElementById('camModal').style.display = 'flex';
+    } catch(e) { alert("Camera not accessible"); }
   };
 
   document.getElementById('closeCam').onclick = () => {
-    video.srcObject.getTracks().forEach(t => t.stop());
+    if(video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
     document.getElementById('camModal').style.display = 'none';
   };
 
@@ -159,73 +158,109 @@
     const c = document.createElement('canvas');
     c.width = video.videoWidth; c.height = video.videoHeight;
     const cx = c.getContext('2d');
-    cx.translate(c.width, 0); cx.scale(-1, 1);
+    cx.translate(c.width, 0); cx.scale(-1, 1); // Flip mirror
     cx.drawImage(video, 0, 0);
     userImg.src = c.toDataURL('image/png');
     userImg.onload = () => generateBtn.disabled = false;
     document.getElementById('closeCam').click();
   };
 
+  // 3. Smart Background Removal
   async function removeBG(img) {
     return new Promise(res => {
       selfieSegmentation.onResults(results => {
         const c = document.createElement('canvas');
         c.width = img.width; c.height = img.height;
         const cx = c.getContext('2d');
+        
+        // Draw mask with smoothing
+        cx.save();
+        cx.filter = "blur(1px)"; // Soften the edges of the cut
         cx.drawImage(results.segmentationMask, 0, 0, c.width, c.height);
         cx.globalCompositeOperation = 'source-in';
+        cx.filter = "none";
         cx.drawImage(results.image, 0, 0);
+        cx.restore();
         res(c);
       });
       selfieSegmentation.send({image: img});
     });
   }
 
+  // 4. Final Sheet Generation with Smart Zoom
   generateBtn.onclick = async () => {
-    loading.style.display = 'block';
-    const person = await removeBG(userImg);
+    generateBtn.disabled = true;
+    loadingStatus.style.display = 'block';
+
+    const processedPerson = await removeBG(userImg);
     
-    let [pw, ph, type] = document.getElementById('size').value.split(',');
-    pw = parseInt(pw); ph = parseInt(ph);
-    const bg = document.getElementById('bgColor').value;
+    let [pw, ph] = document.getElementById('size').value.split(',').map(Number);
+    const bgColor = document.getElementById('bgColor').value;
     const border = parseInt(document.getElementById('border').value);
     const copies = parseInt(document.getElementById('copies').value);
 
-    // Canvas Sheet Logic
-    const cols = (copies > 8) ? 6 : 4;
-    const rows = Math.ceil(copies / cols);
-    canvas.width = cols * (pw + 10) + 20;
-    canvas.height = rows * (ph + 10) + 20;
+    // Temp Canvas for Single Photo with Zoom
+    const singlePhoto = document.createElement('canvas');
+    singlePhoto.width = pw;
+    singlePhoto.height = ph;
+    const sCtx = singlePhoto.getContext('2d');
 
-    ctx.fillStyle = "#fff";
+    // Background Color
+    sCtx.fillStyle = bgColor;
+    sCtx.fillRect(0, 0, pw, ph);
+
+    // SMART ZOOM LOGIC: Fixes edge issues at neck/shoulders
+    const zoomFactor = 1.15; // Zoom in by 15% to hide rough edges
+    const ar = processedPerson.width / processedPerson.height;
+    let sx, sy, sw, sh;
+
+    if(ar > pw/ph) { 
+      sh = processedPerson.height / zoomFactor; 
+      sw = sh * (pw/ph); 
+      sx = (processedPerson.width - sw) / 2; 
+      sy = (processedPerson.height - sh) / 4; 
+    } else { 
+      sw = processedPerson.width / zoomFactor; 
+      sh = sw * (ph/pw); 
+      sx = (processedPerson.width - sw) / 2; 
+      sy = (processedPerson.height - sh) / 5; // Focus more on head
+    }
+
+    // Apply Edge Feathering
+    sCtx.shadowBlur = 4;
+    sCtx.shadowColor = bgColor;
+    sCtx.drawImage(processedPerson, sx, sy, sw, sh, 0, 0, pw, ph);
+
+    // Build the Grid Sheet
+    const cols = (copies <= 4) ? 2 : 4;
+    const rows = Math.ceil(copies / cols);
+    const gap = 20;
+    canvas.width = cols * (pw + 2*border) + (cols+1)*gap;
+    canvas.height = rows * (ph + 2*border) + (rows+1)*gap;
+
+    ctx.fillStyle = "#ffffff"; // Paper Color
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     for(let i=0; i<copies; i++) {
-      const x = 15 + (i % cols) * (pw + 10);
-      const y = 15 + Math.floor(i / cols) * (ph + 10);
-      
-      ctx.fillStyle = bg;
-      ctx.fillRect(x, y, pw, ph);
+      const c = i % cols;
+      const r = Math.floor(i / cols);
+      const x = gap + c * (pw + 2*border + gap);
+      const y = gap + r * (ph + 2*border + gap);
 
-      // Smart Crop
-      const ar = person.width / person.height;
-      let sx, sy, sw, sh;
-      if(ar > pw/ph) { sh=person.height; sw=sh*(pw/ph); sx=(person.width-sw)/2; sy=0; }
-      else { sw=person.width; sh=sw*(ph/pw); sx=0; sy=(person.height-sh)/4; }
-
-      ctx.drawImage(person, sx, sy, sw, sh, x, y, pw, ph);
-      
+      // Draw Border
       if(border > 0) {
-        ctx.strokeStyle = "#000"; ctx.lineWidth = border;
-        ctx.strokeRect(x, y, pw, ph);
+        ctx.fillStyle = "#000";
+        ctx.fillRect(x, y, pw + 2*border, ph + 2*border);
       }
+      ctx.drawImage(singlePhoto, x + border, y + border);
     }
 
-    loading.style.display = 'none';
+    loadingStatus.style.display = 'none';
     document.getElementById('resultArea').style.display = 'block';
-    document.getElementById('download').href = canvas.toDataURL('image/jpeg', 0.9);
-    document.getElementById('download').download = "passport_photos.jpg";
+    document.getElementById('downloadLink').href = canvas.toDataURL('image/jpeg', 0.9);
+    document.getElementById('downloadLink').download = "ai_passport_photos.jpg";
+    generateBtn.disabled = false;
   };
 </script>
 </body>
-        </html>
+ </html>
