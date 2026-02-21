@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro AI Passport Photo Maker - n-dizi.in</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
+
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif; background:#eef2f7; padding:10px}
+  .container{max-width:800px; margin:auto; background:#fff; border-radius:20px; box-shadow:0 15px 35px rgba(0,0,0,0.1); overflow:hidden}
+  
+  .header{background:#1e3c72; color:#fff; padding:20px; text-align:center}
+  .instructions{background:#fff3cd; padding:12px; margin:15px; border-radius:8px; border-left:4px solid #ffca28; font-size:13px}
+
+  .content{padding:20px}
+  .upload-area{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px}
+  .btn-box{border:2px dashed #1e3c72; border-radius:12px; padding:20px; text-align:center; cursor:pointer; background:#f8fbff}
+  input[type=file]{display:none}
+
+  .grid-settings{display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:20px}
+  .card{background:#f1f3f6; padding:10px; border-radius:10px}
+  .card label{display:block; font-size:11px; font-weight:bold; margin-bottom:5px}
+  .card select, .card input{width:100%; padding:6px; border-radius:5px; border:1px solid #ccc}
+
+  .gen-btn{width:100%; padding:15px; border:none; border-radius:30px; font-weight:bold; background:#1e3c72; color:#fff; cursor:pointer; font-size:16px}
+  .gen-btn:disabled{background:#ccc}
+
+  #loader{display:none; text-align:center; margin:15px; color:#1e3c72; font-weight:bold}
+  .result-box{display:none; text-align:center; margin-top:20px}
+  canvas{max-width:100%; border-radius:5px; border:1px solid #ddd}
+  
+  .footer-btns{margin-top:15px; display:flex; gap:10px; justify-content:center}
+  .dl-btn{background:#28a745; color:#fff; padding:12px 20px; border-radius:25px; text-decoration:none; font-weight:bold}
+  .pr-btn{background:#007bff; color:#fff; padding:12px 20px; border-radius:25px; border:none; font-weight:bold; cursor:pointer}
+
+  /* Camera Modal */
+  .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:100; align-items:center; justify-content:center}
+  .modal-inner{background:#fff; padding:15px; border-radius:15px; width:90%; max-width:400px}
+  video{width:100%; border-radius:10px; transform:scaleX(-1)}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header"><h1>📸 AI Passport Master</h1></div>
+  
+  <div class="instructions">
+    <b>ज़ूम टिप:</b> हमने "Edge Shrinking" तकनीक जोड़ी है जो गर्दन के पास के पुराने निशानों को काट देगी।
+  </div>
+
+  <div class="content">
+    <div class="upload-area">
+      <div class="btn-box" onclick="document.getElementById('fileIn').click()">📤 Upload</div>
+      <div class="btn-box" id="openCam">📸 Camera</div>
+    </div>
+    <input type="file" id="fileIn" accept="image/*">
+
+    <div class="grid-settings">
+      <div class="card"><label>Size</label>
+        <select id="pSize"><option value="350,450">Passport (3.5x4.5)</option><option value="413,413">Visa (2x2 inch)</option></select>
+      </div>
+      <div class="card"><label>BG Color</label><input type="color" id="pColor" value="#3b92d1"></div>
+      <div class="card"><label>Copies</label><select id="pCopies"><option value="4">4</option><option value="8" selected>8</option></select></div>
+      <div class="card"><label>Border</label><input type="range" id="pBorder" min="0" max="6" value="1"></div>
+    </div>
+
+    <div id="loader">⚙️ Fine-tuning edges...</div>
+    <button class="gen-btn" id="go" disabled>Generate Clean Photos</button>
+
+    <div class="result-box" id="res">
+      <canvas id="out"></canvas>
+      <div class="footer-btns">
+        <a href="#" class="dl-btn" id="dl">Download JPG</a>
+        <button class="pr-btn" onclick="window.print()">Print</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="m">
+  <div class="modal-inner">
+    <video id="v" autoplay playsinline></video>
+    <div style="margin-top:10px">
+      <button class="dl-btn" id="snap">Snap</button>
+      <button class="pr-btn" style="background:#dc3545" id="close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const fileIn = document.getElementById('fileIn');
+const go = document.getElementById('go');
+const canvas = document.getElementById('out');
+const ctx = canvas.getContext('2d');
+const loader = document.getElementById('loader');
+let mainImg = new Image();
+
+const ai = new SelfieSegmentation({locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${f}`});
+ai.setOptions({ modelSelection: 1 });
+
+fileIn.onchange = (e) => {
+  const r = new FileReader();
+  r.onload = () => { mainImg.src = r.result; mainImg.onload = () => go.disabled = false; };
+  r.readAsDataURL(e.target.files[0]);
+};
+
+// Camera
+const v = document.getElementById('v');
+document.getElementById('openCam').onclick = async () => {
+  v.srcObject = await navigator.mediaDevices.getUserMedia({video: true});
+  document.getElementById('m').style.display = 'flex';
+};
+document.getElementById('close').onclick = () => {
+  v.srcObject.getTracks().forEach(t => t.stop());
+  document.getElementById('m').style.display = 'none';
+};
+document.getElementById('snap').onclick = () => {
+  const c = document.createElement('canvas');
+  c.width = v.videoWidth; c.height = v.videoHeight;
+  const x = c.getContext('2d');
+  x.translate(c.width, 0); x.scale(-1, 1);
+  x.drawImage(v, 0, 0);
+  mainImg.src = c.toDataURL('image/png');
+  mainImg.onload = () => go.disabled = false;
+  document.getElementById('close').click();
+};
+
+async function getCleanPerson(img) {
+  return new Promise(res => {
+    ai.onResults(results => {
+      const c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      const x = c.getContext('2d');
+      
+      // Edge Smoothing Logic
+      x.save();
+      x.filter = "blur(2px)"; // सिकोड़ने से पहले किनारों को थोड़ा धुंधला करें
+      x.drawImage(results.segmentationMask, 0, 0);
+      x.globalCompositeOperation = 'source-in';
+      x.filter = "none";
+      x.drawImage(results.image, 0, 0);
+      x.restore();
+      res(c);
+    });
+    ai.send({image: img});
+  });
+}
+
+go.onclick = async () => {
+  loader.style.display = 'block';
+  const person = await getCleanPerson(mainImg);
+  
+  let [pw, ph] = document.getElementById('pSize').value.split(',').map(Number);
+  const bg = document.getElementById('pColor').value;
+  const border = parseInt(document.getElementById('pBorder').value);
+  const copies = parseInt(document.getElementById('pCopies').value);
+
+  const single = document.createElement('canvas');
+  single.width = pw; single.height = ph;
+  const sCtx = single.getContext('2d');
+
+  sCtx.fillStyle = bg;
+  sCtx.fillRect(0, 0, pw, ph);
+
+  // Deep Zoom & Offset (गले के दाग हटाने के लिए)
+  const zoom = 1.25; // 25% ज़ूम
+  const ar = person.width / person.height;
+  let sx, sy, sw, sh;
+  
+  if(ar > pw/ph) {
+    sh = person.height / zoom; sw = sh * (pw/ph);
+    sx = (person.width - sw)/2; sy = person.height * 0.05;
+  } else {
+    sw = person.width / zoom; sh = sw * (ph/pw);
+    sx = (person.width - sw)/2; sy = person.height * 0.05;
+  }
+
+  sCtx.drawImage(person, sx, sy, sw, sh, 0, 0, pw, ph);
+
+  // Sheet Build
+  const cols = (copies > 4) ? 4 : 2;
+  const rows = Math.ceil(copies / cols);
+  canvas.width = cols * (pw + 10) + 20;
+  canvas.height = rows * (ph + 10) + 20;
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for(let i=0; i<copies; i++) {
+    const x = 15 + (i%cols)*(pw+10);
+    const y = 15 + Math.floor(i/cols)*(ph+10);
+    if(border > 0) { ctx.fillStyle="#000"; ctx.fillRect(x-border, y-border, pw+border*2, ph+border*2); }
+    ctx.drawImage(single, x, y);
+  }
+
+  loader.style.display = 'none';
+  document.getElementById('res').style.display = 'block';
+  document.getElementById('dl').href = canvas.toDataURL('image/jpeg', 0.95);
+  document.getElementById('dl').download = "clean_passport.jpg";
+};
+</script>
+</body>
+  </html>
