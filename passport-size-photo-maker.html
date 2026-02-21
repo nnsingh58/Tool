@@ -3,71 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Passport Photo Maker (n-dizi.in)</title>
+<title>AI Passport Photo Maker - n-dizi.in</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
 
 <style>
-/* आपका मौजूदा CSS यहाँ रहेगा */
-*{margin:0;padding:0;box-sizing:border-box}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-  min-height:100vh;
-  padding:10px;
-}
-.container{
-  max-width:900px;
-  margin:auto;
-  background:#fff;
-  border-radius:16px;
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
-  overflow:hidden;
-}
-.header{
-  background:linear-gradient(135deg,#1e3c72,#2a5298);
-  color:#fff;
-  padding:20px;
-  text-align:center;
-}
-.header h1{font-size:22px}
-.header p{font-size:13px;opacity:.9}
-.content{padding:20px}
-.upload-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
-.upload-btn,.camera-btn{border:2px dashed #667eea;border-radius:12px;padding:28px 15px;text-align:center;cursor:pointer;background:#f6f7ff;transition:.25s}
-.upload-btn:hover,.camera-btn:hover{background:#eef0ff;transform:scale(1.02)}
-.upload-btn .icon,.camera-btn .icon{font-size:38px}
-.upload-btn h3,.camera-btn h3{font-size:15px;margin:6px 0}
-input[type=file]{display:none}
-.settings{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:15px}
-.setting{background:#f8f9fa;border:2px solid #e5e7eb;border-radius:10px;padding:10px}
-.setting label{display:block;font-weight:600;font-size:12px;margin-bottom:5px}
-.setting select,.setting input[type=color],.setting input[type=range]{width:100%}
-.btn{width:100%;padding:14px;border:none;border-radius:25px;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 8px 25px rgba(102,126,234,.45)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-#loadingStatus{display:none;color:#764ba2;font-weight:bold;margin-top:10px;text-align:center}
-.result{display:none;text-align:center;margin-top:20px}
-.result canvas{max-width:100%;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
-.camera-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:999}
-.camera-box{background:#fff;max-width:420px;margin:40px auto;padding:15px;border-radius:12px;text-align:center}
-.camera-box video{width:100%;border-radius:10px}
-.capture{background:#16a085;color:#fff;padding:10px 18px;border-radius:20px;border:none;cursor:pointer}
-.close{background:#e74c3c;color:#fff;padding:10px 18px;border-radius:20px;border:none;cursor:pointer}
-@media(max-width:600px){.upload-section,.settings{grid-template-columns:1fr}}
+  /* Base CSS */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:10px}
+  .container{max-width:900px;margin:auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+  .header{background:linear-gradient(135deg,#1e3c72,#2a5298);color:#fff;padding:20px;text-align:center}
+  .content{padding:20px}
+  
+  /* Upload & Camera Buttons */
+  .upload-section{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+  .upload-btn, .camera-btn{border:2px dashed #667eea;border-radius:12px;padding:25px 15px;text-align:center;cursor:pointer;background:#f6f7ff;transition:.25s}
+  .upload-btn:hover, .camera-btn:hover{background:#eef0ff;transform:scale(1.02)}
+  .icon{font-size:30px;margin-bottom:5px}
+  
+  input[type=file]{display:none}
+
+  /* Settings Area */
+  .settings{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:15px}
+  .setting{background:#f8f9fa;border:2px solid #e5e7eb;border-radius:10px;padding:10px}
+  .setting label{display:block;font-weight:600;font-size:12px;margin-bottom:5px}
+  .setting select, .setting input{width:100%}
+
+  .btn{width:100%;padding:14px;border:none;border-radius:25px;font-weight:700;font-size:15px;cursor:pointer;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 8px 25px rgba(102,126,234,.45)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  #loadingStatus{display:none;text-align:center;color:#764ba2;font-weight:bold;margin:15px 0}
+  
+  .result{display:none;text-align:center;margin-top:20px}
+  canvas{max-width:100%;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+
+  /* Camera Modal */
+  .camera-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:999;display:flex;align-items:center;justify-content:center}
+  .camera-box{background:#fff;width:90%;max-width:400px;padding:15px;border-radius:12px;text-align:center}
+  video{width:100%;border-radius:10px;background:#000;transform: scaleX(-1);} /* Mirror view */
+  .cam-controls{margin-top:15px;display:flex;gap:10px;justify-content:center}
+  .capture{background:#16a085;color:#fff;padding:10px 20px;border-radius:20px;border:none;cursor:pointer;font-weight:bold}
+  .close{background:#e74c3c;color:#fff;padding:10px 20px;border-radius:20px;border:none;cursor:pointer;font-weight:bold}
+
+  @media(max-width:600px){ .upload-section, .settings{grid-template-columns:1fr} }
 </style>
 </head>
-
 <body>
+
 <div class="container">
   <div class="header">
     <h1>🎯 AI Passport Photo Maker</h1>
-    <p>Auto Background Removal • Print Ready Sheet</p>
+    <p>Professional Quality • Zero Backend • 100% Private</p>
   </div>
 
   <div class="content">
     <div class="upload-section">
-      <div class="upload-btn" id="uploadBtn">
+      <div class="upload-btn" onclick="document.getElementById('fileInput').click()">
         <div class="icon">📁</div>
         <h3>Upload Photo</h3>
       </div>
@@ -81,143 +72,197 @@ input[type=file]{display:none}
 
     <div class="settings">
       <div class="setting">
-        <label>📐 Size</label>
+        <label>📐 Photo Size</label>
         <select id="size">
-          <option value="300,400">Passport (35×45mm)</option>
+          <option value="350,450">Passport (3.5x4.5 cm)</option>
+          <option value="400,400">Stamp Size (2x2 inch)</option>
         </select>
       </div>
       <div class="setting">
-        <label>🎨 BG Color</label>
-        <input type="color" id="bg" value="#3b92d1">
+        <label>🎨 Background Color</label>
+        <input type="color" id="bgColor" value="#3b92d1">
       </div>
       <div class="setting">
         <label>📋 Copies</label>
         <select id="copies">
-          <option>4</option>
-          <option selected>8</option>
+          <option value="4">4 Photos</option>
+          <option value="8" selected>8 Photos</option>
+          <option value="12">12 Photos</option>
         </select>
       </div>
       <div class="setting">
-        <label>🖼 Border</label>
-        <input type="range" id="border" min="0" max="8" value="2">
+        <label>🖼 Border Thickness</label>
+        <input type="range" id="border" min="0" max="10" value="2">
       </div>
     </div>
 
-    <div id="loadingStatus">⏳ Removing Background... Please wait</div>
+    <div id="loadingStatus">⏳ AI is working... Processing edges</div>
     <button class="btn" id="generate" disabled>🚀 Generate Print Sheet</button>
 
-    <div class="result" id="result">
-      <canvas id="canvas"></canvas>
-      <p style="margin-top:10px; font-size:12px;">Right click to Save / Long press to Download</p>
+    <div class="result" id="resultArea">
+      <canvas id="mainCanvas"></canvas>
+      <p style="margin-top:10px; font-size:12px; color:#666;">Tip: Long press on image to Download</p>
     </div>
   </div>
 </div>
 
-<div class="camera-modal" id="cameraModal">
+<div class="camera-modal" id="cameraModal" style="display:none;">
   <div class="camera-box">
     <video id="video" autoplay playsinline></video>
-    <div><button class="capture" id="capture">Capture</button><button class="close" id="closeCam">Close</button></div>
+    <div class="cam-controls">
+      <button class="capture" id="captureBtn">📸 Capture</button>
+      <button class="close" id="closeCamBtn">Close</button>
+    </div>
   </div>
 </div>
 
 <script>
-const fileInput=document.getElementById("fileInput");
-const generate=document.getElementById("generate");
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-const loadingStatus=document.getElementById("loadingStatus");
+  const fileInput = document.getElementById('fileInput');
+  const generateBtn = document.getElementById('generate');
+  const loadingStatus = document.getElementById('loadingStatus');
+  const mainCanvas = document.getElementById('mainCanvas');
+  const ctx = mainCanvas.getContext('2d');
+  
+  let userImage = new Image();
+  let stream = null;
 
-let img=new Image(), net;
+  // 1. Initialize Selfie Segmentation
+  const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => {
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
+  }});
+  selfieSegmentation.setOptions({ modelSelection: 1 });
 
-// Load AI Model on Start
-async function loadModel() {
-    net = await bodyPix.load();
-    console.log("Model Loaded");
-}
-loadModel();
+  // 2. Image Loading
+  fileInput.onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      userImage.onload = () => { generateBtn.disabled = false; };
+      userImage.src = reader.result;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  };
 
-document.getElementById("uploadBtn").onclick=()=>fileInput.click();
-fileInput.onchange=e=>{
-    const r=new FileReader();
-    r.onload=()=>{img.src=r.result; generate.disabled=false;}
-    r.readAsDataURL(e.target.files[0]);
-};
+  // 3. Camera Controls (FIXED)
+  const cameraBtn = document.getElementById('cameraBtn');
+  const cameraModal = document.getElementById('cameraModal');
+  const video = document.getElementById('video');
 
-// कैमरा लॉजिक (Same as before)
-// ... (capture code remains same)
-
-generate.onclick = async () => {
-    generate.disabled = true;
-    loadingStatus.style.display = "block";
-
-    // 1. AI Background Removal (BodyPix)
-    const segmentation = await net.segmentPerson(img);
-    
-    // Create an offscreen canvas for the single cut-out photo
-    const [pw, ph] = document.getElementById("size").value.split(",").map(Number);
-    const tempCanvas = document.createElement("canvas");
-    const tCtx = tempCanvas.getContext("2d");
-    tempCanvas.width = pw;
-    tempCanvas.height = ph;
-
-    // Background color
-    tCtx.fillStyle = document.getElementById("bg").value;
-    tCtx.fillRect(0, 0, pw, ph);
-
-    // Draw Person Only
-    const tempImgCanvas = document.createElement("canvas");
-    tempImgCanvas.width = img.width;
-    tempImgCanvas.height = img.height;
-    const tempImgCtx = tempImgCanvas.getContext("2d");
-    tempImgCtx.drawImage(img, 0, 0);
-    
-    const imgData = tempImgCtx.getImageData(0, 0, img.width, img.height);
-    for (let i = 0; i < imgData.data.length; i += 4) {
-        if (!segmentation.data[i / 4]) {
-            imgData.data[i + 3] = 0; // Make background transparent
-        }
+  cameraBtn.onclick = async () => {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+      video.srcObject = stream;
+      cameraModal.style.display = 'flex';
+    } catch (err) {
+      alert("Camera access denied or not available.");
     }
-    tempImgCtx.putImageData(imgData, 0, 0);
+  };
 
-    // Auto Center Crop & Draw
-    const ar = img.width / img.height;
-    let sx = 0, sy = 0, sw = img.width, sh = img.height;
-    if (ar > pw / ph) { sw = img.height * (pw / ph); sx = (img.width - sw) / 2; }
-    else { sh = img.width * (ph / pw); sy = (img.height - sh) / 2; }
+  document.getElementById('closeCamBtn').onclick = () => {
+    cameraModal.style.display = 'none';
+    if(stream) stream.getTracks().forEach(track => track.stop());
+  };
+
+  document.getElementById('captureBtn').onclick = () => {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    const tCtx = tempCanvas.getContext('2d');
     
-    tCtx.drawImage(tempImgCanvas, sx, sy, sw, sh, 0, 0, pw, ph);
+    // Reverse mirror effect for capture
+    tCtx.translate(tempCanvas.width, 0);
+    tCtx.scale(-1, 1);
+    tCtx.drawImage(video, 0, 0);
+    
+    userImage.onload = () => { generateBtn.disabled = false; };
+    userImage.src = tempCanvas.toDataURL('image/png');
+    
+    cameraModal.style.display = 'none';
+    if(stream) stream.getTracks().forEach(track => track.stop());
+  };
 
-    // 2. Create Sheet with Multiple Copies
-    const copies = parseInt(document.getElementById("copies").value);
-    const border = parseInt(document.getElementById("border").value);
+  // 4. Background Removal Logic
+  async function removeBackground(inputImg) {
+    return new Promise((resolve) => {
+      selfieSegmentation.onResults((results) => {
+        const maskCanvas = document.createElement('canvas');
+        maskCanvas.width = inputImg.width;
+        maskCanvas.height = inputImg.height;
+        const mCtx = maskCanvas.getContext('2d');
+
+        mCtx.save();
+        mCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+        mCtx.drawImage(results.segmentationMask, 0, 0, maskCanvas.width, maskCanvas.height);
+        mCtx.globalCompositeOperation = 'source-in';
+        mCtx.drawImage(results.image, 0, 0);
+        mCtx.restore();
+        resolve(maskCanvas);
+      });
+      selfieSegmentation.send({image: inputImg});
+    });
+  }
+
+  // 5. Generate Final Sheet
+  generateBtn.onclick = async () => {
+    generateBtn.disabled = true;
+    loadingStatus.style.display = 'block';
+
+    const processedPerson = await removeBackground(userImage);
+
+    const [pw, ph] = document.getElementById('size').value.split(',').map(Number);
+    const bgColor = document.getElementById('bgColor').value;
+    const copies = parseInt(document.getElementById('copies').value);
+    const border = parseInt(document.getElementById('border').value);
     const gap = 20;
-    const cols = Math.ceil(Math.sqrt(copies));
+
+    const cols = (copies <= 4) ? 2 : (copies <= 8) ? 4 : 4;
     const rows = Math.ceil(copies / cols);
 
-    canvas.width = cols * (pw + 2 * border) + (cols + 1) * gap;
-    canvas.height = rows * (ph + 2 * border) + (rows + 1) * gap;
+    mainCanvas.width = cols * (pw + 2 * border) + (cols + 1) * gap;
+    mainCanvas.height = rows * (ph + 2 * border) + (rows + 1) * gap;
 
-    ctx.fillStyle = "#fff"; // Paper background
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
 
     for (let i = 0; i < copies; i++) {
-        const r = Math.floor(i / cols);
-        const c = i % cols;
-        const x = gap + c * (pw + 2 * border + gap);
-        const y = gap + r * (ph + 2 * border + gap);
+      const r = Math.floor(i / cols);
+      const c = i % cols;
+      const x = gap + c * (pw + 2 * border + gap);
+      const y = gap + r * (ph + 2 * border + gap);
 
-        // Draw Border
-        ctx.fillStyle = "#000";
-        ctx.fillRect(x, y, pw + 2 * border, ph + 2 * border);
-        
-        // Draw the processed photo
-        ctx.drawImage(tempCanvas, x + border, y + border);
+      // Background
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(x + border, y + border, pw, ph);
+
+      // Person Crop
+      const ar = processedPerson.width / processedPerson.height;
+      let sx, sy, sw, sh;
+      if (ar > pw / ph) {
+        sw = processedPerson.height * (pw / ph);
+        sh = processedPerson.height;
+        sx = (processedPerson.width - sw) / 2;
+        sy = 0;
+      } else {
+        sw = processedPerson.width;
+        sh = processedPerson.width * (ph / pw);
+        sx = 0;
+        sy = (processedPerson.height - sh) / 4; // Focus more on head
+      }
+
+      ctx.drawImage(processedPerson, sx, sy, sw, sh, x + border, y + border, pw, ph);
+
+      // Border
+      if(border > 0) {
+        ctx.strokeStyle = "#000000";
+        ctx.lineWidth = border;
+        ctx.strokeRect(x + border/2, y + border/2, pw + border, ph + border);
+      }
     }
 
-    loadingStatus.style.display = "none";
-    document.getElementById("result").style.display = "block";
-    generate.disabled = false;
-};
+    loadingStatus.style.display = 'none';
+    document.getElementById('resultArea').style.display = 'block';
+    generateBtn.disabled = false;
+  };
 </script>
+
 </body>
 </html>
