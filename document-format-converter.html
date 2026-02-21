@@ -201,6 +201,36 @@
             <div id="error" class="error"></div>
             <div id="result"></div>
         </div>
+        
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                 data-ad-slot="1234567890"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        
+        <div class="faq-section">
+            <h3>Frequently Asked Questions</h3>
+            <p><strong>Q: What document formats can I convert?</strong></p>
+            <p>A: Our Document Format Converter supports PDF, DOCX, TXT, HTML, and JSON formats. You can convert between any of these formats.</p>
+            
+            <p><strong>Q: Is there a file size limit for conversion?</strong></p>
+            <p>A: For optimal performance, we recommend files under 10MB. Larger files may take longer to process.</p>
+            
+            <p><strong>Q: Can I convert multiple files at once?</strong></p>
+            <p>A: Currently, our converter processes one file at a time. You can convert multiple files sequentially.</p>
+            
+            <p><strong>Q: Will my document formatting be preserved?</strong></p>
+            <p>A: We strive to maintain formatting as much as possible, but some complex formatting may not transfer perfectly between formats.</p>
+            
+            <p><strong>Q: Is the conversion process secure?</strong></p>
+            <p>A: Yes, your files are processed securely and are not stored on our servers after conversion is complete.</p>
+        </div>
     </div>
 
     <footer class="footer">
@@ -472,6 +502,12 @@
             error.textContent = message;
             progress.style.display = 'none';
         }
+    </script>
+    <div id="footer"></div>
+    <script>
+        fetch("./footer.html")
+            .then(res => res.text())
+            .then(data => document.getElementById("footer").innerHTML = data);
     </script>
 </body>
 </html>

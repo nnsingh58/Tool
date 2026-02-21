@@ -14,6 +14,10 @@
         button:hover { background: #00b7d9; }
         #status, #result { margin-top: 10px; font-size: clamp(12px, 3vw, 16px); }
         #status { color: #2a5298; }
+        .faq-section { max-width: 800px; margin: 2rem auto; background: #fff; padding: 1.5rem; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); text-align: left; }
+        .faq-section h3 { color: #1e3c72; margin-bottom: 1rem; text-align: center; }
+        .faq-section p { margin-bottom: 1rem; line-height: 1.6; }
+        .faq-section strong { color: #1e3c72; }
         @media (min-width: 768px) { 
             .container { padding: 20px; }
             input, select, button { width: auto; display: inline-block; }
@@ -32,6 +36,24 @@
         <button onclick="convertAudio()">Convert Audio</button>
         <div id="status"></div>
         <div id="result"></div>
+    </div>
+
+    <div class="faq-section">
+        <h3>Frequently Asked Questions</h3>
+        <p><strong>Q: What audio formats are supported for conversion?</strong></p>
+        <p>A: Our Audio Converter supports MP3, WAV, and OGG formats. You can convert between these formats freely.</p>
+        
+        <p><strong>Q: What is the maximum file size I can upload?</strong></p>
+        <p>A: The maximum file size is 50MB. This ensures fast processing and good performance.</p>
+        
+        <p><strong>Q: Is the audio conversion done locally in my browser?</strong></p>
+        <p>A: Yes! The conversion happens entirely in your browser. Your files are not uploaded to any server, ensuring complete privacy and security.</p>
+        
+        <p><strong>Q: Which output formats can I choose from?</strong></p>
+        <p>A: You can convert to MP3, WAV, or OGG formats. Select your desired format from the dropdown menu before converting.</p>
+        
+        <p><strong>Q: Is this tool really free to use?</strong></p>
+        <p>A: Absolutely! Our Audio Converter is 100% free with no hidden charges, registration required, or usage limits.</p>
     </div>
 
     <div style="margin: 20px auto; text-align: center;">
@@ -79,5 +101,11 @@
         }
     </script>
     <script src="chatbot.js"></script>
+    <div id="footer"></div>
+    <script>
+        fetch("./footer.html")
+            .then(res => res.text())
+            .then(data => document.getElementById("footer").innerHTML = data);
+    </script>
 </body>
 </html>
