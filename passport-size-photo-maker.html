@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ultra HD AI Passport - n-dizi.in</title>
+<title>Super HD AI Passport - n-dizi.in</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
 
@@ -15,21 +15,23 @@
   .content{padding:20px}
   .upload-area{display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px}
   .btn-box{border:2px dashed #1e3c72; border-radius:15px; padding:25px; text-align:center; cursor:pointer; background:#f8fbff; transition:0.3s}
-  .btn-box:hover{background:#eef5ff; transform:translateY(-3px)}
+  .btn-box:hover{background:#eef5ff}
   input[type=file]{display:none}
-  .settings{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px; margin-bottom:20px}
-  .card{background:#fff; padding:12px; border:1px solid #eee; border-radius:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05)}
-  .card label{display:block; font-size:12px; font-weight:bold; margin-bottom:8px; color:#333}
-  .card select, .card input{width:100%; padding:10px; border-radius:8px; border:1px solid #ddd; outline:none}
-  .main-btn{width:100%; padding:18px; border:none; border-radius:35px; font-weight:bold; background:#1e3c72; color:#fff; cursor:pointer; font-size:18px; box-shadow:0 10px 20px rgba(30,60,114,0.3)}
-  #loader{display:none; text-align:center; margin:20px; color:#1e3c72; font-weight:bold; font-size:15px}
-  .result-section{display:none; text-align:center; margin-top:30px}
-  canvas{max-width:100%; border-radius:10px; border:1px solid #ccc; background:#fff}
+  .settings{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-bottom:20px}
+  .card{background:#fff; padding:12px; border:1px solid #ddd; border-radius:12px}
+  .card label{display:block; font-size:11px; font-weight:bold; margin-bottom:5px; color:#1e3c72}
+  .card select, .card input{width:100%; padding:8px; border-radius:5px; border:1px solid #ccc}
+  .main-btn{width:100%; padding:18px; border:none; border-radius:40px; font-weight:bold; background:#1e3c72; color:#fff; cursor:pointer; font-size:18px; box-shadow:0 10px 20px rgba(30,60,114,0.3)}
+  .main-btn:disabled{background:#ccc; cursor:not-allowed}
+  #loader{display:none; text-align:center; margin:20px; color:#1e3c72; font-weight:bold}
+  .result{display:none; text-align:center; margin-top:30px}
+  canvas{max-width:100%; border-radius:12px; border:1px solid #ddd; box-shadow:0 5px 25px rgba(0,0,0,0.1)}
   .footer-btns{margin-top:20px; display:flex; gap:15px; justify-content:center}
-  .dl-btn{background:#28a745; color:#fff; padding:14px 30px; border-radius:30px; text-decoration:none; font-weight:bold; font-size:16px}
-  /* Camera Modal */
+  .dl-btn{background:#28a745; color:#fff; padding:15px 35px; border-radius:30px; text-decoration:none; font-weight:bold}
+  
+  /* Modal Styles */
   .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:1000; align-items:center; justify-content:center}
-  .modal-inner{background:#fff; padding:20px; border-radius:20px; width:90%; max-width:450px; text-align:center}
+  .modal-inner{background:#fff; padding:20px; border-radius:20px; width:95%; max-width:500px; text-align:center}
   video{width:100%; border-radius:15px; transform:scaleX(-1); background:#000}
 </style>
 </head>
@@ -37,47 +39,50 @@
 
 <div class="container">
   <div class="header">
-    <h1>🚀 Ultra HD AI Passport Master</h1>
-    <p>Premium Studio Quality • 300 DPI • Anti-Pixelate</p>
+    <h1>🚀 4K AI Passport Master</h1>
+    <p>Premium Studio Quality • Smart Face Centering • HD Print</p>
   </div>
   
   <div class="content">
     <div class="upload-area">
-      <div class="btn-box" onclick="document.getElementById('fileIn').click()"><h3>📤 High-Res Upload</h3><p>Select original photo</p></div>
-      <div class="btn-box" id="openCam"><h3>📸 HD Camera</h3><p>Take fresh photo</p></div>
+      <div class="btn-box" onclick="document.getElementById('fileIn').click()"><h3>📤 Upload Image</h3><p>Use gallery photo</p></div>
+      <div class="btn-box" id="openCam"><h3>📸 Live Camera</h3><p>Take HD photo</p></div>
     </div>
     <input type="file" id="fileIn" accept="image/*">
 
     <div class="settings">
-      <div class="card"><label>Resolution</label><select disabled><option>Ultra HD (300 DPI)</option></select></div>
-      <div class="card"><label>HD Sharpness</label>
-        <select id="sharp"><option value="1.0">Soft</option><option value="1.1" selected>Crisp HD</option><option value="1.2">Ultra Sharp</option></select>
-      </div>
+      <div class="card"><label>DPI Mode</label><select disabled><option>Ultra HD (600 DPI)</option></select></div>
+      <div class="card"><label>Face Zoom</label><select id="zoomLevel"><option value="1.4">Standard</option><option value="1.2" selected>Medium (Safe)</option><option value="1.0">Full View</option></select></div>
       <div class="card"><label>BG Color</label><input type="color" id="pColor" value="#3b92d1"></div>
       <div class="card"><label>Copies</label><select id="pCopies"><option value="4">4</option><option value="8" selected>8</option><option value="12">12</option></select></div>
     </div>
 
-    <div id="loader">💎 Rendering Ultra HD Pixels... Please wait</div>
-    <button class="main-btn" id="go" disabled>🚀 Generate 4K Print Sheet</button>
+    <div id="loader">💎 Processing Ultra HD Pixels... Please wait.</div>
+    <button class="main-btn" id="go" disabled>🚀 Generate Perfect HD Sheet</button>
 
-    <div class="result-section" id="res">
+    <div class="result" id="res">
       <canvas id="out"></canvas>
       <div class="footer-btns">
         <a href="#" class="dl-btn" id="dl">📥 Download HD JPG</a>
-        <button class="dl-btn" style="background:#007bff" onclick="window.print()">🖨️ Print Quality Test</button>
+        <button class="dl-btn" style="background:#007bff" onclick="window.print()">🖨️ Print Quality</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal" id="m"><div class="modal-inner"><video id="v" autoplay playsinline></video><br><br>
-<button class="dl-btn" id="snap">Capture HD</button><button class="dl-btn" style="background:#dc3545" id="close">Close</button></div></div>
+<div class="modal" id="m">
+  <div class="modal-inner">
+    <video id="v" autoplay playsinline></video>
+    <div style="margin-top:15px">
+      <button class="dl-btn" id="snap">📸 Capture Face</button>
+      <button class="dl-btn" style="background:#dc3545" id="close">Close</button>
+    </div>
+  </div>
+</div>
 
 <script>
-const fileIn = document.getElementById('fileIn');
-const go = document.getElementById('go');
-const canvas = document.getElementById('out');
-const ctx = canvas.getContext('2d', {alpha: false}); // Optimization for speed
+const fileIn = document.getElementById('fileIn'), go = document.getElementById('go');
+const canvas = document.getElementById('out'), ctx = canvas.getContext('2d', {alpha: false});
 const loader = document.getElementById('loader');
 let mainImg = new Image();
 
@@ -90,39 +95,48 @@ fileIn.onchange = (e) => {
   r.readAsDataURL(e.target.files[0]);
 };
 
-// Camera Logic
+// Camera Fix: Use video actual dimensions
 document.getElementById('openCam').onclick = async () => {
-  document.getElementById('v').srcObject = await navigator.mediaDevices.getUserMedia({video: {width: 1920, height: 1080}});
-  document.getElementById('m').style.display = 'flex';
-};
-document.getElementById('close').onclick = () => {
-  document.getElementById('v').srcObject.getTracks().forEach(t => t.stop());
-  document.getElementById('m').style.display = 'none';
-};
-document.getElementById('snap').onclick = () => {
-  const c = document.createElement('canvas');
-  c.width = 1920; c.height = 1080;
-  c.getContext('2d').drawImage(document.getElementById('v'), 0, 0);
-  mainImg.src = c.toDataURL('image/png');
-  document.getElementById('close').click();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video: {width: {ideal: 1920}, height: {ideal: 1080}}});
+    document.getElementById('v').srcObject = stream;
+    document.getElementById('m').style.display = 'flex';
+  } catch (err) { alert("Camera not accessible"); }
 };
 
-async function getUltraPerson(img) {
+document.getElementById('close').onclick = () => {
+  const stream = document.getElementById('v').srcObject;
+  if(stream) stream.getTracks().forEach(t => t.stop());
+  document.getElementById('m').style.display = 'none';
+};
+
+document.getElementById('snap').onclick = () => {
+  const v = document.getElementById('v');
+  const c = document.createElement('canvas');
+  // Capture at full sensor resolution
+  c.width = v.videoWidth; 
+  c.height = v.videoHeight;
+  const cx = c.getContext('2d');
+  cx.translate(c.width, 0); // Mirror fix
+  cx.scale(-1, 1);
+  cx.drawImage(v, 0, 0);
+  mainImg.src = c.toDataURL('image/jpeg', 1.0);
+  document.getElementById('close').click();
+  go.disabled = false;
+};
+
+async function getHDPerson(img) {
   return new Promise(res => {
     ai.onResults(results => {
       const c = document.createElement('canvas');
-      // HD Resolution Setup
       c.width = img.width; c.height = img.height;
       const x = c.getContext('2d');
-      
-      // Smart Masking for HD
-      x.save();
-      x.filter = "blur(1px) contrast(1.1)"; // Sharp edges
+      // Anti-aliasing
+      x.filter = "blur(1px) contrast(1.1)";
       x.drawImage(results.segmentationMask, 0, 0);
       x.globalCompositeOperation = 'source-in';
       x.filter = "none";
       x.drawImage(results.image, 0, 0);
-      x.restore();
       res(c);
     });
     ai.send({image: img});
@@ -130,60 +144,70 @@ async function getUltraPerson(img) {
 }
 
 go.onclick = async () => {
-  go.disabled = true;
   loader.style.display = 'block';
-  const person = await getUltraPerson(mainImg);
+  go.disabled = true;
+  const person = await getHDPerson(mainImg);
   
-  const pw = 413, ph = 531; // 300 DPI Standard
+  // High Res: 600 DPI Equivalent
+  const pw = 826, ph = 1062; 
   const bg = document.getElementById('pColor').value;
-  const sharp = document.getElementById('sharp').value;
+  const zoom = parseFloat(document.getElementById('zoomLevel').value);
   const copies = parseInt(document.getElementById('pCopies').value);
 
   const single = document.createElement('canvas');
   single.width = pw; single.height = ph;
   const sCtx = single.getContext('2d');
-  
-  // Enable High Quality Scaling
   sCtx.imageSmoothingEnabled = true;
   sCtx.imageSmoothingQuality = 'high';
 
+  // Fill Background
   sCtx.fillStyle = bg;
   sCtx.fillRect(0, 0, pw, ph);
 
-  // HD Zoom & Auto-Centering (Head cut fix)
-  const zoom = 1.28; 
-  const ar = person.width / person.height;
+  // सुधार: Intelligent Auto-Centering Logic
+  const personAR = person.width / person.height;
+  const targetAR = pw / ph;
   let sx, sy, sw, sh;
-  if(ar > pw/ph) { sh = person.height/zoom; sw = sh*(pw/ph); sx = (person.width-sw)/2; sy = person.height*0.1; }
-  else { sw = person.width/zoom; sh = sw*(ph/pw); sx = (person.width-sw)/2; sy = person.height*0.12; }
 
-  // Applying HD Sharpness & Contrast
-  sCtx.filter = `contrast(${sharp}) brightness(1.05) saturate(1.1)`;
+  if (personAR > targetAR) {
+    // Landscape Image (Camera/Desktop)
+    sh = person.height / zoom;
+    sw = sh * targetAR;
+    sx = (person.width - sw) / 2;
+    sy = (person.height - sh) / 3; // चेहरे को ऊपर रखने के लिए
+  } else {
+    // Portrait Image (Mobile)
+    sw = person.width / zoom;
+    sh = sw / targetAR;
+    sx = (person.width - sw) / 2;
+    sy = (person.height - sh) / 4;
+  }
+
+  // Draw Face with Studio Filters
+  sCtx.filter = "brightness(1.05) contrast(1.05) saturate(1.05)";
   sCtx.drawImage(person, sx, sy, sw, sh, 0, 0, pw, ph);
 
-  // Grid Construction
+  // Construction of High-Res Sheet
   const cols = 4;
   const rows = Math.ceil(copies / cols);
-  canvas.width = cols * (pw + 20) + 60;
-  canvas.height = rows * (ph + 20) + 60;
+  canvas.width = cols * (pw + 40) + 80;
+  canvas.height = rows * (ph + 40) + 80;
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   for(let i=0; i<copies; i++) {
-    const x = 50 + (i%cols)*(pw+20);
-    const y = 50 + Math.floor(i/cols)*(ph+20);
-    // Anti-Aliased Border
-    ctx.strokeStyle = "#444";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x-1, y-1, pw+2, ph+2);
+    const x = 60 + (i % cols) * (pw + 40);
+    const y = 60 + Math.floor(i / cols) * (ph + 40);
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - 2, y - 2, pw + 4, ph + 4);
     ctx.drawImage(single, x, y);
   }
 
   loader.style.display = 'none';
   document.getElementById('res').style.display = 'block';
-  // Final HD Export (100% Quality)
   document.getElementById('dl').href = canvas.toDataURL('image/jpeg', 1.0);
-  document.getElementById('dl').download = "ultra_hd_passport.jpg";
+  document.getElementById('dl').download = "ai_4k_passport_sheet.jpg";
   go.disabled = false;
 };
 </script>
