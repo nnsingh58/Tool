@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+CTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
@@ -265,4 +265,234 @@
 </script>
 
 </body>
-</html>
+</hthtml<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Passport Photo Maker - n-dizi.in</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
+
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f0f2f5; padding:10px; color:#333}
+  .container{max-width:850px; margin:auto; background:#fff; border-radius:15px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden}
+  
+  .header{background:linear-gradient(135deg,#1e3c72,#2a5298); color:#fff; padding:25px; text-align:center}
+  .header h1{font-size:24px; margin-bottom:5px}
+  
+  .instructions{background:#fff9db; padding:15px; margin:15px; border-radius:10px; border-left:5px solid #fcc419; font-size:13px}
+  .instructions b{display:block; margin-bottom:5px; color:#947600}
+
+  .content{padding:20px}
+  .upload-section{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px}
+  .box-btn{border:2px dashed #4facfe; border-radius:12px; padding:20px; text-align:center; cursor:pointer; background:#f0f8ff; transition:0.3s}
+  .box-btn:hover{background:#e1f0ff; transform:translateY(-2px)}
+  input[type=file]{display:none}
+
+  .settings{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px; margin-bottom:20px}
+  .setting-item{background:#f8f9fa; padding:12px; border-radius:8px; border:1px solid #dee2e6}
+  .setting-item label{display:block; font-size:12px; font-weight:bold; margin-bottom:5px; color:#555}
+  .setting-item select, .setting-item input{width:100%; padding:8px; border-radius:5px; border:1px solid #ccc}
+
+  .main-btn{width:100%; padding:15px; border:none; border-radius:30px; font-weight:bold; font-size:16px; cursor:pointer; background:linear-gradient(to right, #4facfe 0%, #00f2fe 100%); color:#fff; box-shadow:0 5px 15px rgba(79,172,254,0.4)}
+  .main-btn:disabled{background:#ccc; cursor:not-allowed; box-shadow:none}
+
+  #loading{display:none; text-align:center; margin:15px 0; color:#1e3c72; font-weight:bold}
+
+  .result-area{display:none; text-align:center; margin-top:25px; padding-top:20px; border-top:2px solid #eee}
+  canvas{max-width:100%; border-radius:5px; margin-bottom:15px; box-shadow:0 5px 15px rgba(0,0,0,0.2)}
+  
+  .action-btns{display:flex; gap:10px; justify-content:center; margin-top:10px}
+  .download-btn{background:#27ae60; color:#fff; padding:12px 25px; border-radius:25px; text-decoration:none; font-weight:bold}
+  .print-btn{background:#2980b9; color:#fff; padding:12px 25px; border-radius:25px; border:none; font-weight:bold; cursor:pointer}
+
+  /* Camera Modal */
+  .modal{display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center}
+  .modal-content{background:#fff; padding:20px; border-radius:15px; width:90%; max-width:400px; text-align:center}
+  video{width:100%; border-radius:10px; background:#000; transform:scaleX(-1)}
+  .cam-btns{margin-top:15px; display:flex; gap:10px; justify-content:center}
+
+  @media(max-width:500px){ .upload-section{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>🎯 AI Passport Photo Maker</h1>
+    <p>Professional Prints in Seconds</p>
+  </div>
+
+  <div class="instructions">
+    <b>💡 कैसे उपयोग करें (Instructions):</b>
+    1. 'Upload' बटन से अपनी फोटो चुनें या 'Take Photo' से तुरंत फोटो खींचें।<br>
+    2. अपना पसंदीदा 'Size' और 'Background Color' चुनें।<br>
+    3. 'Generate' पर क्लिक करें। डाउनलोड या प्रिंट बटन का उपयोग करके अपनी फाइल सेव करें।
+  </div>
+
+  <div class="content">
+    <div class="upload-section">
+      <div class="box-btn" onclick="document.getElementById('fileInput').click()">📁 Upload Photo</div>
+      <div class="box-btn" id="startCam">📸 Take Photo</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*">
+
+    <div class="settings">
+      <div class="setting-item">
+        <label>Photo Size</label>
+        <select id="size">
+          <option value="350,450">Passport (3.5x4.5 cm)</option>
+          <option value="413,531">Visa (USA/India 2x2 inch)</option>
+          <option value="236,354">Stamp Size</option>
+          <option value="350,450,A4">Full A4 Page Sheet</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>BG Color</label>
+        <input type="color" id="bgColor" value="#3b92d1">
+      </div>
+      <div class="setting-item">
+        <label>Copies</label>
+        <select id="copies">
+          <option value="4">4 Photos</option>
+          <option value="8" selected>8 Photos</option>
+          <option value="12">12 Photos</option>
+          <option value="24">24 Photos</option>
+        </select>
+      </div>
+      <div class="setting-item">
+        <label>Border</label>
+        <input type="range" id="border" min="0" max="10" value="2">
+      </div>
+    </div>
+
+    <div id="loading">⏳ AI Processing... please wait</div>
+    <button class="main-btn" id="generate" disabled>🚀 Generate Print Ready Sheet</button>
+
+    <div class="result-area" id="resultArea">
+      <canvas id="outputCanvas"></canvas>
+      <div class="action-btns">
+        <a href="#" class="download-btn" id="download">📥 Download Image</a>
+        <button class="print-btn" onclick="window.print()">🖨️ Print Sheet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="camModal">
+  <div class="modal-content">
+    <video id="video" autoplay playsinline></video>
+    <div class="cam-btns">
+      <button class="download-btn" id="capture">Capture</button>
+      <button class="print-btn" style="background:#e74c3c" id="closeCam">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const generateBtn = document.getElementById('generate');
+  const canvas = document.getElementById('outputCanvas');
+  const ctx = canvas.getContext('2d');
+  const loading = document.getElementById('loading');
+  let userImg = new Image();
+
+  // Initialize AI
+  const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`});
+  selfieSegmentation.setOptions({ modelSelection: 1 });
+
+  fileInput.onchange = (e) => {
+    const reader = new FileReader();
+    reader.onload = () => { userImg.src = reader.result; userImg.onload = () => generateBtn.disabled = false; };
+    reader.readAsDataURL(e.target.files[0]);
+  };
+
+  // Camera Logic
+  const video = document.getElementById('video');
+  document.getElementById('startCam').onclick = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({video: true});
+    video.srcObject = stream;
+    document.getElementById('camModal').style.display = 'flex';
+  };
+
+  document.getElementById('closeCam').onclick = () => {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    document.getElementById('camModal').style.display = 'none';
+  };
+
+  document.getElementById('capture').onclick = () => {
+    const c = document.createElement('canvas');
+    c.width = video.videoWidth; c.height = video.videoHeight;
+    const cx = c.getContext('2d');
+    cx.translate(c.width, 0); cx.scale(-1, 1);
+    cx.drawImage(video, 0, 0);
+    userImg.src = c.toDataURL('image/png');
+    userImg.onload = () => generateBtn.disabled = false;
+    document.getElementById('closeCam').click();
+  };
+
+  async function removeBG(img) {
+    return new Promise(res => {
+      selfieSegmentation.onResults(results => {
+        const c = document.createElement('canvas');
+        c.width = img.width; c.height = img.height;
+        const cx = c.getContext('2d');
+        cx.drawImage(results.segmentationMask, 0, 0, c.width, c.height);
+        cx.globalCompositeOperation = 'source-in';
+        cx.drawImage(results.image, 0, 0);
+        res(c);
+      });
+      selfieSegmentation.send({image: img});
+    });
+  }
+
+  generateBtn.onclick = async () => {
+    loading.style.display = 'block';
+    const person = await removeBG(userImg);
+    
+    let [pw, ph, type] = document.getElementById('size').value.split(',');
+    pw = parseInt(pw); ph = parseInt(ph);
+    const bg = document.getElementById('bgColor').value;
+    const border = parseInt(document.getElementById('border').value);
+    const copies = parseInt(document.getElementById('copies').value);
+
+    // Canvas Sheet Logic
+    const cols = (copies > 8) ? 6 : 4;
+    const rows = Math.ceil(copies / cols);
+    canvas.width = cols * (pw + 10) + 20;
+    canvas.height = rows * (ph + 10) + 20;
+
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for(let i=0; i<copies; i++) {
+      const x = 15 + (i % cols) * (pw + 10);
+      const y = 15 + Math.floor(i / cols) * (ph + 10);
+      
+      ctx.fillStyle = bg;
+      ctx.fillRect(x, y, pw, ph);
+
+      // Smart Crop
+      const ar = person.width / person.height;
+      let sx, sy, sw, sh;
+      if(ar > pw/ph) { sh=person.height; sw=sh*(pw/ph); sx=(person.width-sw)/2; sy=0; }
+      else { sw=person.width; sh=sw*(ph/pw); sx=0; sy=(person.height-sh)/4; }
+
+      ctx.drawImage(person, sx, sy, sw, sh, x, y, pw, ph);
+      
+      if(border > 0) {
+        ctx.strokeStyle = "#000"; ctx.lineWidth = border;
+        ctx.strokeRect(x, y, pw, ph);
+      }
+    }
+
+    loading.style.display = 'none';
+    document.getElementById('resultArea').style.display = 'block';
+    document.getElementById('download').href = canvas.toDataURL('image/jpeg', 0.9);
+    document.getElementById('download').download = "passport_photos.jpg";
+  };
+</script>
+</body>
+      </html>
