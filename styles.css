@@ -371,6 +371,18 @@ button:active {
     z-index: 1;
 }
 
+.tool-icon {
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+}
+
+.tool-card:hover .tool-icon {
+    transform: scale(1.2) rotate(10deg);
+}
+
 .tool-card p {
     color: rgba(255,255,255,0.9);
     font-size: 0.95rem;
