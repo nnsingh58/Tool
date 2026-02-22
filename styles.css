@@ -43,6 +43,13 @@ body {
     text-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
+.site-logo {
+    height: 40px;
+    width: auto;
+    max-height: 40px;
+    object-fit: contain;
+}
+
 .nav-links a {
     color: #fff;
     text-decoration: none;
